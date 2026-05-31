@@ -8416,7 +8416,13 @@ function showInsightsContent(text) {
     if (loading) loading.style.display = 'none';
     if (content) {
         content.style.display = 'block';
-        content.textContent = text;
+        // Render line breaks and style sections
+        const html = text
+            .replace(/═+/g, '<hr style="border:1px solid rgba(99,102,241,0.3);margin:8px 0;">')
+            .replace(/
+/g, '<br>');
+        content.innerHTML = html;
+        content.style.cssText = 'display:block;font-size:0.85rem;line-height:1.8;color:var(--text);white-space:normal;';
     }
     if (card) { card.style.alignItems = 'flex-start'; card.style.justifyContent = 'flex-start'; }
 }
