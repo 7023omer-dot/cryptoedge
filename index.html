@@ -5008,18 +5008,167 @@ function importJSON(event) {
     event.target.value = '';
 }
 
-// ==================== STATS REPORT (copy in block 1) ====================
-function showStatsReport() {
-    try {
-        const modal = document.getElementById('stats-report-modal');
-        if (!modal) { showToast('❌ שגיאה: מודל לא נמצא'); return; }
-        modal.style.cssText = 'display:flex !important;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.88);align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 0;';
-        buildStatsReport();
-    } catch(e) { showToast('❌ ' + e.message); }
-}
+// ==================== STATS REPORT ====================
 function closeStatsReportModal() {
     const m = document.getElementById('stats-report-modal');
     if (m) m.style.cssText = 'display:none';
+}
+
+function showStatsReport() {
+    try {
+        const modal = document.getElementById('stats-report-modal');
+        if (!modal) { showToast('❌ מודל לא נמצא'); return; }
+        modal.style.cssText = 'display:flex !important;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.88);align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 0;';
+
+        const now = new Date();
+        const monthNames = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+        const label = document.getElementById('sr-month-label');
+        if (label) label.textContent = 'דוח סטטיסטי מפורט — ' + monthNames[now.getMonth()] + ' ' + now.getFullYear();
+
+        const closed = trades.filter(t => ['win','loss','breakeven'].includes(t.status));
+        const wins   = closed.filter(t => t.status === 'win');
+        const losses = closed.filter(t => t.status === 'loss');
+        const totalPnl = closed.reduce((s,t) => s+(t.pnl||0), 0);
+        const totalWin = wins.reduce((s,t) => s+(t.pnl||0), 0);
+        const totalLoss = Math.abs(losses.reduce((s,t) => s+(t.pnl||0), 0));
+        const avgWin  = wins.length   > 0 ? totalWin/wins.length   : 0;
+        const avgLoss = losses.length > 0 ? totalLoss/losses.length : 0;
+        const winRate = closed.length > 0 ? Math.round(wins.length/closed.length*100) : 0;
+        const profitFactor = totalLoss > 0 ? totalWin/totalLoss : (totalWin > 0 ? 99 : 0);
+        const sorted = [...closed].sort((a,b)=>(a.date||'')<(b.date||'')?-1:1);
+
+        // Max Drawdown
+        let peak=0, maxDD=0, cum=0;
+        sorted.forEach(t => { cum+=(t.pnl||0); if(cum>peak)peak=cum; const dd=peak-cum; if(dd>maxDD)maxDD=dd; });
+
+        // Sharpe
+        const daily={}; sorted.forEach(t=>{const d=t.date||'x';daily[d]=(daily[d]||0)+(t.pnl||0);});
+        const dv=Object.values(daily); let sharpe=0;
+        if(dv.length>1){const avg=dv.reduce((s,v)=>s+v,0)/dv.length;const std=Math.sqrt(dv.reduce((s,v)=>s+Math.pow(v-avg,2),0)/dv.length);sharpe=std>0?(avg/std)*Math.sqrt(252):0;}
+
+        // Streak
+        let streak=0; const rev=[...sorted].reverse();
+        if(rev.length>0){const dir=rev[0].status==='win'?1:-1; for(const t of rev){if(dir===1&&t.status==='win')streak++;else if(dir===-1&&t.status==='loss')streak--;else break;}}
+
+        // R:R
+        const rrs=closed.filter(t=>t.rr>0).map(t=>parseFloat(t.rr));
+        const avgRR=rrs.length>0?(rrs.reduce((s,v)=>s+v,0)/rrs.length).toFixed(2):'N/A';
+
+        // Long/Short
+        const longs=closed.filter(t=>t.direction==='long'), shorts=closed.filter(t=>t.direction==='short');
+        const lWins=longs.filter(t=>t.status==='win').length, sWins=shorts.filter(t=>t.status==='win').length;
+        const best=closed.length?closed.reduce((b,t)=>(t.pnl||0)>(b.pnl||0)?t:b):null;
+        const worst=closed.length?closed.reduce((b,t)=>(t.pnl||0)<(b.pnl||0)?t:b):null;
+
+        // Stats Grid
+        const grid=document.getElementById('sr-stats-grid');
+        if(grid){
+            const pc=totalPnl>=0?'var(--green)':'var(--red)';
+            const pfc=profitFactor>=1?'var(--green)':'var(--red)';
+            const stxt=streak>0?`🔥 ${streak} ניצחונות`:streak<0?`💔 ${Math.abs(streak)} הפסדים`:'—';
+            const sc=streak>0?'var(--green)':streak<0?'var(--red)':'var(--text)';
+            grid.innerHTML=`
+            <div class="sr-stat-card"><div class="sr-stat-val">${trades.length} / ${closed.length}</div><div class="sr-stat-lbl">סה"כ עסקאות / סגורות</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val">${winRate}% / <span style="color:${pfc}">${profitFactor>=99?'∞':profitFactor.toFixed(2)}</span></div><div class="sr-stat-lbl">אחוז הצלחה / Profit Factor</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val" style="color:${pc}">${totalPnl>=0?'+':''}$${totalPnl.toFixed(0)}</div><div class="sr-stat-lbl">סה"כ רווח/הפסד</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val"><span style="color:var(--green)">+$${avgWin.toFixed(0)}</span> / <span style="color:var(--red)">-$${avgLoss.toFixed(0)}</span></div><div class="sr-stat-lbl">ממוצע רווח / הפסד</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val" style="color:var(--red)">-$${maxDD.toFixed(0)}</div><div class="sr-stat-lbl">Max Drawdown</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val">${sharpe.toFixed(2)}</div><div class="sr-stat-lbl">Sharpe Ratio</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val" style="color:${sc}">${stxt}</div><div class="sr-stat-lbl">רצף נוכחי</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val">${avgRR}</div><div class="sr-stat-lbl">ממוצע R:R</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val">לונג ${longs.length} (${longs.length?Math.round(lWins/longs.length*100):0}%) / שורט ${shorts.length} (${shorts.length?Math.round(sWins/shorts.length*100):0}%)</div><div class="sr-stat-lbl">לונג / שורט</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val" style="font-size:0.85rem"><span style="color:var(--green)">${best?best.pair+' +$'+Math.abs(best.pnl||0).toFixed(0):'—'}</span> / <span style="color:var(--red)">${worst?worst.pair+' -$'+Math.abs(worst.pnl||0).toFixed(0):'—'}</span></div><div class="sr-stat-lbl">הטוב / הגרוע</div></div>`;
+        }
+
+        // Pair table
+        const pairEl=document.getElementById('sr-pair-table-wrap');
+        if(pairEl){
+            const pairs={};
+            closed.forEach(t=>{const p=t.pair||'?';if(!pairs[p])pairs[p]={n:0,w:0,pnl:0};pairs[p].n++;if(t.status==='win')pairs[p].w++;pairs[p].pnl+=(t.pnl||0);});
+            const rows=Object.entries(pairs).sort((a,b)=>b[1].pnl-a[1].pnl).map(([p,d])=>{
+                const wr=Math.round(d.w/d.n*100);const pc2=d.pnl>=0?'var(--green)':'var(--red)';
+                return `<tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 10px;font-weight:700">${p}</td><td style="padding:7px 10px;text-align:center">${d.n}</td><td style="padding:7px 10px;text-align:center;color:${wr>=50?'var(--green)':'var(--red)'}">${wr}%</td><td style="padding:7px 10px;text-align:center;font-weight:700;color:${pc2}">${d.pnl>=0?'+':''}$${d.pnl.toFixed(0)}</td></tr>`;
+            }).join('');
+            pairEl.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:0.8rem"><thead><tr style="background:var(--bg-elevated);color:var(--text-muted)"><th style="padding:7px 10px;text-align:right">זוג</th><th style="padding:7px 10px;text-align:center">עסקאות</th><th style="padding:7px 10px;text-align:center">הצלחה</th><th style="padding:7px 10px;text-align:center">P&L</th></tr></thead><tbody>${rows}</tbody></table>`;
+        }
+
+        // Conclusion
+        const concEl=document.getElementById('sr-conclusion');
+        if(concEl){
+            const lines=[];
+            if(closed.length===0){concEl.textContent='אין עסקאות סגורות עדיין.';return;}
+            lines.push(totalPnl>=0?`✅ חודש רווחי — סה"כ +$${totalPnl.toFixed(0)}.`:`🔴 חודש הפסדי — סה"כ -$${Math.abs(totalPnl).toFixed(0)}.`);
+            lines.push(winRate>=65?`🎯 אחוז הצלחה מצוין: ${winRate}% — המשך באסטרטגיה זו.`:winRate>=50?`📊 אחוז הצלחה סביר: ${winRate}% — יש מקום לשיפור.`:`⚠️ אחוז הצלחה נמוך: ${winRate}% — בדוק קריטריוני כניסה.`);
+            lines.push(profitFactor>=2?`🚀 Profit Factor מצוין: ${profitFactor.toFixed(2)} — כל הכבוד!`:profitFactor>=1?`📈 Profit Factor חיובי: ${profitFactor.toFixed(2)}.`:`🔴 Profit Factor מתחת ל-1: ${profitFactor.toFixed(2)} — הפסדים עולים על רווחים.`);
+            if(maxDD>0) lines.push(`📉 Max Drawdown: -$${maxDD.toFixed(0)} — שמור על ניהול סיכונים.`);
+            if(streak>2) lines.push(`🔥 אתה ברצף של ${streak} ניצחונות — שמור על הריכוז!`);
+            else if(streak<-2) lines.push(`💔 רצף של ${Math.abs(streak)} הפסדים — שקול הפסקה קצרה.`);
+            const pairsSorted=Object.entries({}).length>0?[]:(()=>{const p={};closed.forEach(t=>{const k=t.pair||'?';if(!p[k])p[k]={n:0,pnl:0};p[k].n++;p[k].pnl+=(t.pnl||0);});return Object.entries(p).sort((a,b)=>b[1].pnl-a[1].pnl);})();
+            if(pairsSorted.length>0) lines.push(`⭐ הזוג הטוב ביותר: ${pairsSorted[0][0]} (+$${pairsSorted[0][1].pnl.toFixed(0)})`);
+            const stars=profitFactor>=2&&winRate>=60?5:profitFactor>=1.5&&winRate>=55?4:profitFactor>=1&&winRate>=50?3:profitFactor>=1?2:1;
+            lines.push(`\n${'⭐'.repeat(stars)}${'☆'.repeat(5-stars)} דירוג חודשי: ${stars}/5`);
+            concEl.textContent=lines.join('\n');
+        }
+
+        // Chart
+        setTimeout(()=>{
+            const canvas=document.getElementById('sr-pnl-canvas');
+            if(!canvas||sorted.length===0)return;
+            const dpr=window.devicePixelRatio||1;
+            const W=canvas.offsetWidth||300, H=180;
+            canvas.width=W*dpr; canvas.height=H*dpr; canvas.style.height=H+'px';
+            const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+            const pad={top:20,bottom:36,left:44,right:10};
+            const pnls=sorted.map(t=>t.pnl||0);
+            const maxAbs=Math.max(...pnls.map(Math.abs),1);
+            const barW=Math.max(2,(W-pad.left-pad.right)/sorted.length-2);
+            const chartH=H-pad.top-pad.bottom;
+            const zeroY=pad.top+chartH/2;
+            // Zero line
+            ctx.setLineDash([3,3]); ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1;
+            ctx.beginPath(); ctx.moveTo(pad.left,zeroY); ctx.lineTo(W-pad.right,zeroY); ctx.stroke(); ctx.setLineDash([]);
+            // Bars
+            pnls.forEach((p,i)=>{
+                const x=pad.left+i*(barW+2);
+                const h=Math.abs(p)/maxAbs*(chartH/2);
+                ctx.fillStyle=p>=0?'rgba(16,185,129,0.8)':'rgba(239,68,68,0.8)';
+                ctx.fillRect(x,p>=0?zeroY-h:zeroY,barW,h);
+            });
+            // Cumulative line
+            let c=0; const pts=pnls.map(p=>{c+=p;return c;});
+            const cmin=Math.min(...pts,0),cmax=Math.max(...pts,0),cr=cmax-cmin||1;
+            ctx.strokeStyle='#a855f7'; ctx.lineWidth=2; ctx.beginPath();
+            pts.forEach((v,i)=>{
+                const x=pad.left+i*(barW+2)+barW/2;
+                const y=pad.top+chartH*(1-(v-cmin)/cr);
+                i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+            }); ctx.stroke();
+            // Labels
+            ctx.fillStyle='rgba(120,120,160,0.8)'; ctx.font='10px Arial'; ctx.textAlign='center';
+            ctx.fillText(`+$${Math.max(...pnls).toFixed(0)}`,pad.left-2,pad.top+4);
+            ctx.fillText(`-$${Math.abs(Math.min(...pnls)).toFixed(0)}`,pad.left-2,H-pad.bottom+14);
+        },100);
+
+    } catch(e) { showToast('❌ שגיאה: '+e.message); console.error(e); }
+}
+
+function emailStatsReport() {
+    const month  = document.getElementById('sr-month-label')?.textContent || '';
+    const grid   = document.getElementById('sr-stats-grid');
+    const pairEl = document.getElementById('sr-pair-table-wrap');
+    const concEl = document.getElementById('sr-conclusion');
+    let txt = `📈 ${month}\n${'═'.repeat(40)}\n\n`;
+    if(grid) grid.querySelectorAll('.sr-stat-card').forEach(c=>{
+        const v=c.querySelector('.sr-stat-val')?.textContent?.trim()||'';
+        const l=c.querySelector('.sr-stat-lbl')?.textContent?.trim()||'';
+        txt+=`• ${l}: ${v}\n`;
+    });
+    if(pairEl){txt+=`\n📊 ביצועים לפי זוג:\n`;pairEl.querySelectorAll('tr').forEach((r,i)=>{if(i===0)return;const cells=[...r.querySelectorAll('td')].map(td=>td.textContent.trim());txt+=`  ${cells.join(' | ')}\n`;});}
+    if(concEl) txt+=`\n🤖 סיכום:\n${concEl.textContent.trim()}\n`;
+    txt+=`\n─────────────────────\nנוצר ע"י CryptoEdge | ${new Date().toLocaleDateString('he-IL')}`;
+    const sub=encodeURIComponent(`📈 דוח סטטיסטי CryptoEdge — ${month}`);
+    const body=encodeURIComponent(txt);
+    window.open(`https://mail.google.com/mail/?view=cm&to=7023omer@gmail.com&su=${sub}&body=${body}`,'_blank');
 }
 
     </script>
