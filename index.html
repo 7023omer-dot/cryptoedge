@@ -4125,21 +4125,9 @@ function emailReport() {
     const to   = '7023omer@gmail.com';
     const subj = encodeURIComponent(`📊 דוח מסחר חודשי CryptoEdge - ${window._rptMonth||''}`);
     const body = encodeURIComponent(window._rptText||'');
-    const mailtoUrl = `mailto:${to}?subject=${subj}&body=${body}`;
-    // Try opening mailto link
-    const a = document.createElement('a');
-    a.href = mailtoUrl;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    // Also copy text to clipboard as fallback
-    if (navigator.clipboard && window._rptText) {
-        navigator.clipboard.writeText(window._rptText).then(() => {
-            showToast('📋 הדוח הועתק ללוח — פתח מייל ל-' + to + ' והדבק');
-        }).catch(() => {});
-    }
+    // Open Gmail compose directly
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${subj}&body=${body}`;
+    window.open(gmailUrl, '_blank');
 }
 
 function checkMonthlyReportReminder() {
@@ -6511,21 +6499,9 @@ function emailReport() {
     const to   = '7023omer@gmail.com';
     const subj = encodeURIComponent(`📊 דוח מסחר חודשי CryptoEdge - ${window._rptMonth||''}`);
     const body = encodeURIComponent(window._rptText||'');
-    const mailtoUrl = `mailto:${to}?subject=${subj}&body=${body}`;
-    // Try opening mailto link
-    const a = document.createElement('a');
-    a.href = mailtoUrl;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    // Also copy text to clipboard as fallback
-    if (navigator.clipboard && window._rptText) {
-        navigator.clipboard.writeText(window._rptText).then(() => {
-            showToast('📋 הדוח הועתק ללוח — פתח מייל ל-' + to + ' והדבק');
-        }).catch(() => {});
-    }
+    // Open Gmail compose directly
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${subj}&body=${body}`;
+    window.open(gmailUrl, '_blank');
 }
 
 function checkMonthlyReportReminder() {
