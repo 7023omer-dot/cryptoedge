@@ -139,7 +139,7 @@ html, body {
 .pages-container { flex: 1; overflow: hidden; position: relative; }
 .page { position: absolute; inset: 0; bottom: var(--nav-height); display: none; }
 .page.active { display: block; }
-.page-scroll { height: 100%; overflow-y: auto; padding: 16px 16px 24px; }
+.page-scroll { height: 100%; overflow-y: auto !important; -webkit-overflow-scrolling: touch; padding: 16px 16px 80px; }
 .page-scroll::-webkit-scrollbar { width: 4px; }
 .page-scroll::-webkit-scrollbar-track { background: transparent; }
 .page-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
@@ -5904,6 +5904,104 @@ function saveProjectForm() {
     renderProjectCards();
 }
 
+
+// ==================== INSIGHTS (BLOCK 1 COPY) ====================
+function _rb_insights(data) {
+    var fg = data && data.feargreed;
+    var cg = data && data.coingecko;
+    var dl = data && data.defillama;
+    var fgVal = (fg && fg.value) ? parseInt(fg.value) : null;
+    var btcDom = (cg && cg.btcDom) ? parseFloat(cg.btcDom) : null;
+    var btcChg = (cg && cg.btcChange24h) ? parseFloat(cg.btcChange24h) : null;
+    var tvl = (dl && dl.totalTvl) ? parseFloat(dl.totalTvl) : null;
+    var lines = [];
+    lines.push('📊 מצב שוק — ' + new Date().toLocaleDateString('he-IL'));
+    lines.push('─────────────────────────────');
+    if (fgVal !== null) {
+        var fl = fgVal<=20?'😱 פחד קיצוני — זמן קנייה היסטורי':fgVal<=40?'😨 פחד — חפש כניסות מדודות':fgVal<=60?'😐 ניטרלי — המתן לאיתות':fgVal<=80?'😏 חמדנות — אל תרדוף':' 🤑 חמדנות קיצונית — שקול חלקי רווחים';
+        lines.push('🧠 Fear & Greed: ' + fgVal + '/100 — ' + fl);
+    }
+    if (btcDom !== null) {
+        var dl2 = btcDom>58?'🟠 עונת BTC — הצמד ל-BTC/ETH':btcDom>50?'🟡 BTC מוביל — אלטים חלשים יחסית':btcDom>42?'🟢 בינוני — אלטים מתחילים להתעורר':'🚀 עונת אלטים — אלטים מובילים';
+        lines.push('📈 BTC Dominance: ' + btcDom.toFixed(1) + '% — ' + dl2);
+    }
+    if (btcChg !== null) {
+        var bc = btcChg>5?'📈 עלייה חזקה — מומנטום חיובי, שמור stops':btcChg>1?'📈 יום ירוק מתון':btcChg>-1?'➡️ יום שטוח — צפה להתפרצות':btcChg>-5?'📉 לחץ קל — בדוק תמיכות':'🔴 ירידה חדה — אל תתפוס סכין נופל';
+        lines.push('₿ BTC 24ש: ' + (btcChg>0?'+':'') + btcChg.toFixed(2) + '% — ' + bc);
+    }
+    if (tvl !== null) {
+        lines.push('🏦 DeFi TVL: $' + (tvl/1e9).toFixed(0) + 'B' + (tvl>100e9?' — בריא':tvl>50e9?' — בינוני':' — נמוך, זהירות'));
+    }
+    lines.push('─────────────────────────────');
+    lines.push('💡 המלצות:');
+    if (fgVal!==null && fgVal<30 && btcChg!==null && btcChg<-2) lines.push('🟢 כניסה הדרגתית Long BTC — פחד + ירידה = הזדמנות');
+    else if (fgVal!==null && fgVal>78) lines.push('🔴 הימנע מכניסות — חמדנות קיצונית, סיכון תיקון');
+    else if (btcDom!==null && btcDom<43) lines.push('🟢 שקול אלטקוינים חזקים — עונת אלטים');
+    else if (btcDom!==null && btcDom>56) lines.push('🟠 הצמד ל-BTC/ETH בלבד');
+    else lines.push('🟡 שמור פוזיציות קיימות, אין איתות חד-משמעי');
+    lines.push('─────────────────────────────');
+    var verdict = fgVal===null?'🟡 ניטרלי':fgVal<30?'🟢 בולי — הזדמנות':fgVal>75?'🔴 זהירות — חמדנות':fgVal>55&&(btcChg||0)>2?'🟢 בולי מתון':fgVal<45&&(btcChg||0)<-2?'🟠 דובי מתון':'🟡 ניטרלי';
+    lines.push('📌 מסקנה: ' + verdict);
+    lines.push('⚡ ' + new Date().toLocaleString('he-IL'));
+    return lines.join('\n');
+}
+
+async function runInsightsPipeline() {
+    var btn = document.getElementById('insights-update-btn');
+    if (btn) btn.disabled = true;
+    if (typeof showInsightsLoading === 'function') showInsightsLoading(true);
+    if (typeof setLoadingMsg === 'function') setLoadingMsg('אוסף נתוני שוק...');
+    ['src-coingecko','src-defillama','src-feargreed','src-forex','src-cryptorank','src-santiment','src-coinglass','src-myfxbook','src-arkham','src-unlocks'].forEach(function(id){
+        if (typeof setSourceStatus==='function') setSourceStatus(id,'⏳ טוען');
+    });
+    var collected = { feargreed: null, coingecko: null, defillama: null };
+    try {
+        var fgr = await fetch('https://api.alternative.me/fng/?limit=1').then(function(r){return r.json();});
+        if (fgr&&fgr.data&&fgr.data[0]) { collected.feargreed = {value:fgr.data[0].value, label:fgr.data[0].value_classification}; if(typeof setSourceStatus==='function') setSourceStatus('src-feargreed','✅ טעון'); }
+    } catch(e) { if(typeof setSourceStatus==='function') setSourceStatus('src-feargreed','❌'); }
+    try {
+        var cgr = await fetch('https://api.coingecko.com/api/v3/global').then(function(r){return r.json();});
+        if (cgr&&cgr.data) { collected.coingecko = {btcDom:cgr.data.market_cap_percentage&&cgr.data.market_cap_percentage.btc, totalMcap:cgr.data.total_market_cap&&cgr.data.total_market_cap.usd, mcapChange24h:cgr.data.market_cap_change_percentage_24h_usd}; if(typeof setSourceStatus==='function') setSourceStatus('src-coingecko','✅ טעון'); }
+    } catch(e) { if(typeof setSourceStatus==='function') setSourceStatus('src-coingecko','❌'); }
+    try {
+        var btcr = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true').then(function(r){return r.json();});
+        if (btcr&&btcr.bitcoin) { if(!collected.coingecko) collected.coingecko={}; collected.coingecko.btcChange24h = btcr.bitcoin.usd_24h_change; collected.coingecko.btcPrice = btcr.bitcoin.usd; }
+    } catch(e) {}
+    try {
+        var dlr = await fetch('https://api.llama.fi/v2/global').then(function(r){return r.json();});
+        if (dlr&&dlr.totalLiquidityUSD) { collected.defillama = {totalTvl: dlr.totalLiquidityUSD}; if(typeof setSourceStatus==='function') setSourceStatus('src-defillama','✅ טעון'); }
+    } catch(e) { if(typeof setSourceStatus==='function') setSourceStatus('src-defillama','❌'); }
+    if(typeof setLoadingMsg==='function') setLoadingMsg('מנתח נתונים...');
+    var result;
+    try {
+        var apiKey = localStorage.getItem('anthropic_apikey');
+        if (apiKey && typeof callClaudeAPI==='function') {
+            var prompt = typeof buildInsightsPrompt==='function' ? buildInsightsPrompt(collected) : JSON.stringify(collected);
+            result = await callClaudeAPI(prompt);
+        } else {
+            result = _rb_insights(collected);
+        }
+    } catch(e) { result = _rb_insights(collected); }
+    // Show result
+    var placeholder = document.getElementById('insights-placeholder');
+    var loading = document.getElementById('insights-loading');
+    var contentEl = document.getElementById('insights-content');
+    var card = document.getElementById('insights-output-card');
+    if (placeholder) placeholder.style.display = 'none';
+    if (loading) loading.style.display = 'none';
+    if (contentEl) {
+        contentEl.style.display = 'block';
+        contentEl.style.cssText = 'display:block;font-size:0.85rem;line-height:1.9;color:var(--text);white-space:pre-line;padding:4px;';
+        contentEl.textContent = result;
+    }
+    if (card) { card.style.alignItems='flex-start'; card.style.justifyContent='flex-start'; }
+    var metaEl = document.getElementById('insights-last-updated');
+    if (metaEl) metaEl.textContent = 'עודכן: ' + new Date().toLocaleTimeString('he-IL') + ' ' + new Date().toLocaleDateString('he-IL');
+    try { localStorage.setItem('ai_insights_cache', JSON.stringify({text:result,ts:Date.now()})); } catch(e){}
+    if (btn) btn.disabled = false;
+    showToast('✅ תובנות עודכנו');
+}
+// ==================== END INSIGHTS BLOCK 1 ====================
     </script>
 
 
