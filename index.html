@@ -526,7 +526,7 @@ html, body {
 .nav-item.active .nav-icon, .nav-item.active .nav-label { color: var(--accent-light); }
 .nav-icon { font-size: 1.1rem; transition: transform 0.2s; }
 .nav-item.active .nav-icon { transform: scale(1.1); }
-.nav-label { font-size: 0.48rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.nav-label { font-size: 0.45rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display:block; text-align:center; }
 
 /* ==================== MODAL ==================== */
 .modal-overlay {
@@ -2557,40 +2557,40 @@ html, body {
         </main>
 
         <!-- Bottom Navigation -->
-        <nav class="bottom-nav">
-            <button class="nav-item" data-page="dashboard" onclick="switchPage(&#39;dashboard&#39;)" fdprocessedid="nzo2bb">
+        <nav class="bottom-nav" style="display:grid!important;grid-template-columns:repeat(9,1fr)!important;width:100%!important;overflow:visible!important;height:64px!important;">
+            <button class="nav-item" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="dashboard" onclick="switchPage(&#39;dashboard&#39;)" fdprocessedid="nzo2bb">
                 <span class="nav-icon">🏠</span>
                 <span class="nav-label">דשבורד</span>
             </button>
-            <button class="nav-item" data-page="journal" onclick="switchPage(&#39;journal&#39;)" fdprocessedid="kqmbtc">
+            <button class="nav-item" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="journal" onclick="switchPage(&#39;journal&#39;)" fdprocessedid="kqmbtc">
                 <span class="nav-icon">📓</span>
                 <span class="nav-label">יומן</span>
             </button>
-            <button class="nav-item nav-item--macro" data-page="analysis" onclick="switchPage('analysis')">
+            <button class="nav-item nav-item--macro" style="background:rgba(99,102,241,0.2)!important;border:1px solid rgba(99,102,241,0.5)!important;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="analysis" onclick="switchPage('analysis')">
                 <span class="nav-icon">📊</span>
                 <span class="nav-label">מאקרו</span>
             </button>
-            <button class="nav-item" data-page="strategies" onclick="switchPage(&#39;strategies&#39;)" fdprocessedid="cvzgvd">
+            <button class="nav-item" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="strategies" onclick="switchPage(&#39;strategies&#39;)" fdprocessedid="cvzgvd">
                 <span class="nav-icon">🧠</span>
                 <span class="nav-label">אסטרטגיה</span>
             </button>
-            <button class="nav-item" data-page="risk" onclick="switchPage(&#39;risk&#39;)" fdprocessedid="80evid">
+            <button class="nav-item" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="risk" onclick="switchPage(&#39;risk&#39;)" fdprocessedid="80evid">
                 <span class="nav-icon">⚖️</span>
                 <span class="nav-label">סיכון</span>
             </button>
-            <button class="nav-item" data-page="whales" onclick="switchPage(&#39;whales&#39;)" fdprocessedid="2xz1ja">
+            <button class="nav-item" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="whales" onclick="switchPage(&#39;whales&#39;)" fdprocessedid="2xz1ja">
                 <span class="nav-icon">🐋</span>
                 <span class="nav-label">לווייתנים</span>
             </button>
-            <button class="nav-item" data-page="portfolio" onclick="switchPage(&#39;portfolio&#39;)" fdprocessedid="2j9qktp">
+            <button class="nav-item" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="portfolio" onclick="switchPage(&#39;portfolio&#39;)" fdprocessedid="2j9qktp">
                 <span class="nav-icon">💼</span>
                 <span class="nav-label">תיק</span>
             </button>
-            <button class="nav-item active" data-page="history" onclick="switchPage(&#39;history&#39;)" fdprocessedid="hm0px3">
+            <button class="nav-item active" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="history" onclick="switchPage(&#39;history&#39;)" fdprocessedid="hm0px3">
                 <span class="nav-icon">📋</span>
                 <span class="nav-label">היסטוריה</span>
             </button>
-            <button class="nav-item" data-page="insights" onclick="switchPage('insights')">
+            <button class="nav-item" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="insights" onclick="switchPage('insights')">
                 <span class="nav-icon">🤖</span>
                 <span class="nav-label">AI</span>
             </button>
@@ -9246,6 +9246,25 @@ setTimeout(connectBinanceWs, 2000);
     window.collectDailyMarketData = saveDailySnapshot;
 })();
 // ==================== END DAILY DATA COLLECTION ====================
+
+
+// Fix analysis page scroll
+(function() {
+    function fixAnalysisScroll() {
+        var pg = document.getElementById('page-analysis');
+        var ps = pg && pg.querySelector('.page-scroll');
+        if (ps) {
+            ps.style.cssText = 'height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 100px;display:block;';
+        }
+    }
+    document.addEventListener('DOMContentLoaded', fixAnalysisScroll);
+    setTimeout(fixAnalysisScroll, 500);
+    setTimeout(fixAnalysisScroll, 1500);
+    var origSwitch = window.switchPage;
+    if (origSwitch) {
+        window.switchPage = function(p) { origSwitch(p); if (p==='analysis') setTimeout(fixAnalysisScroll, 100); };
+    }
+})();
 
 // ==================== END ADDITIONS ====================
 
