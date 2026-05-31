@@ -1210,6 +1210,70 @@ html, body {
 .src-icon { font-size: 1.2rem; }
 .src-name { font-size: 0.7rem; color: var(--text-secondary); font-weight: 500; }
 .src-status { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; }
+
+/* ==================== LIVE PRICES BAR ==================== */
+.live-prices-bar { display: flex; gap: 10px; overflow-x: auto; padding: 4px 0 8px; scrollbar-width: none; margin-bottom: 4px; }
+.live-prices-bar::-webkit-scrollbar { display: none; }
+.live-price-card { flex: 0 0 auto; min-width: 110px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; }
+.live-price-card .lpc-symbol { font-size: 0.72rem; color: var(--text-secondary); font-weight: 600; letter-spacing: 0.5px; }
+.live-price-card .lpc-price { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+.live-price-card .lpc-change { font-size: 0.78rem; font-weight: 600; }
+.live-price-card .lpc-change.up { color: var(--green); }
+.live-price-card .lpc-change.down { color: var(--red); }
+.lpc-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: inline-block; margin-left: 5px; animation: pulse-dot 2s infinite; vertical-align: middle; }
+@keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(0.7)} }
+
+/* ==================== STATS REPORT IMPROVEMENTS ==================== */
+.sr-improvements { background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.3); border-radius: 12px; padding: 14px; font-size: 0.82rem; line-height: 1.8; color: #fde68a; }
+.sr-improvements ul { margin: 0; padding-right: 18px; }
+.sr-improvements li { margin-bottom: 4px; }
+
+/* ==================== ANALYSIS PAGE ==================== */
+.analysis-page { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+.analysis-header { font-size: 1.2rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.analysis-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.analysis-tabs::-webkit-scrollbar { display: none; }
+.analysis-tab { flex: 0 0 auto; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px; font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; font-family: inherit; transition: all 0.2s; white-space: nowrap; }
+.analysis-tab.active { background: rgba(99,102,241,0.2); border-color: var(--accent); color: var(--accent-light); }
+.analysis-tab-content { display: none; }
+.analysis-tab-content.active { display: block; }
+.market-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.market-table th { background: var(--bg-elevated); color: var(--text-secondary); padding: 7px 8px; text-align: right; font-weight: 600; }
+.market-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); color: var(--text); }
+.market-table tr:last-child td { border-bottom: none; }
+.market-direction-badge { display: inline-block; padding: 5px 16px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; }
+.market-direction-badge.bull { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid var(--green); }
+.market-direction-badge.bear { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid var(--red); }
+.market-direction-badge.neutral { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid #f59e0b; }
+.analysis-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+.analysis-card-title { font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px; }
+.analysis-auto-text { font-size: 0.85rem; color: var(--text); line-height: 1.7; background: var(--bg-elevated); border-radius: 10px; padding: 12px; margin-top: 8px; }
+.global-stats-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.global-stat-pill { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 7px 12px; font-size: 0.78rem; color: var(--text-secondary); }
+.global-stat-pill span { color: var(--text); font-weight: 700; }
+.project-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 10px; }
+.project-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.project-card-name { font-size: 1rem; font-weight: 700; color: var(--text); }
+.project-card-score { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem; flex-shrink: 0; }
+.score-high { background: rgba(16,185,129,0.2); color: var(--green); border: 2px solid var(--green); }
+.score-mid { background: rgba(245,158,11,0.2); color: #f59e0b; border: 2px solid #f59e0b; }
+.score-low { background: rgba(239,68,68,0.2); color: var(--red); border: 2px solid var(--red); }
+.project-card-meta { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; }
+.project-card-conclusion { font-size: 0.8rem; border-radius: 8px; padding: 7px 10px; margin-top: 8px; }
+.project-add-btn { width: 100%; background: rgba(99,102,241,0.15); border: 1px dashed var(--accent); border-radius: 12px; padding: 12px; color: var(--accent-light); font-size: 0.88rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+.project-add-btn:hover { background: rgba(99,102,241,0.25); }
+.project-form-modal { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); display: flex; align-items: flex-end; justify-content: center; }
+.project-form-inner { background: var(--bg-card); border-radius: 20px 20px 0 0; padding: 20px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
+.project-form-row { margin-bottom: 12px; }
+.project-form-row label { display: block; font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 4px; font-weight: 600; }
+.project-form-row input, .project-form-row select, .project-form-row textarea { width: 100%; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; padding: 9px 11px; color: var(--text); font-size: 0.85rem; font-family: inherit; box-sizing: border-box; }
+.project-form-row textarea { resize: vertical; min-height: 60px; }
+.market-conclusions-card { background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(99,102,241,0.05)); border: 1px solid rgba(99,102,241,0.4); border-radius: 16px; padding: 16px; margin-top: 8px; }
+.market-conclusions-title { font-size: 0.9rem; font-weight: 700; color: var(--accent-light); margin-bottom: 10px; }
+.market-conclusions-text { font-size: 0.85rem; color: var(--text); line-height: 1.75; }
+.placeholder-mode-box { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+.placeholder-mode-box label { font-size: 0.78rem; color: var(--text-secondary); display: block; margin-bottom: 4px; font-weight: 600; }
+.placeholder-mode-box input { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; color: var(--text); font-size: 0.88rem; width: 100%; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; direction: ltr; }
 </style>
 </head>
 <body>
@@ -1248,6 +1312,26 @@ html, body {
             <!-- ==================== DASHBOARD ==================== -->
             <section id="page-dashboard" class="page">
                 <div class="page-scroll">
+
+                    <!-- Live Prices Bar (top) -->
+                    <div class="live-prices-bar" id="live-prices-bar-top">
+                        <div class="live-price-card" id="lpc-btc">
+                            <div class="lpc-symbol">₿ BTC</div>
+                            <div class="lpc-price" id="lpc-btc-price">$—</div>
+                            <div class="lpc-change" id="lpc-btc-change">—</div>
+                        </div>
+                        <div class="live-price-card" id="lpc-eth">
+                            <div class="lpc-symbol">Ξ ETH</div>
+                            <div class="lpc-price" id="lpc-eth-price">$—</div>
+                            <div class="lpc-change" id="lpc-eth-change">—</div>
+                        </div>
+                        <div class="live-price-card" id="lpc-sp">
+                            <div class="lpc-symbol">📈 S&P500</div>
+                            <div class="lpc-price" id="lpc-sp-price">—</div>
+                            <div class="lpc-change" id="lpc-sp-change" style="color:var(--text-secondary);font-size:0.7rem;">—</div>
+                        </div>
+                        <span class="live-dot" style="align-self:center;margin-right:4px;"></span>
+                    </div>
 
                     <!-- Motivation Card -->
                     <div class="motivation-card">
@@ -2342,6 +2426,100 @@ html, body {
             </div>
         </section>
 
+        <!-- Analysis Page -->
+        <section id="page-analysis" class="page">
+            <div class="page-scroll">
+                <div class="analysis-page">
+                    <div class="analysis-header">🔍 ניתוח שוק מעמיק</div>
+                    <div class="analysis-tabs">
+                        <button class="analysis-tab active" onclick="switchAnalysisTab('crypto',this)">🪙 קריפטו</button>
+                        <button class="analysis-tab" onclick="switchAnalysisTab('gold',this)">🥇 זהב</button>
+                        <button class="analysis-tab" onclick="switchAnalysisTab('stocks',this)">📈 מניות</button>
+                        <button class="analysis-tab" onclick="switchAnalysisTab('projects',this)">🏢 חברות/פרויקטים</button>
+                    </div>
+
+                    <!-- Crypto Tab -->
+                    <div id="analysis-tab-crypto" class="analysis-tab-content active">
+                        <div class="analysis-card">
+                            <div class="analysis-card-title">נתוני שוק גלובליים</div>
+                            <div class="global-stats-bar" id="crypto-global-stats">
+                                <div class="global-stat-pill">שווי שוק: <span id="ag-mcap">טוען...</span></div>
+                                <div class="global-stat-pill">BTC Dominance: <span id="ag-btcdom">—</span></div>
+                                <div class="global-stat-pill">נפח 24ש: <span id="ag-vol">—</span></div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                                <span style="font-size:0.82rem;color:var(--text-secondary);">כיוון שוק:</span>
+                                <span id="market-direction-badge" class="market-direction-badge neutral">🟡 ניטרלי</span>
+                            </div>
+                            <div class="analysis-auto-text" id="crypto-auto-analysis">טוען ניתוח...</div>
+                        </div>
+                        <div class="analysis-card">
+                            <div class="analysis-card-title">טופ 10 מטבעות</div>
+                            <div style="overflow-x:auto;">
+                                <table class="market-table" id="crypto-top10-table">
+                                    <thead><tr><th>#</th><th>מטבע</th><th>מחיר</th><th>24ש%</th><th>7י%</th><th>שווי שוק</th></tr></thead>
+                                    <tbody id="crypto-top10-body"><tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:20px;">טוען...</td></tr></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gold Tab -->
+                    <div id="analysis-tab-gold" class="analysis-tab-content">
+                        <div class="analysis-card">
+                            <div class="analysis-card-title">מחיר זהב נוכחי</div>
+                            <div style="text-align:center;padding:14px 0;">
+                                <div style="font-size:2rem;font-weight:700;color:#f59e0b;" id="gold-price-display">טוען...</div>
+                                <div style="font-size:0.82rem;color:var(--text-secondary);margin-top:4px;">USD לאונקיה</div>
+                                <div id="gold-change-display" style="font-size:0.88rem;margin-top:6px;font-weight:600;"></div>
+                            </div>
+                            <div class="analysis-auto-text" id="gold-auto-analysis">טוען ניתוח...</div>
+                        </div>
+                        <div class="analysis-card">
+                            <div class="analysis-card-title">קורלציה עם ביטקוין</div>
+                            <div class="analysis-auto-text" id="gold-btc-correlation">טוען...</div>
+                        </div>
+                    </div>
+
+                    <!-- Stocks Tab -->
+                    <div id="analysis-tab-stocks" class="analysis-tab-content">
+                        <div class="analysis-card">
+                            <div class="analysis-card-title">נתוני מניות — הכנס ידנית</div>
+                            <div class="placeholder-mode-box">
+                                <label>S&P 500 (נוכחי)</label>
+                                <input type="number" id="stocks-sp500" value="5300" oninput="updateStocksAnalysis()">
+                                <label>NASDAQ (נוכחי)</label>
+                                <input type="number" id="stocks-nasdaq" value="16800" oninput="updateStocksAnalysis()">
+                                <label>VIX (מדד תנודתיות)</label>
+                                <input type="number" id="stocks-vix" value="18" step="0.1" oninput="updateStocksAnalysis()">
+                                <button onclick="updateStocksAnalysis()" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);border-radius:8px;padding:8px 18px;color:var(--accent-light);font-weight:700;cursor:pointer;font-family:inherit;font-size:0.85rem;">עדכן ניתוח</button>
+                            </div>
+                            <div class="analysis-auto-text" id="stocks-auto-analysis" style="margin-top:10px;">לחץ עדכן ניתוח לקבלת תובנות.</div>
+                        </div>
+                        <div class="analysis-card">
+                            <div class="analysis-card-title">קורלציה S&P500 — BTC</div>
+                            <div class="analysis-auto-text">
+                                📊 קורלציה היסטורית: ב-2020–2023 הציגו BTC ו-S&P500 קורלציה חיובית של כ-0.6–0.8 בתקופות לחץ. כאשר ה-S&P500 יורד בחדות, BTC לרוב עוקב.<br><br>
+                                🔑 כלל אצבע: אם VIX &gt;25 ו-SP500 יורד — צפה ללחץ גם בקריפטו. אם VIX &lt;18 ו-SP500 עולה — סביבת Risk-On, טובה לאלטקוינים.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Projects Tab -->
+                    <div id="analysis-tab-projects" class="analysis-tab-content">
+                        <button class="project-add-btn" onclick="openProjectForm()">+ הוסף פרויקט / חברה</button>
+                        <div id="projects-list" style="margin-top:12px;"></div>
+                    </div>
+
+                    <!-- Market Conclusions (always visible) -->
+                    <div class="market-conclusions-card">
+                        <div class="market-conclusions-title">📡 כיווני שוק פוטנציאליים</div>
+                        <div class="market-conclusions-text" id="market-conclusions-text">טוען נתונים...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         </main>
 
         <!-- Bottom Navigation -->
@@ -2377,6 +2555,10 @@ html, body {
             <button class="nav-item" data-page="insights" onclick="switchPage('insights')">
                 <span class="nav-icon">🤖</span>
                 <span class="nav-label">AI</span>
+            </button>
+            <button class="nav-item" data-page="analysis" onclick="switchPage('analysis')">
+                <span class="nav-icon">🔍</span>
+                <span class="nav-label">ניתוח</span>
             </button>
         </nav>
 
@@ -2627,6 +2809,8 @@ html, body {
                 <div id="sr-pair-table-wrap"></div>
                 <div class="sr-section-title">🤖 סיכום אוטומטי</div>
                 <div class="sr-conclusion" id="sr-conclusion"></div>
+                <div class="sr-section-title">💡 הערות לשיפור</div>
+                <div id="sr-improvements" class="sr-improvements"></div>
                 <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
                     <button class="btn-primary" onclick="emailStatsReport()">📧 שלח סטטיסטיקות למייל</button>
                     <button class="btn-secondary" onclick="closeStatsReportModal()">סגור</button>
@@ -2873,11 +3057,13 @@ function switchPage(pageName) {
         charts: 'גרפים היסטוריים',
         portfolio: 'תיק השקעות',
         history: 'היסטוריית עסקאות',
-        insights: 'תובנות AI'
+        insights: 'תובנות AI',
+        analysis: 'ניתוח שוק'
     };
     document.getElementById('page-title').textContent = titles[pageName] || 'CryptoEdge';
     if (pageName === 'history') renderHistory();
     if (pageName === 'insights') initInsightsPage();
+    if (pageName === 'analysis') initAnalysisPage();
 }
 
 // ==================== DASHBOARD STATS ====================
@@ -3717,21 +3903,20 @@ async function fetchCryptoNews() {
     }
 }
 
-function renderNewsItems(items) {
+function renderNewsItems(items, source) {
     const container = document.getElementById('crypto-news-list');
     if (!container) return;
     const icons = ['📰','🔥','💡','🚀','⚡','🌐'];
-    container.innerHTML = items.slice(0, 6).map((item, i) => {
+    const src = source || 'CoinTelegraph';
+    container.innerHTML = items.slice(0, 8).map((item, i) => {
         const title = (item.title || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         const link = item.link || '#';
-        const date = item.pubDate
-            ? new Date(item.pubDate).toLocaleDateString('he-IL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
-            : '';
+        const timeAgo = item.pubDate ? hebrewTimeAgo(item.pubDate) : '';
         return `<a href="${link}" target="_blank" class="news-item">
             <div class="news-bullet">${icons[i % icons.length]}</div>
             <div class="news-content">
                 <div class="news-title">${title}</div>
-                <div class="news-meta">${date} • CoinTelegraph</div>
+                <div class="news-meta">${timeAgo ? timeAgo + ' • ' : ''}${src}</div>
             </div>
         </a>`;
     }).join('');
@@ -4228,7 +4413,18 @@ function switchNewsTab(tab, btn) {
 }
 
 function getNewsSource(tab) {
-    return { crypto: 'CoinTelegraph', macro: 'MarketWatch', markets: 'Reuters' }[tab] || '';
+    return { crypto: 'CoinTelegraph', macro: 'MarketWatch / Reuters', markets: 'Reuters' }[tab] || '';
+}
+
+function hebrewTimeAgo(dateStr) {
+    if (!dateStr) return '';
+    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
+    if (diff < 1) return 'עכשיו';
+    if (diff < 60) return `לפני ${diff} דקות`;
+    const h = Math.floor(diff / 60);
+    if (h < 24) return `לפני ${h} שעות`;
+    const d = Math.floor(h / 24);
+    return `לפני ${d} ימים`;
 }
 
 async function fetchNewsForTab(tab) {
@@ -4238,12 +4434,15 @@ async function fetchNewsForTab(tab) {
         markets: 'https://feeds.content.dowjones.io/public/rss/mw_topstories'
     };
     const fallbacks = {
-        macro:   'https://www.cnbc.com/id/10000664/device/rss/rss.html',
+        macro:   'https://feeds.feedburner.com/ReutersNewsOnline',
         markets: 'https://finance.yahoo.com/news/rssindex'
+    };
+    const fallbacks2 = {
+        macro: 'https://www.cnbc.com/id/10000664/device/rss/rss.html'
     };
     try {
         const url = encodeURIComponent(feeds[tab]);
-        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + url + '&count=6');
+        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + url + '&count=8');
         const data = await res.json();
         if (data.status === 'ok' && data.items && data.items.length > 0) {
             newsCache[tab] = data.items;
@@ -4255,7 +4454,7 @@ async function fetchNewsForTab(tab) {
         if (fallbacks[tab]) {
             try {
                 const url2 = encodeURIComponent(fallbacks[tab]);
-                const res2 = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + url2 + '&count=6');
+                const res2 = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + url2 + '&count=8');
                 const data2 = await res2.json();
                 if (data2.status === 'ok' && data2.items && data2.items.length > 0) {
                     newsCache[tab] = data2.items;
@@ -4263,6 +4462,18 @@ async function fetchNewsForTab(tab) {
                     return;
                 }
             } catch(e2) {}
+        }
+        if (fallbacks2[tab]) {
+            try {
+                const url3 = encodeURIComponent(fallbacks2[tab]);
+                const res3 = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + url3 + '&count=8');
+                const data3 = await res3.json();
+                if (data3.status === 'ok' && data3.items && data3.items.length > 0) {
+                    newsCache[tab] = data3.items;
+                    if (activeNewsTab === tab) renderNewsItems(data3.items, getNewsSource(tab));
+                    return;
+                }
+            } catch(e3) {}
         }
         if (activeNewsTab === tab)
             document.getElementById('crypto-news-list').innerHTML = '<div class="news-loading">⚠️ לא ניתן לטעון</div>';
@@ -5110,6 +5321,20 @@ function showStatsReport() {
             concEl.textContent=lines.join('\n');
         }
 
+        // Improvement notes
+        const impEl = document.getElementById('sr-improvements');
+        if (impEl && closed.length > 0) {
+            const tips = [];
+            if (winRate < 50) tips.push('נסה להחמיר את קריטריוני הכניסה — המתן לאישור מ-2 timeframes לפחות');
+            if (avgLoss > avgWin) tips.push('הקטן את גודל ה-Stop Loss או הגדל את היעד — יחס R:R שלך מתחת ל-1');
+            if (profitFactor < 1.2) tips.push('שקול להפחית מספר עסקאות ולהתמקד רק בסטאפים הטובים ביותר');
+            if (streak < -2) tips.push('אחרי רצף הפסדים — הפחת גודל פוזיציה ב-50% עד לשיבה לרווחיות');
+            if (longs.length > shorts.length * 2) tips.push('אתה מוטה לונג מאוד — שקול להוסיף כלים לזיהוי סביבות בֵּרי');
+            if (sharpe < 0) tips.push('Sharpe שלילי — שקול לסקור את הזמנים בהם אתה סוחר');
+            tips.push('נהל יומן מסחר מפורט לכל עסקה — כתוב מה עבד ומה לא');
+            impEl.innerHTML = '<ul>' + tips.map(t => `<li>${t}</li>`).join('') + '</ul>';
+        }
+
         // Chart
         setTimeout(()=>{
             const canvas=document.getElementById('sr-pnl-canvas');
@@ -5169,6 +5394,350 @@ function emailStatsReport() {
     const sub=encodeURIComponent(`📈 דוח סטטיסטי CryptoEdge — ${month}`);
     const body=encodeURIComponent(txt);
     window.open(`https://mail.google.com/mail/?view=cm&to=7023omer@gmail.com&su=${sub}&body=${body}`,'_blank');
+}
+
+// ==================== LIVE PRICES BAR (Dashboard Top) ====================
+let _livePricesBarTimer = null;
+async function fetchLivePricesBar() {
+    // BTC
+    try {
+        const r = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT');
+        const d = await r.json();
+        const priceEl = document.getElementById('lpc-btc-price');
+        const changeEl = document.getElementById('lpc-btc-change');
+        if (priceEl) priceEl.textContent = '$' + Number(d.lastPrice).toLocaleString('en-US', {maximumFractionDigits:0});
+        if (changeEl) {
+            const ch = parseFloat(d.priceChangePercent);
+            changeEl.textContent = (ch >= 0 ? '+' : '') + ch.toFixed(2) + '%';
+            changeEl.className = 'lpc-change ' + (ch >= 0 ? 'up' : 'down');
+        }
+    } catch(e) {}
+    // ETH
+    try {
+        const r = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT');
+        const d = await r.json();
+        const priceEl = document.getElementById('lpc-eth-price');
+        const changeEl = document.getElementById('lpc-eth-change');
+        if (priceEl) priceEl.textContent = '$' + Number(d.lastPrice).toLocaleString('en-US', {maximumFractionDigits:0});
+        if (changeEl) {
+            const ch = parseFloat(d.priceChangePercent);
+            changeEl.textContent = (ch >= 0 ? '+' : '') + ch.toFixed(2) + '%';
+            changeEl.className = 'lpc-change ' + (ch >= 0 ? 'up' : 'down');
+        }
+    } catch(e) {}
+    // S&P500 — try Yahoo Finance
+    try {
+        const r = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?interval=1d&range=2d');
+        const d = await r.json();
+        const result = d?.chart?.result?.[0];
+        if (result) {
+            const quotes = result.indicators?.quote?.[0];
+            const closes = quotes?.close || [];
+            const lastClose = closes[closes.length - 1];
+            const prevClose = closes[closes.length - 2] || lastClose;
+            const ch = ((lastClose - prevClose) / prevClose * 100);
+            const spPriceEl = document.getElementById('lpc-sp-price');
+            const spChangeEl = document.getElementById('lpc-sp-change');
+            if (spPriceEl) spPriceEl.textContent = lastClose ? lastClose.toFixed(0) : '—';
+            if (spChangeEl) {
+                spChangeEl.textContent = (ch >= 0 ? '+' : '') + ch.toFixed(2) + '%';
+                spChangeEl.className = 'lpc-change ' + (ch >= 0 ? 'up' : 'down');
+            }
+        }
+    } catch(e) {
+        const spChangeEl = document.getElementById('lpc-sp-change');
+        if (spChangeEl) { spChangeEl.textContent = 'לא זמין'; spChangeEl.style.color = 'var(--text-secondary)'; }
+    }
+}
+fetchLivePricesBar();
+_livePricesBarTimer = setInterval(fetchLivePricesBar, 60000);
+
+// ==================== ANALYSIS PAGE ====================
+let _analysisData = { btcDom: null, marketCap: null, vol: null, btcChange: null, goldPrice: null, fngValue: null };
+
+function initAnalysisPage() {
+    switchAnalysisTab('crypto', document.querySelector('.analysis-tab'));
+    fetchCryptoGlobal();
+    loadAnalysisProjects();
+    updateStocksAnalysis();
+}
+
+function switchAnalysisTab(tab, btn) {
+    document.querySelectorAll('.analysis-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.analysis-tab-content').forEach(c => c.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const content = document.getElementById('analysis-tab-' + tab);
+    if (content) content.classList.add('active');
+    if (tab === 'crypto') fetchCryptoGlobal();
+    if (tab === 'gold') fetchGoldPrice();
+    if (tab === 'projects') loadAnalysisProjects();
+}
+
+async function fetchCryptoGlobal() {
+    // Global data
+    try {
+        const r = await fetch('https://api.coingecko.com/api/v3/global');
+        const d = await r.json();
+        const g = d.data;
+        _analysisData.btcDom = g.market_cap_percentage?.btc || null;
+        _analysisData.marketCap = g.total_market_cap?.usd || null;
+        _analysisData.vol = g.total_volume?.usd || null;
+        const mcapEl = document.getElementById('ag-mcap');
+        const domEl = document.getElementById('ag-btcdom');
+        const volEl = document.getElementById('ag-vol');
+        if (mcapEl && _analysisData.marketCap) mcapEl.textContent = '$' + (_analysisData.marketCap / 1e12).toFixed(2) + 'T';
+        if (domEl && _analysisData.btcDom) domEl.textContent = _analysisData.btcDom.toFixed(1) + '%';
+        if (volEl && _analysisData.vol) volEl.textContent = '$' + (_analysisData.vol / 1e9).toFixed(0) + 'B';
+    } catch(e) {}
+
+    // Top 10 coins
+    try {
+        const r2 = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h,7d');
+        const coins = await r2.json();
+        const tbody = document.getElementById('crypto-top10-body');
+        if (tbody) {
+            tbody.innerHTML = coins.map(c => {
+                const p24 = c.price_change_percentage_24h || 0;
+                const p7 = c.price_change_percentage_7d_in_currency || 0;
+                const p24c = p24 >= 0 ? 'var(--green)' : 'var(--red)';
+                const p7c = p7 >= 0 ? 'var(--green)' : 'var(--red)';
+                return `<tr>
+                    <td>${c.market_cap_rank}</td>
+                    <td><strong>${c.symbol.toUpperCase()}</strong></td>
+                    <td>$${Number(c.current_price).toLocaleString('en-US')}</td>
+                    <td style="color:${p24c}">${p24 >= 0 ? '+' : ''}${p24.toFixed(2)}%</td>
+                    <td style="color:${p7c}">${p7 >= 0 ? '+' : ''}${p7.toFixed(2)}%</td>
+                    <td>$${(c.market_cap / 1e9).toFixed(1)}B</td>
+                </tr>`;
+            }).join('');
+        }
+        // Market direction
+        const avgChange24 = coins.reduce((s, c) => s + (c.price_change_percentage_24h || 0), 0) / coins.length;
+        _analysisData.btcChange = coins[0]?.price_change_percentage_24h || 0;
+        const badge = document.getElementById('market-direction-badge');
+        if (badge) {
+            if (avgChange24 >= 2) { badge.textContent = '🟢 בולי'; badge.className = 'market-direction-badge bull'; }
+            else if (avgChange24 <= -2) { badge.textContent = '🔴 בֵּרי'; badge.className = 'market-direction-badge bear'; }
+            else { badge.textContent = '🟡 ניטרלי'; badge.className = 'market-direction-badge neutral'; }
+        }
+        // Auto analysis
+        const autoEl = document.getElementById('crypto-auto-analysis');
+        if (autoEl) {
+            const dom = _analysisData.btcDom;
+            let txt = '';
+            if (dom !== null) {
+                if (dom > 60) txt += `🟠 BTC Dominance גבוה (${dom.toFixed(1)}%) — עונת אלטקוינים לא סבירה כעת. הון זורם ל-BTC.\n`;
+                else if (dom < 45) txt += `🟢 BTC Dominance נמוך (${dom.toFixed(1)}%) — תנאים אפשריים לעונת אלטקוינים.\n`;
+                else txt += `🟡 BTC Dominance (${dom.toFixed(1)}%) — שוק מאוזן.\n`;
+            }
+            if (avgChange24 >= 3) txt += `📈 ממוצע שינוי 24ש בטופ 10: +${avgChange24.toFixed(2)}% — שוק בולי חזק.`;
+            else if (avgChange24 <= -3) txt += `📉 ממוצע שינוי 24ש בטופ 10: ${avgChange24.toFixed(2)}% — שוק בֵּרי.`;
+            else txt += `📊 ממוצע שינוי 24ש בטופ 10: ${avgChange24.toFixed(2)}% — שוק ניטרלי.`;
+            autoEl.textContent = txt;
+        }
+        generateMarketConclusions();
+    } catch(e) {
+        const autoEl = document.getElementById('crypto-auto-analysis');
+        if (autoEl) autoEl.textContent = 'לא ניתן לטעון נתוני קריפטו — נסה שוב מאוחר יותר.';
+    }
+}
+
+async function fetchGoldPrice() {
+    const goldEl = document.getElementById('gold-price-display');
+    const goldChangeEl = document.getElementById('gold-change-display');
+    const goldAutoEl = document.getElementById('gold-auto-analysis');
+    const goldCorrEl = document.getElementById('gold-btc-correlation');
+    let price = null;
+    try {
+        const r = await fetch('https://api.metals.live/v1/spot/gold');
+        const d = await r.json();
+        price = d?.price || d?.[0]?.price || null;
+    } catch(e) {}
+    if (!price) {
+        try {
+            const r2 = await fetch('https://data-asg.goldprice.org/GetData/USD-XAU/1');
+            const d2 = await r2.json();
+            price = d2?.items?.[0]?.xauPrice || null;
+        } catch(e) {}
+    }
+    if (price) {
+        _analysisData.goldPrice = price;
+        if (goldEl) goldEl.textContent = '$' + Number(price).toLocaleString('en-US', {maximumFractionDigits:2});
+        if (goldChangeEl) goldChangeEl.textContent = '';
+        if (goldAutoEl) {
+            let txt = '';
+            if (price > 2400) txt = '⚠️ זהב ברמות שיא — סביבת אי-ודאות גבוהה. BTC יכול לתפקד כ-safe haven חלופי.';
+            else if (price >= 1900) txt = '🟡 זהב בטווח נורמלי ($1,900–$2,400) — שוק מאוזן.';
+            else txt = '🟢 זהב נחלש — סביבת risk-on, יכול להיות טוב לאלטקוינים.';
+            goldAutoEl.textContent = txt;
+        }
+    } else {
+        if (goldEl) goldEl.textContent = 'לא זמין';
+        if (goldAutoEl) goldAutoEl.textContent = 'לא ניתן לטעון מחיר זהב. בדוק זמן מאוחר יותר.';
+    }
+    if (goldCorrEl) {
+        const btcCh = _analysisData.btcChange;
+        let corrTxt = '';
+        if (btcCh !== null && price !== null) {
+            if (btcCh > 0 && price > 2400) corrTxt = '📊 BTC עולה + זהב גבוה = שוק מחפש safe haven. ייתכן לחץ מאקרו.';
+            else if (btcCh > 0 && price < 1900) corrTxt = '🚀 BTC עולה + זהב נחלש = סביבת risk-on אמיתית — חיובי לקריפטו.';
+            else if (btcCh < 0 && price > 2400) corrTxt = '⚠️ BTC יורד + זהב גבוה = משקיעים עוברים ל-safe haven קלאסי.';
+            else corrTxt = '📊 קורלציה ניטרלית — אין אינדיקציה ברורה.';
+        } else {
+            corrTxt = 'ב-2020–2023 הציגו BTC וזהב קורלציה חיובית של כ-0.3–0.5 בתקופות לחץ. זהב גבוה בד"כ מצביע על אי-ודאות כלכלית.';
+        }
+        goldCorrEl.textContent = corrTxt;
+    }
+    generateMarketConclusions();
+}
+
+function updateStocksAnalysis() {
+    const sp = parseFloat(document.getElementById('stocks-sp500')?.value) || 5300;
+    const nasdaq = parseFloat(document.getElementById('stocks-nasdaq')?.value) || 16800;
+    const vix = parseFloat(document.getElementById('stocks-vix')?.value) || 18;
+    const el = document.getElementById('stocks-auto-analysis');
+    if (!el) return;
+    let txt = '';
+    if (vix > 30) txt += '🔴 VIX מעל 30 — פחד גבוה בשוק. תנודתיות גבוהה צפויה גם בקריפטו. שמור על מינוף נמוך.\n';
+    else if (vix >= 20) txt += '🟡 VIX בין 20–30 — אי-ודאות מתונה. שוק לא רגוע, שמור על עיניים פקוחות.\n';
+    else txt += '🟢 VIX מתחת ל-20 — שוק רגוע. סביבה טובה לפוזיציות לונג.\n';
+    txt += `📈 S&P500: ${sp.toLocaleString('en-US')} | NASDAQ: ${nasdaq.toLocaleString('en-US')}`;
+    el.textContent = txt;
+    _analysisData.vix = vix;
+    generateMarketConclusions();
+}
+
+function generateMarketConclusions() {
+    const el = document.getElementById('market-conclusions-text');
+    if (!el) return;
+    const parts = [];
+    const dom = _analysisData.btcDom;
+    const gold = _analysisData.goldPrice;
+    const vix = _analysisData.vix;
+    const fng = _analysisData.fngValue;
+    // Market direction
+    const btcCh = _analysisData.btcChange;
+    let direction = 'ניטרלי';
+    if (btcCh !== null) {
+        if (btcCh >= 2) direction = '🟢 בולי';
+        else if (btcCh <= -2) direction = '🔴 בֵּרי';
+        else direction = '🟡 ניטרלי';
+    }
+    parts.push(`כיוון שוק: ${direction}.`);
+    if (dom !== null) {
+        if (dom > 60) parts.push(`BTC Dominance ${dom.toFixed(1)}% — Bitcoin דומיננטי, לא עונת אלטקוינים.`);
+        else if (dom < 45) parts.push(`BTC Dominance ${dom.toFixed(1)}% — תנאים לעונת אלטקוינים.`);
+    }
+    if (gold !== null) {
+        if (gold > 2400) parts.push('זהב ברמות שיא — סביבת אי-ודאות.');
+        else if (gold < 1900) parts.push('זהב חלש — סביבת risk-on.');
+    }
+    if (vix !== undefined) {
+        if (vix > 30) parts.push('VIX גבוה — תנודתיות גבוהה, זהירות.');
+        else if (vix < 20) parts.push('VIX נמוך — שוק מניות רגוע.');
+    }
+    if (parts.length > 0) {
+        el.textContent = 'על בסיס הנתונים הנוכחיים: ' + parts.join(' ');
+    } else {
+        el.textContent = 'טוען נתונים...';
+    }
+}
+
+// ==================== PROJECTS (Analysis Tab 4) ====================
+let analysisProjects = JSON.parse(localStorage.getItem('analysis_projects') || '[]');
+
+function loadAnalysisProjects() {
+    analysisProjects = JSON.parse(localStorage.getItem('analysis_projects') || '[]');
+    renderProjectCards();
+}
+
+function renderProjectCards() {
+    const container = document.getElementById('projects-list');
+    if (!container) return;
+    if (analysisProjects.length === 0) {
+        container.innerHTML = '<div style="color:var(--text-secondary);font-size:0.85rem;text-align:center;padding:20px;">אין פרויקטים עדיין. לחץ + הוסף פרויקט.</div>';
+        return;
+    }
+    container.innerHTML = analysisProjects.map((p, i) => {
+        const score = parseInt(p.score) || 5;
+        const scoreColor = score >= 8 ? '#10b981' : score >= 5 ? '#f59e0b' : '#ef4444';
+        const conclusion = score >= 8 ? '🟢 פרויקט מבטיח — שקול פוזיציה' : score >= 5 ? '🟡 פרויקט ממוצע — המתן לקטליזטור' : '🔴 פרויקט חלש — הימנע';
+        const concBg = score >= 8 ? 'rgba(16,185,129,0.1)' : score >= 5 ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)';
+        return `<div class="project-card">
+            <div class="project-card-header">
+                <div>
+                    <div class="project-card-name">${p.name || '—'}</div>
+                    <div class="project-card-meta">${p.category || ''} ${p.network ? '• ' + p.network : ''} ${p.marketCap ? '• שווי: ' + p.marketCap : ''}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="project-card-score" style="background:${scoreColor}22;color:${scoreColor};border:2px solid ${scoreColor};">${score}</div>
+                    <button onclick="deleteProject(${i})" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--red);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:0.75rem;">מחק</button>
+                </div>
+            </div>
+            ${p.description ? `<div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:6px;">${p.description}</div>` : ''}
+            ${p.strengths ? `<div style="font-size:0.8rem;margin-bottom:4px;">✅ <strong>חוזקות:</strong> ${p.strengths}</div>` : ''}
+            ${p.weaknesses ? `<div style="font-size:0.8rem;margin-bottom:4px;">❌ <strong>חולשות:</strong> ${p.weaknesses}</div>` : ''}
+            <div class="project-card-conclusion" style="background:${concBg};">${conclusion}</div>
+        </div>`;
+    }).join('');
+}
+
+function deleteProject(idx) {
+    analysisProjects.splice(idx, 1);
+    localStorage.setItem('analysis_projects', JSON.stringify(analysisProjects));
+    renderProjectCards();
+}
+
+function openProjectForm() {
+    const existing = document.getElementById('project-form-modal');
+    if (existing) { existing.remove(); }
+    const modal = document.createElement('div');
+    modal.id = 'project-form-modal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px;';
+    modal.innerHTML = `
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:20px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;">
+            <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:16px;">🏢 הוסף פרויקט / חברה</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <input id="pf-name" placeholder="שם פרויקט / חברה" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.88rem;font-family:inherit;direction:rtl;">
+                <select id="pf-cat" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.88rem;font-family:inherit;">
+                    <option value="">קטגוריה</option>
+                    <option>DeFi</option><option>L1</option><option>L2</option><option>GameFi</option><option>AI</option><option>מניה</option><option>אחר</option>
+                </select>
+                <input id="pf-network" placeholder="רשת / בורסה" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.88rem;font-family:inherit;direction:rtl;">
+                <input id="pf-mcap" placeholder="שווי שוק (לדוגמה: $500M)" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.88rem;font-family:inherit;direction:rtl;">
+                <textarea id="pf-desc" placeholder="תיאור קצר" rows="2" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.88rem;font-family:inherit;direction:rtl;resize:none;"></textarea>
+                <input id="pf-strengths" placeholder="נקודות חוזקה" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.88rem;font-family:inherit;direction:rtl;">
+                <input id="pf-weaknesses" placeholder="נקודות חולשה" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.88rem;font-family:inherit;direction:rtl;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <label style="font-size:0.85rem;color:var(--text-secondary);">ציון (1-10):</label>
+                    <input id="pf-score" type="number" min="1" max="10" value="5" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.88rem;font-family:inherit;width:80px;">
+                </div>
+                <div style="display:flex;gap:10px;margin-top:6px;">
+                    <button onclick="saveProjectForm()" style="flex:1;background:rgba(99,102,241,0.2);border:1px solid var(--accent);border-radius:10px;padding:10px;color:var(--accent-light);font-weight:700;cursor:pointer;font-family:inherit;">שמור</button>
+                    <button onclick="document.getElementById('project-form-modal').remove()" style="flex:1;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--text-secondary);cursor:pointer;font-family:inherit;">ביטול</button>
+                </div>
+            </div>
+        </div>`;
+    document.body.appendChild(modal);
+}
+
+function saveProjectForm() {
+    const name = document.getElementById('pf-name')?.value?.trim();
+    if (!name) { alert('חובה להזין שם'); return; }
+    const proj = {
+        name,
+        category: document.getElementById('pf-cat')?.value || '',
+        network: document.getElementById('pf-network')?.value?.trim() || '',
+        marketCap: document.getElementById('pf-mcap')?.value?.trim() || '',
+        description: document.getElementById('pf-desc')?.value?.trim() || '',
+        strengths: document.getElementById('pf-strengths')?.value?.trim() || '',
+        weaknesses: document.getElementById('pf-weaknesses')?.value?.trim() || '',
+        score: parseInt(document.getElementById('pf-score')?.value) || 5
+    };
+    analysisProjects.push(proj);
+    localStorage.setItem('analysis_projects', JSON.stringify(analysisProjects));
+    document.getElementById('project-form-modal')?.remove();
+    renderProjectCards();
 }
 
     </script>
@@ -5409,11 +5978,13 @@ function switchPage(pageName) {
         charts: 'גרפים היסטוריים',
         portfolio: 'תיק השקעות',
         history: 'היסטוריית עסקאות',
-        insights: 'תובנות AI'
+        insights: 'תובנות AI',
+        analysis: 'ניתוח שוק'
     };
     document.getElementById('page-title').textContent = titles[pageName] || 'CryptoEdge';
     if (pageName === 'history') renderHistory();
     if (pageName === 'insights') initInsightsPage();
+    if (pageName === 'analysis') initAnalysisPage();
 }
 
 // ==================== DASHBOARD STATS ====================
@@ -6253,21 +6824,20 @@ async function fetchCryptoNews() {
     }
 }
 
-function renderNewsItems(items) {
+function renderNewsItems(items, source) {
     const container = document.getElementById('crypto-news-list');
     if (!container) return;
     const icons = ['📰','🔥','💡','🚀','⚡','🌐'];
-    container.innerHTML = items.slice(0, 6).map((item, i) => {
+    const src = source || 'CoinTelegraph';
+    container.innerHTML = items.slice(0, 8).map((item, i) => {
         const title = (item.title || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         const link = item.link || '#';
-        const date = item.pubDate
-            ? new Date(item.pubDate).toLocaleDateString('he-IL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
-            : '';
+        const timeAgo = item.pubDate ? hebrewTimeAgo(item.pubDate) : '';
         return `<a href="${link}" target="_blank" class="news-item">
             <div class="news-bullet">${icons[i % icons.length]}</div>
             <div class="news-content">
                 <div class="news-title">${title}</div>
-                <div class="news-meta">${date} • CoinTelegraph</div>
+                <div class="news-meta">${timeAgo ? timeAgo + ' • ' : ''}${src}</div>
             </div>
         </a>`;
     }).join('');
@@ -6764,7 +7334,18 @@ function switchNewsTab(tab, btn) {
 }
 
 function getNewsSource(tab) {
-    return { crypto: 'CoinTelegraph', macro: 'MarketWatch', markets: 'Reuters' }[tab] || '';
+    return { crypto: 'CoinTelegraph', macro: 'MarketWatch / Reuters', markets: 'Reuters' }[tab] || '';
+}
+
+function hebrewTimeAgo(dateStr) {
+    if (!dateStr) return '';
+    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
+    if (diff < 1) return 'עכשיו';
+    if (diff < 60) return `לפני ${diff} דקות`;
+    const h = Math.floor(diff / 60);
+    if (h < 24) return `לפני ${h} שעות`;
+    const d = Math.floor(h / 24);
+    return `לפני ${d} ימים`;
 }
 
 async function fetchNewsForTab(tab) {
@@ -6774,12 +7355,15 @@ async function fetchNewsForTab(tab) {
         markets: 'https://feeds.content.dowjones.io/public/rss/mw_topstories'
     };
     const fallbacks = {
-        macro:   'https://www.cnbc.com/id/10000664/device/rss/rss.html',
+        macro:   'https://feeds.feedburner.com/ReutersNewsOnline',
         markets: 'https://finance.yahoo.com/news/rssindex'
+    };
+    const fallbacks2 = {
+        macro: 'https://www.cnbc.com/id/10000664/device/rss/rss.html'
     };
     try {
         const url = encodeURIComponent(feeds[tab]);
-        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + url + '&count=6');
+        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + url + '&count=8');
         const data = await res.json();
         if (data.status === 'ok' && data.items && data.items.length > 0) {
             newsCache[tab] = data.items;
@@ -6791,7 +7375,7 @@ async function fetchNewsForTab(tab) {
         if (fallbacks[tab]) {
             try {
                 const url2 = encodeURIComponent(fallbacks[tab]);
-                const res2 = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + url2 + '&count=6');
+                const res2 = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + url2 + '&count=8');
                 const data2 = await res2.json();
                 if (data2.status === 'ok' && data2.items && data2.items.length > 0) {
                     newsCache[tab] = data2.items;
@@ -6799,6 +7383,18 @@ async function fetchNewsForTab(tab) {
                     return;
                 }
             } catch(e2) {}
+        }
+        if (fallbacks2[tab]) {
+            try {
+                const url3 = encodeURIComponent(fallbacks2[tab]);
+                const res3 = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + url3 + '&count=8');
+                const data3 = await res3.json();
+                if (data3.status === 'ok' && data3.items && data3.items.length > 0) {
+                    newsCache[tab] = data3.items;
+                    if (activeNewsTab === tab) renderNewsItems(data3.items, getNewsSource(tab));
+                    return;
+                }
+            } catch(e3) {}
         }
         if (activeNewsTab === tab)
             document.getElementById('crypto-news-list').innerHTML = '<div class="news-loading">⚠️ לא ניתן לטעון</div>';
@@ -8071,6 +8667,8 @@ function buildStatsReport() {
 
     // Auto conclusion
     buildSrConclusion({ closed, wins, losses, totalPnl, winRate, profitFactor, maxDD, sharpe, currentStreak, bestTrade, worstTrade });
+    // Improvement notes
+    buildSrImprovements({ closed, wins, losses, winRate, avgWin, avgLoss, profitFactor, sharpe, currentStreak, longs, shorts });
 }
 
 function drawSrPnlChart(closed) {
@@ -8241,6 +8839,21 @@ function buildSrConclusion({ closed, wins, losses, totalPnl, winRate, profitFact
     lines.push(`\n${starStr} דירוג חודשי: ${stars}/5`);
 
     el.textContent = lines.join('\n');
+}
+
+function buildSrImprovements({ closed, wins, losses, winRate, avgWin, avgLoss, profitFactor, sharpe, currentStreak, longs, shorts }) {
+    const el = document.getElementById('sr-improvements');
+    if (!el) return;
+    if (closed.length === 0) { el.innerHTML = ''; return; }
+    const tips = [];
+    if (winRate < 50) tips.push('נסה להחמיר את קריטריוני הכניסה — המתן לאישור מ-2 timeframes לפחות');
+    if (avgLoss > avgWin) tips.push('הקטן את גודל ה-Stop Loss או הגדל את היעד — יחס R:R שלך מתחת ל-1');
+    if (profitFactor < 1.2) tips.push('שקול להפחית מספר עסקאות ולהתמקד רק בסטאפים הטובים ביותר');
+    if (currentStreak < -2) tips.push('אחרי רצף הפסדים — הפחת גודל פוזיציה ב-50% עד לשיבה לרווחיות');
+    if (longs.length > shorts.length * 2) tips.push('אתה מוטה לונג מאוד — שקול להוסיף כלים לזיהוי סביבות בֵּרי');
+    if (sharpe < 0) tips.push('Sharpe שלילי — שקול לסקור את הזמנים בהם אתה סוחר');
+    tips.push('נהל יומן מסחר מפורט לכל עסקה — כתוב מה עבד ומה לא');
+    el.innerHTML = '<ul>' + tips.map(t => `<li>${t}</li>`).join('') + '</ul>';
 }
 
 function emailStatsReport() {
