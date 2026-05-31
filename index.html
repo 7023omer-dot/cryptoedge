@@ -3610,11 +3610,49 @@ function getMonthlyStats(year, month) {
     const closed = mt.filter(t => t.status !== 'open');
     const wins   = closed.filter(t => t.status === 'win');
     const losses = closed.filter(t => t.status === 'loss');
-    const totalPnl = closed.reduce((s, t) => s + (t.pnl || 0), 0);
-    const winRate  = closed.length > 0 ? Math.round(wins.length / closed.length * 100) : 0;
+    const totalPnl  = closed.reduce((s, t) => s + (t.pnl || 0), 0);
+    const totalWin  = wins.reduce((s, t) => s + (t.pnl || 0), 0);
+    const totalLoss = Math.abs(losses.reduce((s, t) => s + (t.pnl || 0), 0));
+    const winRate   = closed.length > 0 ? Math.round(wins.length / closed.length * 100) : 0;
+    const avgWin    = wins.length   > 0 ? totalWin  / wins.length   : 0;
+    const avgLoss   = losses.length > 0 ? totalLoss / losses.length : 0;
+    const profitFactor = totalLoss > 0 ? totalWin / totalLoss : (totalWin > 0 ? 99 : 0);
+    const rrTrades  = closed.filter(t => t.rr && parseFloat(t.rr) > 0);
+    const avgRR     = rrTrades.length > 0 ? rrTrades.reduce((s,t) => s + parseFloat(t.rr||0), 0) / rrTrades.length : 0;
+    const longsCount  = closed.filter(t => t.direction === 'long').length;
+    const shortsCount = closed.filter(t => t.direction === 'short').length;
     const best  = closed.reduce((b, t) => (!b || (t.pnl||0) > (b.pnl||0)) ? t : b, null);
     const worst = closed.reduce((w, t) => (!w || (t.pnl||0) < (w.pnl||0)) ? t : w, null);
-    return { monthTrades: mt, closed, wins, losses, totalPnl, winRate, bestTrade: best, worstTrade: worst };
+    return { monthTrades: mt, closed, wins, losses, totalPnl, totalWin, totalLoss,
+             winRate, avgWin, avgLoss, profitFactor, avgRR, longsCount, shortsCount,
+             bestTrade: best, worstTrade: worst };
+}
+
+function generateAutoInsights(s) {
+    const insights = [];
+    if (s.closed.length === 0) return '';
+    if (s.winRate >= 65) insights.push(`✅ אחוז הצלחה מצוין (${s.winRate}%) — שמור על אסטרטגיה זו.`);
+    else if (s.winRate >= 50) insights.push(`📊 אחוז הצלחה סביר (${s.winRate}%) — יש מקום לשיפור.`);
+    else insights.push(`⚠️ אחוז הצלחה נמוך (${s.winRate}%) — מומלץ לסקור את קריטריוני הכניסה.`);
+    if (s.profitFactor >= 2) insights.push(`🚀 Profit Factor גבוה (${s.profitFactor.toFixed(2)}) — יחס רווח/הפסד מצוין.`);
+    else if (s.profitFactor >= 1) insights.push(`📈 Profit Factor חיובי (${s.profitFactor.toFixed(2)}) — הפעילות רווחית.`);
+    else if (s.profitFactor < 1 && s.closed.length > 0) insights.push(`🔴 Profit Factor מתחת ל-1 (${s.profitFactor.toFixed(2)}) — ההפסדים עולים על הרווחים.`);
+    if (s.avgWin > 0 && s.avgLoss > 0) {
+        const ratio = s.avgWin / s.avgLoss;
+        if (ratio >= 2) insights.push(`💰 ממוצע רווח (${s.avgWin.toFixed(0)}$) גבוה פי ${ratio.toFixed(1)} מממוצע הפסד (${s.avgLoss.toFixed(0)}$) — יחס R מצוין.`);
+        else if (ratio < 1) insights.push(`⚠️ ממוצע הפסד (${s.avgLoss.toFixed(0)}$) גבוה מממוצע רווח (${s.avgWin.toFixed(0)}$) — שקול להזיז Stop Loss רחוק יותר.`);
+    }
+    if (s.longsCount > 0 && s.shortsCount > 0) {
+        const dom = s.longsCount > s.shortsCount ? 'לונג' : 'שורט';
+        insights.push(`📌 רוב העסקאות בכיוון ${dom} (${s.longsCount} לונג / ${s.shortsCount} שורט).`);
+    } else if (s.longsCount > 0) {
+        insights.push(`📌 כל העסקאות היו בכיוון לונג (${s.longsCount} עסקאות).`);
+    } else if (s.shortsCount > 0) {
+        insights.push(`📌 כל העסקאות היו בכיוון שורט (${s.shortsCount} עסקאות).`);
+    }
+    if (s.totalPnl >= 0) insights.push(`🟢 חודש רווחי סה"כ: +$${s.totalPnl.toFixed(2)}.`);
+    else insights.push(`🔴 חודש הפסדי סה"כ: -$${Math.abs(s.totalPnl).toFixed(2)} — מומלץ להפחית גודל פוזיציה.`);
+    return insights.length > 0 ? `🤖 תובנות אוטומטיות:\n` + insights.map(i => `  • ${i}`).join('\n') + '\n' : '';
 }
 
 function showMonthlyReport(year, month) {
@@ -3645,29 +3683,54 @@ function showMonthlyReport(year, month) {
     `;
 
     let rpt = `📊 דוח מסחר חודשי - ${months[m]} ${y}\n`;
-    rpt += `${'─'.repeat(36)}\n\n`;
+    rpt += `${'═'.repeat(40)}\n\n`;
     rpt += `📈 סיכום ביצועים:\n`;
     rpt += `  • עסקאות סה"כ: ${s.monthTrades.length} (${s.closed.length} סגורות)\n`;
-    rpt += `  • אחוז הצלחה: ${s.winRate}%\n`;
     rpt += `  • רווחים: ${s.wins.length}   הפסדים: ${s.losses.length}\n`;
-    rpt += `  • סה"כ רווח/הפסד: ${s.totalPnl>=0?'+':''}$${s.totalPnl.toFixed(2)}\n\n`;
+    rpt += `  • אחוז הצלחה: ${s.winRate}%\n`;
+    rpt += `  • סה"כ רווח/הפסד: ${s.totalPnl>=0?'+':''}$${s.totalPnl.toFixed(2)}\n`;
+    rpt += `  • סה"כ רווחים: +$${s.totalWin.toFixed(2)}\n`;
+    rpt += `  • סה"כ הפסדים: -$${s.totalLoss.toFixed(2)}\n`;
+    rpt += `  • ממוצע רווח לעסקה: +$${s.avgWin.toFixed(2)}\n`;
+    rpt += `  • ממוצע הפסד לעסקה: -$${s.avgLoss.toFixed(2)}\n`;
+    rpt += `  • Profit Factor: ${s.profitFactor >= 99 ? '∞' : s.profitFactor.toFixed(2)}\n`;
+    if (s.avgRR > 0) rpt += `  • ממוצע R:R: ${s.avgRR.toFixed(2)}\n`;
+    rpt += `  • לונג: ${s.longsCount}   שורט: ${s.shortsCount}\n`;
+    rpt += `\n`;
     if (s.bestTrade && (s.bestTrade.pnl||0) > 0) {
         rpt += `🏆 עסקה הטובה ביותר:\n`;
-        rpt += `  • ${s.bestTrade.pair} ${s.bestTrade.direction==='long'?'📈':'📉'}: +$${(s.bestTrade.pnl||0).toFixed(2)}\n\n`;
+        rpt += `  • ${s.bestTrade.pair} ${s.bestTrade.direction==='long'?'📈 לונג':'📉 שורט'} (${s.bestTrade.date||''})\n`;
+        rpt += `  • כניסה: $${Number(s.bestTrade.entry||0).toLocaleString()}  יציאה: $${Number(s.bestTrade.exit||0).toLocaleString()}\n`;
+        rpt += `  • רווח: +$${(s.bestTrade.pnl||0).toFixed(2)}\n\n`;
     }
     if (s.worstTrade && (s.worstTrade.pnl||0) < 0) {
         rpt += `⚠️ עסקה הגרועה ביותר:\n`;
-        rpt += `  • ${s.worstTrade.pair} ${s.worstTrade.direction==='long'?'📈':'📉'}: -$${Math.abs(s.worstTrade.pnl||0).toFixed(2)}\n\n`;
+        rpt += `  • ${s.worstTrade.pair} ${s.worstTrade.direction==='long'?'📈 לונג':'📉 שורט'} (${s.worstTrade.date||''})\n`;
+        rpt += `  • כניסה: $${Number(s.worstTrade.entry||0).toLocaleString()}  יציאה: $${Number(s.worstTrade.exit||0).toLocaleString()}\n`;
+        rpt += `  • הפסד: -$${Math.abs(s.worstTrade.pnl||0).toFixed(2)}\n\n`;
     }
     if (s.closed.length > 0) {
-        rpt += `📋 פירוט עסקאות:\n`;
+        rpt += `${'─'.repeat(36)}\n`;
+        rpt += `📋 פירוט עסקאות:\n\n`;
         s.closed.forEach((t, i) => {
             const ic = t.status==='win'?'✅':t.status==='loss'?'❌':'➖';
-            rpt += `  ${i+1}. ${ic} ${t.pair} (${t.date||''}): ${(t.pnl||0)>=0?'+':''}$${(t.pnl||0).toFixed(2)}\n`;
+            const dir = t.direction==='long'?'📈':'📉';
+            rpt += `  ${i+1}. ${ic} ${dir} ${t.pair||''}  (${t.date||'--'})\n`;
+            if (t.entry) rpt += `      כניסה: $${Number(t.entry).toLocaleString()}`;
+            if (t.exit)  rpt += `   יציאה: $${Number(t.exit).toLocaleString()}`;
+            if (t.entry || t.exit) rpt += `\n`;
+            if (t.leverage && parseFloat(t.leverage) > 1) rpt += `      מינוף: ${t.leverage}x\n`;
+            rpt += `      P&L: ${(t.pnl||0)>=0?'+':''}$${(t.pnl||0).toFixed(2)}`;
+            if (t.rr) rpt += `   R:R ${parseFloat(t.rr).toFixed(2)}`;
+            rpt += `\n`;
+            if (t.notes) rpt += `      📝 ${t.notes}\n`;
+            rpt += `\n`;
         });
     }
-    rpt += `\n${'─'.repeat(36)}\n`;
-    rpt += `נוצר ע"י CryptoEdge`;
+    rpt += `${'─'.repeat(36)}\n\n`;
+    const insights = generateAutoInsights(s);
+    if (insights) rpt += insights + `\n${'─'.repeat(36)}\n\n`;
+    rpt += `נוצר ע"י CryptoEdge | ${new Date().toLocaleDateString('he-IL')}`;
 
     document.getElementById('report-text').textContent = rpt;
     window._rptText  = rpt;
@@ -3678,9 +3741,10 @@ function showMonthlyReport(year, month) {
 function closeReportModal() { document.getElementById('report-modal').classList.remove('show'); }
 
 function emailReport() {
-    const subj = encodeURIComponent(`דוח מסחר חודשי CryptoEdge - ${window._rptMonth||''}`);
+    const to   = '7023omer@gmail.com';
+    const subj = encodeURIComponent(`📊 דוח מסחר חודשי CryptoEdge - ${window._rptMonth||''}`);
     const body = encodeURIComponent(window._rptText||'');
-    window.location.href = `mailto:?subject=${subj}&body=${body}`;
+    window.location.href = `mailto:${to}?subject=${subj}&body=${body}`;
 }
 
 function checkMonthlyReportReminder() {
@@ -5880,11 +5944,49 @@ function getMonthlyStats(year, month) {
     const closed = mt.filter(t => t.status !== 'open');
     const wins   = closed.filter(t => t.status === 'win');
     const losses = closed.filter(t => t.status === 'loss');
-    const totalPnl = closed.reduce((s, t) => s + (t.pnl || 0), 0);
-    const winRate  = closed.length > 0 ? Math.round(wins.length / closed.length * 100) : 0;
+    const totalPnl  = closed.reduce((s, t) => s + (t.pnl || 0), 0);
+    const totalWin  = wins.reduce((s, t) => s + (t.pnl || 0), 0);
+    const totalLoss = Math.abs(losses.reduce((s, t) => s + (t.pnl || 0), 0));
+    const winRate   = closed.length > 0 ? Math.round(wins.length / closed.length * 100) : 0;
+    const avgWin    = wins.length   > 0 ? totalWin  / wins.length   : 0;
+    const avgLoss   = losses.length > 0 ? totalLoss / losses.length : 0;
+    const profitFactor = totalLoss > 0 ? totalWin / totalLoss : (totalWin > 0 ? 99 : 0);
+    const rrTrades  = closed.filter(t => t.rr && parseFloat(t.rr) > 0);
+    const avgRR     = rrTrades.length > 0 ? rrTrades.reduce((s,t) => s + parseFloat(t.rr||0), 0) / rrTrades.length : 0;
+    const longsCount  = closed.filter(t => t.direction === 'long').length;
+    const shortsCount = closed.filter(t => t.direction === 'short').length;
     const best  = closed.reduce((b, t) => (!b || (t.pnl||0) > (b.pnl||0)) ? t : b, null);
     const worst = closed.reduce((w, t) => (!w || (t.pnl||0) < (w.pnl||0)) ? t : w, null);
-    return { monthTrades: mt, closed, wins, losses, totalPnl, winRate, bestTrade: best, worstTrade: worst };
+    return { monthTrades: mt, closed, wins, losses, totalPnl, totalWin, totalLoss,
+             winRate, avgWin, avgLoss, profitFactor, avgRR, longsCount, shortsCount,
+             bestTrade: best, worstTrade: worst };
+}
+
+function generateAutoInsights(s) {
+    const insights = [];
+    if (s.closed.length === 0) return '';
+    if (s.winRate >= 65) insights.push(`✅ אחוז הצלחה מצוין (${s.winRate}%) — שמור על אסטרטגיה זו.`);
+    else if (s.winRate >= 50) insights.push(`📊 אחוז הצלחה סביר (${s.winRate}%) — יש מקום לשיפור.`);
+    else insights.push(`⚠️ אחוז הצלחה נמוך (${s.winRate}%) — מומלץ לסקור את קריטריוני הכניסה.`);
+    if (s.profitFactor >= 2) insights.push(`🚀 Profit Factor גבוה (${s.profitFactor.toFixed(2)}) — יחס רווח/הפסד מצוין.`);
+    else if (s.profitFactor >= 1) insights.push(`📈 Profit Factor חיובי (${s.profitFactor.toFixed(2)}) — הפעילות רווחית.`);
+    else if (s.profitFactor < 1 && s.closed.length > 0) insights.push(`🔴 Profit Factor מתחת ל-1 (${s.profitFactor.toFixed(2)}) — ההפסדים עולים על הרווחים.`);
+    if (s.avgWin > 0 && s.avgLoss > 0) {
+        const ratio = s.avgWin / s.avgLoss;
+        if (ratio >= 2) insights.push(`💰 ממוצע רווח (${s.avgWin.toFixed(0)}$) גבוה פי ${ratio.toFixed(1)} מממוצע הפסד (${s.avgLoss.toFixed(0)}$) — יחס R מצוין.`);
+        else if (ratio < 1) insights.push(`⚠️ ממוצע הפסד (${s.avgLoss.toFixed(0)}$) גבוה מממוצע רווח (${s.avgWin.toFixed(0)}$) — שקול להזיז Stop Loss רחוק יותר.`);
+    }
+    if (s.longsCount > 0 && s.shortsCount > 0) {
+        const dom = s.longsCount > s.shortsCount ? 'לונג' : 'שורט';
+        insights.push(`📌 רוב העסקאות בכיוון ${dom} (${s.longsCount} לונג / ${s.shortsCount} שורט).`);
+    } else if (s.longsCount > 0) {
+        insights.push(`📌 כל העסקאות היו בכיוון לונג (${s.longsCount} עסקאות).`);
+    } else if (s.shortsCount > 0) {
+        insights.push(`📌 כל העסקאות היו בכיוון שורט (${s.shortsCount} עסקאות).`);
+    }
+    if (s.totalPnl >= 0) insights.push(`🟢 חודש רווחי סה"כ: +$${s.totalPnl.toFixed(2)}.`);
+    else insights.push(`🔴 חודש הפסדי סה"כ: -$${Math.abs(s.totalPnl).toFixed(2)} — מומלץ להפחית גודל פוזיציה.`);
+    return insights.length > 0 ? `🤖 תובנות אוטומטיות:\n` + insights.map(i => `  • ${i}`).join('\n') + '\n' : '';
 }
 
 function showMonthlyReport(year, month) {
@@ -5915,29 +6017,54 @@ function showMonthlyReport(year, month) {
     `;
 
     let rpt = `📊 דוח מסחר חודשי - ${months[m]} ${y}\n`;
-    rpt += `${'─'.repeat(36)}\n\n`;
+    rpt += `${'═'.repeat(40)}\n\n`;
     rpt += `📈 סיכום ביצועים:\n`;
     rpt += `  • עסקאות סה"כ: ${s.monthTrades.length} (${s.closed.length} סגורות)\n`;
-    rpt += `  • אחוז הצלחה: ${s.winRate}%\n`;
     rpt += `  • רווחים: ${s.wins.length}   הפסדים: ${s.losses.length}\n`;
-    rpt += `  • סה"כ רווח/הפסד: ${s.totalPnl>=0?'+':''}$${s.totalPnl.toFixed(2)}\n\n`;
+    rpt += `  • אחוז הצלחה: ${s.winRate}%\n`;
+    rpt += `  • סה"כ רווח/הפסד: ${s.totalPnl>=0?'+':''}$${s.totalPnl.toFixed(2)}\n`;
+    rpt += `  • סה"כ רווחים: +$${s.totalWin.toFixed(2)}\n`;
+    rpt += `  • סה"כ הפסדים: -$${s.totalLoss.toFixed(2)}\n`;
+    rpt += `  • ממוצע רווח לעסקה: +$${s.avgWin.toFixed(2)}\n`;
+    rpt += `  • ממוצע הפסד לעסקה: -$${s.avgLoss.toFixed(2)}\n`;
+    rpt += `  • Profit Factor: ${s.profitFactor >= 99 ? '∞' : s.profitFactor.toFixed(2)}\n`;
+    if (s.avgRR > 0) rpt += `  • ממוצע R:R: ${s.avgRR.toFixed(2)}\n`;
+    rpt += `  • לונג: ${s.longsCount}   שורט: ${s.shortsCount}\n`;
+    rpt += `\n`;
     if (s.bestTrade && (s.bestTrade.pnl||0) > 0) {
         rpt += `🏆 עסקה הטובה ביותר:\n`;
-        rpt += `  • ${s.bestTrade.pair} ${s.bestTrade.direction==='long'?'📈':'📉'}: +$${(s.bestTrade.pnl||0).toFixed(2)}\n\n`;
+        rpt += `  • ${s.bestTrade.pair} ${s.bestTrade.direction==='long'?'📈 לונג':'📉 שורט'} (${s.bestTrade.date||''})\n`;
+        rpt += `  • כניסה: $${Number(s.bestTrade.entry||0).toLocaleString()}  יציאה: $${Number(s.bestTrade.exit||0).toLocaleString()}\n`;
+        rpt += `  • רווח: +$${(s.bestTrade.pnl||0).toFixed(2)}\n\n`;
     }
     if (s.worstTrade && (s.worstTrade.pnl||0) < 0) {
         rpt += `⚠️ עסקה הגרועה ביותר:\n`;
-        rpt += `  • ${s.worstTrade.pair} ${s.worstTrade.direction==='long'?'📈':'📉'}: -$${Math.abs(s.worstTrade.pnl||0).toFixed(2)}\n\n`;
+        rpt += `  • ${s.worstTrade.pair} ${s.worstTrade.direction==='long'?'📈 לונג':'📉 שורט'} (${s.worstTrade.date||''})\n`;
+        rpt += `  • כניסה: $${Number(s.worstTrade.entry||0).toLocaleString()}  יציאה: $${Number(s.worstTrade.exit||0).toLocaleString()}\n`;
+        rpt += `  • הפסד: -$${Math.abs(s.worstTrade.pnl||0).toFixed(2)}\n\n`;
     }
     if (s.closed.length > 0) {
-        rpt += `📋 פירוט עסקאות:\n`;
+        rpt += `${'─'.repeat(36)}\n`;
+        rpt += `📋 פירוט עסקאות:\n\n`;
         s.closed.forEach((t, i) => {
             const ic = t.status==='win'?'✅':t.status==='loss'?'❌':'➖';
-            rpt += `  ${i+1}. ${ic} ${t.pair} (${t.date||''}): ${(t.pnl||0)>=0?'+':''}$${(t.pnl||0).toFixed(2)}\n`;
+            const dir = t.direction==='long'?'📈':'📉';
+            rpt += `  ${i+1}. ${ic} ${dir} ${t.pair||''}  (${t.date||'--'})\n`;
+            if (t.entry) rpt += `      כניסה: $${Number(t.entry).toLocaleString()}`;
+            if (t.exit)  rpt += `   יציאה: $${Number(t.exit).toLocaleString()}`;
+            if (t.entry || t.exit) rpt += `\n`;
+            if (t.leverage && parseFloat(t.leverage) > 1) rpt += `      מינוף: ${t.leverage}x\n`;
+            rpt += `      P&L: ${(t.pnl||0)>=0?'+':''}$${(t.pnl||0).toFixed(2)}`;
+            if (t.rr) rpt += `   R:R ${parseFloat(t.rr).toFixed(2)}`;
+            rpt += `\n`;
+            if (t.notes) rpt += `      📝 ${t.notes}\n`;
+            rpt += `\n`;
         });
     }
-    rpt += `\n${'─'.repeat(36)}\n`;
-    rpt += `נוצר ע"י CryptoEdge`;
+    rpt += `${'─'.repeat(36)}\n\n`;
+    const insights = generateAutoInsights(s);
+    if (insights) rpt += insights + `\n${'─'.repeat(36)}\n\n`;
+    rpt += `נוצר ע"י CryptoEdge | ${new Date().toLocaleDateString('he-IL')}`;
 
     document.getElementById('report-text').textContent = rpt;
     window._rptText  = rpt;
@@ -5948,9 +6075,10 @@ function showMonthlyReport(year, month) {
 function closeReportModal() { document.getElementById('report-modal').classList.remove('show'); }
 
 function emailReport() {
-    const subj = encodeURIComponent(`דוח מסחר חודשי CryptoEdge - ${window._rptMonth||''}`);
+    const to   = '7023omer@gmail.com';
+    const subj = encodeURIComponent(`📊 דוח מסחר חודשי CryptoEdge - ${window._rptMonth||''}`);
     const body = encodeURIComponent(window._rptText||'');
-    window.location.href = `mailto:?subject=${subj}&body=${body}`;
+    window.location.href = `mailto:${to}?subject=${subj}&body=${body}`;
 }
 
 function checkMonthlyReportReminder() {
