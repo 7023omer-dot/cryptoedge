@@ -2455,6 +2455,7 @@ html, body {
                                 <div class="global-stat-pill">BTC Dom: <span id="ag-btcdom">—</span></div>
                                 <div class="global-stat-pill">ETH Dom: <span id="ag-ethdom">—</span></div>
                                 <div class="global-stat-pill">Alts Dom: <span id="ag-altdom">—</span></div>
+                                <div class="global-stat-pill">USDT.D: <span id="ag-usdtdom">—</span></div>
                                 <div class="global-stat-pill">DXY: <span id="ag-dxy">—</span></div>
                                 <div class="global-stat-pill">נפח 24ש: <span id="ag-vol">—</span></div>
                             </div>
@@ -6022,6 +6023,13 @@ async function fetchDominanceAndDXY() {
         const btcD = d.market_cap_percentage && d.market_cap_percentage.btc || 0;
         const ethD = d.market_cap_percentage && d.market_cap_percentage.eth || 0;
         const altD = Math.max(0, 100 - btcD - ethD).toFixed(1);
+        const usdtD = d.market_cap_percentage && d.market_cap_percentage.tether || 0;
+        const usdtEl = document.getElementById('ag-usdtdom');
+        if (usdtEl) {
+            usdtEl.textContent = usdtD.toFixed(1) + '%';
+            usdtEl.style.color = usdtD > 8 ? '#ef4444' : usdtD > 5 ? '#f59e0b' : '#22c55e';
+            usdtEl.title = usdtD > 8 ? 'USDT Dom גבוה — כסף יוצא לסטייבלים, זהירות' : usdtD > 5 ? 'USDT Dom בינוני' : 'USDT Dom נמוך — כסף זורם לקריפטו, חיובי';
+        }
         const ethEl = document.getElementById('ag-ethdom');
         const altEl = document.getElementById('ag-altdom');
         if (ethEl) ethEl.textContent = ethD.toFixed(1) + '%';
