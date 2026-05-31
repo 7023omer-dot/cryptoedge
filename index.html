@@ -3838,12 +3838,8 @@ function renderDetailedStats() {
                     <div class="stat-item-label">רצף הפסדים</div>
                 </div>
             </div>
-            <div style="margin-top:10px;padding:10px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <div style="margin-top:10px;padding:10px;background:var(--bg);border-radius:10px;">
                 <span style="font-size:0.78rem;color:var(--text-secondary)">זוג מוביל: <strong style="color:var(--text)">${s.topPair}</strong></span>
-                <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                <button onclick="showMonthlyReport()" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);color:var(--accent-light);padding:6px 12px;border-radius:8px;font-size:0.78rem;font-family:inherit;cursor:pointer;font-weight:600;">📊 דוח חודשי</button>
-                <button onclick="showStatsReport()" style="background:rgba(16,185,129,0.2);border:1px solid var(--green);color:var(--green);padding:6px 12px;border-radius:8px;font-size:0.78rem;font-family:inherit;cursor:pointer;font-weight:600;">📈 דוח סטטיסטי</button>
-                </div>
             </div>
         </div>
     `;
@@ -6215,12 +6211,8 @@ function renderDetailedStats() {
                     <div class="stat-item-label">רצף הפסדים</div>
                 </div>
             </div>
-            <div style="margin-top:10px;padding:10px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <div style="margin-top:10px;padding:10px;background:var(--bg);border-radius:10px;">
                 <span style="font-size:0.78rem;color:var(--text-secondary)">זוג מוביל: <strong style="color:var(--text)">${s.topPair}</strong></span>
-                <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                <button onclick="showMonthlyReport()" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);color:var(--accent-light);padding:6px 12px;border-radius:8px;font-size:0.78rem;font-family:inherit;cursor:pointer;font-weight:600;">📊 דוח חודשי</button>
-                <button onclick="showStatsReport()" style="background:rgba(16,185,129,0.2);border:1px solid var(--green);color:var(--green);padding:6px 12px;border-radius:8px;font-size:0.78rem;font-family:inherit;cursor:pointer;font-weight:600;">📈 דוח סטטיסטי</button>
-                </div>
             </div>
         </div>
     `;
@@ -7805,18 +7797,14 @@ async function runInsightsPipeline() {
 
 // ==================== STATS REPORT MODAL ====================
 function showStatsReport() {
-    const modal = document.getElementById('stats-report-modal');
-    if (!modal) { showToast('❌ שגיאה: מודל לא נמצא'); return; }
-    modal.style.display = 'flex';
-    modal.style.position = 'fixed';
-    modal.style.inset = '0';
-    modal.style.zIndex = '99999';
-    modal.style.background = 'rgba(0,0,0,0.85)';
-    modal.style.alignItems = 'flex-start';
-    modal.style.justifyContent = 'center';
-    modal.style.overflowY = 'auto';
-    modal.style.padding = '20px 0';
-    buildStatsReport();
+    try {
+        const modal = document.getElementById('stats-report-modal');
+        if (!modal) { showToast('❌ שגיאה: מודל לא נמצא'); return; }
+        modal.style.cssText = 'display:flex !important;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.88);align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 0;';
+        buildStatsReport();
+    } catch(e) {
+        showToast('❌ שגיאה: ' + e.message);
+    }
 }
 
 function closeStatsReportModal() {
