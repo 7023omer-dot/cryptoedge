@@ -7797,4 +7797,417 @@ async function runInsightsPipeline() {
 
 // ==================== END AI INSIGHTS ENGINE ====================
 
+// ==================== STATS REPORT MODAL ====================
+function showStatsReport() {
+    const modal = document.getElementById('stats-report-modal');
+    if (!modal) return;
+    modal.classList.add('show');
+    buildStatsReport();
+}
+
+function closeStatsReportModal() {
+    const modal = document.getElementById('stats-report-modal');
+    if (modal) modal.classList.remove('show');
+}
+
+function buildStatsReport() {
+    const now = new Date();
+    const monthNames = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+    const label = document.getElementById('sr-month-label');
+    if (label) label.textContent = 'דוח סטטיסטי מפורט — ' + monthNames[now.getMonth()] + ' ' + now.getFullYear();
+
+    const closed = trades.filter(t => ['win','loss','breakeven'].includes(t.status));
+    const wins = closed.filter(t => t.status === 'win');
+    const losses = closed.filter(t => t.status === 'loss');
+    const totalPnl = closed.reduce((s,t) => s + (t.pnl||0), 0);
+    const totalWin = wins.reduce((s,t) => s + (t.pnl||0), 0);
+    const totalLoss = Math.abs(losses.reduce((s,t) => s + (t.pnl||0), 0));
+    const avgWin = wins.length > 0 ? totalWin / wins.length : 0;
+    const avgLoss = losses.length > 0 ? totalLoss / losses.length : 0;
+    const winRate = closed.length > 0 ? Math.round(wins.length / closed.length * 100) : 0;
+    const profitFactor = totalLoss > 0 ? totalWin / totalLoss : (totalWin > 0 ? 99 : 0);
+
+    // Max Drawdown
+    let peak = 0, maxDD = 0, cum = 0;
+    const sortedClosed = [...closed].sort((a,b) => (a.date||'') < (b.date||'') ? -1 : 1);
+    sortedClosed.forEach(t => {
+        cum += (t.pnl||0);
+        if (cum > peak) peak = cum;
+        const dd = peak - cum;
+        if (dd > maxDD) maxDD = dd;
+    });
+
+    // Sharpe Ratio (daily PnL)
+    const dailyPnl = {};
+    sortedClosed.forEach(t => {
+        const d = t.date || 'unknown';
+        dailyPnl[d] = (dailyPnl[d]||0) + (t.pnl||0);
+    });
+    const dailyVals = Object.values(dailyPnl);
+    let sharpe = 0;
+    if (dailyVals.length > 1) {
+        const avg = dailyVals.reduce((s,v) => s+v, 0) / dailyVals.length;
+        const std = Math.sqrt(dailyVals.reduce((s,v) => s + Math.pow(v-avg,2), 0) / dailyVals.length);
+        sharpe = std > 0 ? (avg / std) * Math.sqrt(252) : 0;
+    }
+
+    // Current streak
+    let currentStreak = 0;
+    const streakArr = [...sortedClosed].reverse();
+    if (streakArr.length > 0) {
+        const dir = streakArr[0].status === 'win' ? 1 : streakArr[0].status === 'loss' ? -1 : 0;
+        for (const t of streakArr) {
+            if (dir === 1 && t.status === 'win') currentStreak++;
+            else if (dir === -1 && t.status === 'loss') currentStreak--;
+            else break;
+        }
+    }
+
+    // Average R:R
+    const rrVals = closed.filter(t => t.rr > 0).map(t => t.rr);
+    const avgRR = rrVals.length > 0 ? (rrVals.reduce((s,v)=>s+v,0)/rrVals.length).toFixed(2) : 'N/A';
+
+    // Long / Short breakdown
+    const longs = closed.filter(t => t.direction === 'long');
+    const shorts = closed.filter(t => t.direction === 'short');
+    const longWins = longs.filter(t => t.status === 'win').length;
+    const shortWins = shorts.filter(t => t.status === 'win').length;
+
+    // Best / Worst trade
+    const bestTrade = closed.length ? closed.reduce((b,t) => (t.pnl||0) > (b.pnl||0) ? t : b) : null;
+    const worstTrade = closed.length ? closed.reduce((b,t) => (t.pnl||0) < (b.pnl||0) ? t : b) : null;
+
+    // Stats grid
+    const grid = document.getElementById('sr-stats-grid');
+    if (grid) {
+        const pnlColor = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+        const pfColor = profitFactor >= 1 ? 'var(--green)' : 'var(--red)';
+        const streakTxt = currentStreak > 0 ? `🔥 ${currentStreak} ניצחונות` : currentStreak < 0 ? `💔 ${Math.abs(currentStreak)} הפסדים` : '—';
+        const streakColor = currentStreak > 0 ? 'var(--green)' : currentStreak < 0 ? 'var(--red)' : 'var(--text)';
+        grid.innerHTML = `
+            <div class="sr-stat-card"><div class="sr-stat-val">${trades.length} / ${closed.length}</div><div class="sr-stat-lbl">סה"כ עסקאות / סגורות</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val">${winRate}% / <span style="color:${pfColor}">${profitFactor >= 99 ? '∞' : profitFactor.toFixed(2)}</span></div><div class="sr-stat-lbl">אחוז הצלחה / Profit Factor</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val" style="color:${pnlColor}">${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(0)}</div><div class="sr-stat-lbl">סה"כ רווח/הפסד</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val"><span style="color:var(--green)">+$${avgWin.toFixed(0)}</span> / <span style="color:var(--red)">-$${avgLoss.toFixed(0)}</span></div><div class="sr-stat-lbl">ממוצע רווח / ממוצע הפסד</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val" style="color:var(--red)">-$${maxDD.toFixed(0)}</div><div class="sr-stat-lbl">Max Drawdown</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val">${sharpe.toFixed(2)}</div><div class="sr-stat-lbl">Sharpe Ratio (שנתי)</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val" style="color:${streakColor}">${streakTxt}</div><div class="sr-stat-lbl">רצף נוכחי</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val">${avgRR}</div><div class="sr-stat-lbl">ממוצע R:R</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val">לונג: ${longs.length} (${longs.length ? Math.round(longWins/longs.length*100) : 0}%)</div><div class="sr-stat-lbl" style="margin-top:2px;">שורט: ${shorts.length} (${shorts.length ? Math.round(shortWins/shorts.length*100) : 0}%)</div></div>
+            <div class="sr-stat-card"><div class="sr-stat-val" style="font-size:0.9rem;"><span style="color:var(--green)">${bestTrade ? bestTrade.pair+' +$'+Math.abs(bestTrade.pnl||0).toFixed(0) : '—'}</span></div><div class="sr-stat-lbl" style="margin-top:2px;"><span style="color:var(--red)">${worstTrade ? worstTrade.pair+' -$'+Math.abs(worstTrade.pnl||0).toFixed(0) : '—'}</span></div></div>
+        `;
+    }
+
+    // Draw P&L bar chart
+    setTimeout(() => drawSrPnlChart(sortedClosed), 50);
+
+    // Pair table
+    buildSrPairTable(closed);
+
+    // Auto conclusion
+    buildSrConclusion({ closed, wins, losses, totalPnl, winRate, profitFactor, maxDD, sharpe, currentStreak, bestTrade, worstTrade });
+}
+
+function drawSrPnlChart(closed) {
+    const canvas = document.getElementById('sr-pnl-canvas');
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.offsetWidth || 320;
+    const H = 180;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.height = H + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    if (closed.length === 0) {
+        ctx.fillStyle = 'rgba(120,120,160,0.5)';
+        ctx.font = '13px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('אין עסקאות סגורות', W / 2, H / 2);
+        return;
+    }
+
+    const pad = { top: 20, bottom: 36, left: 40, right: 10 };
+    const pnls = closed.map(t => t.pnl || 0);
+    const maxAbs = Math.max(...pnls.map(Math.abs), 1);
+
+    // Cumulative line
+    let cum = 0;
+    const cumPoints = pnls.map(p => { cum += p; return cum; });
+    const cumMin = Math.min(...cumPoints, 0);
+    const cumMax = Math.max(...cumPoints, 0);
+    const cumRange = cumMax - cumMin || 1;
+
+    const barW = Math.max(2, (W - pad.left - pad.right) / closed.length - 2);
+    const chartH = H - pad.top - pad.bottom;
+    const zeroY = pad.top + chartH * (maxAbs / (2 * maxAbs));
+
+    // Zero line
+    ctx.setLineDash([3, 3]);
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.left, zeroY); ctx.lineTo(W - pad.right, zeroY); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Bars
+    pnls.forEach((pnl, i) => {
+        const x = pad.left + i * (W - pad.left - pad.right) / closed.length + 1;
+        const barH = Math.abs(pnl) / maxAbs * (chartH / 2);
+        const y = pnl >= 0 ? zeroY - barH : zeroY;
+        ctx.fillStyle = pnl >= 0 ? 'rgba(16,185,129,0.8)' : 'rgba(239,68,68,0.8)';
+        ctx.fillRect(x, y, barW, barH);
+    });
+
+    // Cumulative line (purple)
+    const cumToY = v => pad.top + chartH - ((v - cumMin) / cumRange) * chartH;
+    ctx.strokeStyle = '#a855f7';
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    cumPoints.forEach((v, i) => {
+        const x = pad.left + (i + 0.5) * (W - pad.left - pad.right) / closed.length;
+        if (i === 0) ctx.moveTo(x, cumToY(v));
+        else ctx.lineTo(x, cumToY(v));
+    });
+    ctx.stroke();
+
+    // Y axis labels
+    ctx.fillStyle = 'rgba(120,120,160,0.8)';
+    ctx.font = `${10 * dpr / dpr}px Arial`;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('+$' + maxAbs.toFixed(0), pad.left - 4, pad.top);
+    ctx.fillText('$0', pad.left - 4, zeroY);
+    ctx.fillText('-$' + maxAbs.toFixed(0), pad.left - 4, H - pad.bottom);
+
+    // X axis label
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('עסקה מס׳', W / 2, H - 4);
+}
+
+function buildSrPairTable(closed) {
+    const wrap = document.getElementById('sr-pair-table-wrap');
+    if (!wrap) return;
+    const pairMap = {};
+    closed.forEach(t => {
+        const p = t.pair || 'לא ידוע';
+        if (!pairMap[p]) pairMap[p] = { total: 0, wins: 0, pnl: 0 };
+        pairMap[p].total++;
+        if (t.status === 'win') pairMap[p].wins++;
+        pairMap[p].pnl += (t.pnl || 0);
+    });
+    const rows = Object.entries(pairMap).sort((a,b) => b[1].pnl - a[1].pnl);
+    if (rows.length === 0) { wrap.innerHTML = '<div style="color:var(--text-secondary);font-size:0.8rem;">אין נתונים</div>'; return; }
+    wrap.innerHTML = `<table class="sr-pair-table">
+        <thead><tr><th>זוג</th><th>עסקאות</th><th>% הצלחה</th><th>P&L</th></tr></thead>
+        <tbody>${rows.map(([pair, d]) => {
+            const wr = d.total > 0 ? Math.round(d.wins/d.total*100) : 0;
+            const pnlColor = d.pnl >= 0 ? 'var(--green)' : 'var(--red)';
+            return `<tr><td>${pair}</td><td>${d.total}</td><td>${wr}%</td><td style="color:${pnlColor}">${d.pnl >= 0 ? '+' : ''}$${d.pnl.toFixed(0)}</td></tr>`;
+        }).join('')}</tbody>
+    </table>`;
+}
+
+function buildSrConclusion({ closed, wins, losses, totalPnl, winRate, profitFactor, maxDD, sharpe, currentStreak, bestTrade, worstTrade }) {
+    const el = document.getElementById('sr-conclusion');
+    if (!el) return;
+    if (closed.length === 0) { el.textContent = 'אין עסקאות סגורות לניתוח.'; return; }
+
+    let lines = [];
+
+    // Overall assessment
+    if (totalPnl > 0 && profitFactor >= 1.5) lines.push('✅ ביצועים מצוינים — הפעילות רווחית עם יחס רווח/הפסד גבוה.');
+    else if (totalPnl > 0) lines.push('📈 ביצועים חיוביים — הפעילות רווחית.');
+    else lines.push('⚠️ ביצועים שליליים — הפעילות בהפסד. נדרשת בחינה מחדש של הגישה.');
+
+    // Best/Worst pair
+    const pairMap = {};
+    closed.forEach(t => {
+        const p = t.pair || '?';
+        if (!pairMap[p]) pairMap[p] = { total:0, wins:0, pnl:0 };
+        pairMap[p].total++; if (t.status==='win') pairMap[p].wins++; pairMap[p].pnl += (t.pnl||0);
+    });
+    const pairArr = Object.entries(pairMap);
+    if (pairArr.length > 1) {
+        const bestPair = pairArr.reduce((b,p) => p[1].pnl > b[1].pnl ? p : b);
+        const worstPair = pairArr.reduce((b,p) => p[1].pnl < b[1].pnl ? p : b);
+        lines.push(`💹 הזוג החזק ביותר: ${bestPair[0]} (P&L: +$${bestPair[1].pnl.toFixed(0)}, ${Math.round(bestPair[1].wins/bestPair[1].total*100)}% הצלחה)`);
+        if (worstPair[0] !== bestPair[0]) lines.push(`📉 הזוג החלש ביותר: ${worstPair[0]} (P&L: $${worstPair[1].pnl.toFixed(0)})`);
+    }
+
+    // Best day of week
+    const dayNames = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+    const dayMap = Array.from({length:7}, () => ({wins:0,total:0}));
+    closed.forEach(t => { if (t.date) { const d = new Date(t.date).getDay(); dayMap[d].total++; if (t.status==='win') dayMap[d].wins++; } });
+    const daysWithData = dayMap.map((d,i) => ({...d,i})).filter(d => d.total > 0);
+    if (daysWithData.length > 0) {
+        const bestDay = daysWithData.reduce((b,d) => (d.wins/d.total) > (b.wins/b.total) ? d : b);
+        lines.push(`📅 יום המסחר הטוב ביותר: יום ${dayNames[bestDay.i]} (${Math.round(bestDay.wins/bestDay.total*100)}% הצלחה, ${bestDay.total} עסקאות)`);
+    }
+
+    // Streak comment
+    if (currentStreak >= 3) lines.push(`🔥 רצף ניצחונות נוכחי: ${currentStreak} — שמור על הגישה אך אל תסטה מהתוכנית!`);
+    else if (currentStreak <= -3) lines.push(`💔 רצף הפסדים נוכחי: ${Math.abs(currentStreak)} — שקול הפסקה קצרה לבחינת הגישה.`);
+
+    // Max Drawdown comment
+    if (maxDD > 0 && totalPnl > 0 && maxDD / totalPnl > 0.5) lines.push(`⚠️ ה-Drawdown המקסימלי ($${maxDD.toFixed(0)}) גבוה יחסית לרווח הכולל — שקול ניהול סיכונים טוב יותר.`);
+
+    // Recommendations
+    lines.push('\n📌 המלצות:');
+    if (winRate < 50) lines.push('  • שפר את נקודות הכניסה — אחוז הצלחה מתחת ל-50% דורש שיפור בסינון עסקאות.');
+    if (profitFactor < 1.5 && wins.length > 0 && losses.length > 0) {
+        const avgW = wins.reduce((s,t)=>s+(t.pnl||0),0)/wins.length;
+        const avgL = Math.abs(losses.reduce((s,t)=>s+(t.pnl||0),0)/losses.length);
+        if (avgW < avgL) lines.push('  • הגדל את ה-Risk:Reward — הרווחים הממוצעים קטנים מההפסדים הממוצעים.');
+    }
+    if (maxDD > 200) lines.push('  • הגדר מגבלת הפסד יומית למניעת drawdown גבוה.');
+    if (lines.filter(l => l.startsWith('  •')).length === 0) lines.push('  • המשך את הגישה הנוכחית — הביצועים טובים!');
+
+    // Star rating
+    let stars = 1;
+    if (profitFactor >= 1.2) stars = 2;
+    if (profitFactor >= 1.5 && winRate >= 45) stars = 3;
+    if (profitFactor >= 2 && winRate >= 50) stars = 4;
+    if (profitFactor >= 2.5 && winRate >= 55 && totalPnl > 0) stars = 5;
+    const starStr = '⭐'.repeat(stars) + '☆'.repeat(5 - stars);
+    lines.push(`\n${starStr} דירוג חודשי: ${stars}/5`);
+
+    el.textContent = lines.join('\n');
+}
+
+function emailStatsReport() {
+    const conclusionEl = document.getElementById('sr-conclusion');
+    const monthLabel = document.getElementById('sr-month-label');
+    const subject = encodeURIComponent('דוח סטטיסטי CryptoEdge — ' + (monthLabel?.textContent || ''));
+    const body = encodeURIComponent((conclusionEl?.textContent || '') + '\n\n— נשלח מ-CryptoEdge');
+    window.open(`https://mail.google.com/mail/?view=cm&to=7023omer@gmail.com&su=${subject}&body=${body}`, '_blank');
+}
+
+// ==================== AUTO FILL PAIR PRICE ====================
+async function autoFillPairPrice(pairRaw) {
+    const badge = document.getElementById('auto-price-badge');
+    const entryInput = document.getElementById('trade-entry');
+    if (!entryInput) return;
+
+    if (!pairRaw || pairRaw.length < 3) {
+        if (badge) badge.style.display = 'none';
+        return;
+    }
+
+    const symbol = pairRaw.replace('/', '').toUpperCase();
+    // Only attempt if ends with USDT or is a known pair
+    if (!symbol.endsWith('USDT') && !symbol.endsWith('BUSD') && !symbol.endsWith('BTC')) return;
+
+    try {
+        const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.price) {
+            entryInput.value = parseFloat(data.price).toPrecision(6).replace(/\.?0+$/, '');
+            if (badge) badge.style.display = 'inline-block';
+            // Also update livePrices
+            const base = pairRaw.split('/')[0].toUpperCase();
+            livePrices[base] = parseFloat(data.price);
+        }
+    } catch (e) { /* silent */ }
+}
+
+// ==================== BINANCE WEBSOCKET LIVE PRICES ====================
+let _binanceWs = null;
+let _binanceWsReconnectTimer = null;
+
+function connectBinanceWs() {
+    if (_binanceWs && (_binanceWs.readyState === WebSocket.OPEN || _binanceWs.readyState === WebSocket.CONNECTING)) return;
+
+    const streams = 'btcusdt@ticker/ethusdt@ticker/solusdt@ticker/bnbusdt@ticker/xrpusdt@ticker/suiusdt@ticker/adausdt@ticker/dogeusdt@ticker/avaxusdt@ticker/linkusdt@ticker';
+    const url = `wss://stream.binance.com:9443/stream?streams=${streams}`;
+
+    try {
+        _binanceWs = new WebSocket(url);
+    } catch(e) { return; }
+
+    _binanceWs.onmessage = (evt) => {
+        try {
+            const msg = JSON.parse(evt.data);
+            const d = msg.data;
+            if (!d || !d.s || !d.c) return;
+            const sym = d.s.replace('USDT','').toUpperCase(); // e.g. BTC
+            livePrices[sym] = parseFloat(d.c);
+            updateOpenTradeCards();
+        } catch(e) {}
+    };
+
+    _binanceWs.onclose = () => {
+        if (_binanceWsReconnectTimer) clearTimeout(_binanceWsReconnectTimer);
+        _binanceWsReconnectTimer = setTimeout(connectBinanceWs, 5000);
+    };
+
+    _binanceWs.onerror = () => {
+        _binanceWs.close();
+    };
+}
+
+function updateOpenTradeCards() {
+    const openTrades = trades.filter(t => t.status === 'open' || t.status === 'limit');
+    if (openTrades.length === 0) return;
+
+    openTrades.forEach(trade => {
+        const cardEl = document.querySelector(`.trade-card[data-trade-id="${trade.id}"]`);
+        if (!cardEl) return;
+        const sym = getSymbolFromPair(trade.pair);
+        const price = sym ? livePrices[sym] : null;
+        if (!price) return;
+
+        // Update or inject live price tag
+        let liveTag = cardEl.querySelector('.live-price-tag');
+        if (!liveTag) {
+            const pairEl = cardEl.querySelector('.tc-pair');
+            if (pairEl) {
+                liveTag = document.createElement('span');
+                liveTag.className = 'live-price-tag';
+                liveTag.style.marginRight = '6px';
+                pairEl.appendChild(liveTag);
+                // Add pulsing dot
+                const dot = document.createElement('span');
+                dot.className = 'live-dot';
+                pairEl.appendChild(dot);
+            }
+        }
+        if (liveTag) liveTag.textContent = '$' + price.toLocaleString('en-US', {maximumFractionDigits:2});
+
+        // Unrealized P&L for open trades
+        if (trade.status === 'open') {
+            const entry = parseFloat(trade.entry) || 0;
+            const size = parseFloat(trade.size) || 0;
+            const lev = parseFloat(trade.leverage) || 1;
+            if (entry > 0 && size > 0) {
+                const pct = trade.direction === 'long' ? (price - entry) / entry : (entry - price) / entry;
+                const upnl = size * pct * lev;
+                let upnlTag = cardEl.querySelector('.unrealized-pnl-tag');
+                if (!upnlTag) {
+                    const pnlVal = cardEl.querySelector('.tc-pnl-val');
+                    if (pnlVal) {
+                        upnlTag = document.createElement('div');
+                        upnlTag.className = 'unrealized-pnl-tag';
+                        upnlTag.style.marginTop = '2px';
+                        pnlVal.after(upnlTag);
+                    }
+                }
+                if (upnlTag) {
+                    upnlTag.style.color = upnl >= 0 ? 'var(--green)' : 'var(--red)';
+                    upnlTag.textContent = (upnl >= 0 ? '+' : '') + '$' + upnl.toFixed(0) + ' אומדן';
+                }
+            }
+        }
+    });
+}
+
+// Start Binance WS on load
+setTimeout(connectBinanceWs, 2000);
+
+// ==================== END ADDITIONS ====================
+
     </script><span id="PING_IFRAME_FORM_DETECTION" style="display: none;"></span></body></html>
