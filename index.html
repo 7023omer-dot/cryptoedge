@@ -7234,4 +7234,418 @@ function importJSON(event) {
     event.target.value = '';
 }
 
+
+// ==================== AI INSIGHTS ENGINE ====================
+
+function initInsightsPage() {
+    // Load saved keys into settings panel
+    const keys = ['anthropic_apikey','cr_apikey','san_apikey','cg_apikey'];
+    const ids   = ['ins-anthropic-key','ins-cr-key','ins-san-key','ins-cg-key'];
+    keys.forEach((k, i) => {
+        const el = document.getElementById(ids[i]);
+        if (el && localStorage.getItem(k)) el.value = localStorage.getItem(k);
+    });
+    const arkhamEl = document.getElementById('ins-arkham-notes');
+    if (arkhamEl && localStorage.getItem('ark_notes')) arkhamEl.value = localStorage.getItem('ark_notes');
+    const unlocksEl = document.getElementById('ins-token-unlocks');
+    if (unlocksEl && localStorage.getItem('token_unlocks')) unlocksEl.value = localStorage.getItem('token_unlocks');
+
+    // Check cached insights (< 6 hours)
+    try {
+        const cached = JSON.parse(localStorage.getItem('ai_insights_cache') || 'null');
+        if (cached && cached.text && cached.ts) {
+            const age = Date.now() - cached.ts;
+            if (age < 6 * 60 * 60 * 1000) {
+                showInsightsContent(cached.text);
+                const mins = Math.round(age / 60000);
+                const timeStr = mins < 60 ? mins + ' דקות' : Math.round(mins/60) + ' שעות';
+                const metaEl = document.getElementById('insights-last-updated');
+                if (metaEl) metaEl.textContent = 'נטען מהקאש — עודכן לפני ' + timeStr;
+                // Mark sources from cache
+                if (cached.sources) {
+                    cached.sources.forEach(s => setSourceStatus(s.id, s.status));
+                }
+                return;
+            }
+        }
+    } catch(e) {}
+
+    // Mark key-required sources
+    updateSourceKeyStatuses();
+}
+
+function updateSourceKeyStatuses() {
+    const crKey = localStorage.getItem('cr_apikey');
+    const sanKey = localStorage.getItem('san_apikey');
+    const cgKey = localStorage.getItem('cg_apikey');
+    if (!crKey) setSourceStatus('src-cryptorank', '🔑 נדרש מפתח');
+    if (!sanKey) setSourceStatus('src-santiment', '🔑 נדרש מפתח');
+    if (!cgKey) setSourceStatus('src-coinglass', '🔑 נדרש מפתח');
+    setSourceStatus('src-arkham', '📝 ידני');
+    setSourceStatus('src-unlocks', '📝 ידני');
+}
+
+function toggleInsightsSettings() {
+    const panel = document.getElementById('insights-settings-panel');
+    if (!panel) return;
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+function saveInsightsSettings() {
+    const map = {
+        'ins-anthropic-key': 'anthropic_apikey',
+        'ins-cr-key': 'cr_apikey',
+        'ins-san-key': 'san_apikey',
+        'ins-cg-key': 'cg_apikey',
+    };
+    Object.entries(map).forEach(([elId, lsKey]) => {
+        const el = document.getElementById(elId);
+        if (el && el.value.trim()) localStorage.setItem(lsKey, el.value.trim());
+        else if (el) localStorage.removeItem(lsKey);
+    });
+    const arkhamEl = document.getElementById('ins-arkham-notes');
+    if (arkhamEl) localStorage.setItem('ark_notes', arkhamEl.value.trim());
+    const unlocksEl = document.getElementById('ins-token-unlocks');
+    if (unlocksEl) localStorage.setItem('token_unlocks', unlocksEl.value.trim());
+    showToast('✅ הגדרות נשמרו!');
+    toggleInsightsSettings();
+    updateSourceKeyStatuses();
+}
+
+function setSourceStatus(id, status) {
+    const el = document.getElementById(id + '-status');
+    if (el) el.textContent = status;
+}
+
+function setLoadingMsg(msg) {
+    const el = document.getElementById('insights-loading-msg');
+    if (el) el.textContent = msg;
+}
+
+function showInsightsLoading(show) {
+    const placeholder = document.getElementById('insights-placeholder');
+    const loading = document.getElementById('insights-loading');
+    const content = document.getElementById('insights-content');
+    const card = document.getElementById('insights-output-card');
+    if (show) {
+        if (placeholder) placeholder.style.display = 'none';
+        if (content) content.style.display = 'none';
+        if (loading) loading.style.display = 'flex';
+        if (card) { card.style.alignItems = 'center'; card.style.justifyContent = 'center'; }
+    } else {
+        if (loading) loading.style.display = 'none';
+    }
+}
+
+function showInsightsContent(text) {
+    const placeholder = document.getElementById('insights-placeholder');
+    const loading = document.getElementById('insights-loading');
+    const content = document.getElementById('insights-content');
+    const card = document.getElementById('insights-output-card');
+    if (placeholder) placeholder.style.display = 'none';
+    if (loading) loading.style.display = 'none';
+    if (content) {
+        content.style.display = 'block';
+        content.textContent = text;
+    }
+    if (card) { card.style.alignItems = 'flex-start'; card.style.justifyContent = 'flex-start'; }
+}
+
+async function fetchDefiLlama() {
+    setSourceStatus('src-defillama', '⏳ טוען');
+    try {
+        const [globalRes, protocolsRes] = await Promise.all([
+            fetch('https://api.llama.fi/v2/global'),
+            fetch('https://api.llama.fi/protocols')
+        ]);
+        const global = await globalRes.json();
+        const protocols = await protocolsRes.json();
+        const top5 = (protocols || []).slice(0, 5).map(p => p.name + ' $' + ((p.tvl||0)/1e9).toFixed(2) + 'B').join(', ');
+        const tvl = global.totalLiquidityUSD ? ('$' + (global.totalLiquidityUSD/1e9).toFixed(1) + 'B') : 'N/A';
+        setSourceStatus('src-defillama', '✅ טעון');
+        return { tvl, top5 };
+    } catch(e) {
+        setSourceStatus('src-defillama', '❌ לא זמין');
+        return null;
+    }
+}
+
+async function fetchFearGreedForInsights() {
+    setSourceStatus('src-feargreed', '⏳ טוען');
+    try {
+        const res = await fetch('https://api.alternative.me/fng/?limit=2');
+        const data = await res.json();
+        const today = data.data[0];
+        const yesterday = data.data[1];
+        setSourceStatus('src-feargreed', '✅ טעון');
+        return {
+            today: today.value + ' - ' + today.value_classification,
+            yesterday: yesterday ? (yesterday.value + ' - ' + yesterday.value_classification) : 'N/A'
+        };
+    } catch(e) {
+        setSourceStatus('src-feargreed', '❌ לא זמין');
+        return null;
+    }
+}
+
+async function fetchForexFactory() {
+    setSourceStatus('src-forex', '⏳ טוען');
+    try {
+        const url = 'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.forexfactory.com%2Fff_cal_thisweek.xml&count=10';
+        const res = await fetch(url);
+        const data = await res.json();
+        const items = (data.items || []).slice(0, 5).map(i => i.title).join('; ');
+        setSourceStatus('src-forex', items ? '✅ טעון' : '⚠️ חלקי');
+        return { events: items || 'לא זמין' };
+    } catch(e) {
+        setSourceStatus('src-forex', '❌ לא זמין');
+        return null;
+    }
+}
+
+async function fetchCoinGeckoGlobal() {
+    setSourceStatus('src-coingecko', '⏳ טוען');
+    try {
+        const res = await fetch('https://api.coingecko.com/api/v3/global');
+        const data = await res.json();
+        const d = data.data;
+        setSourceStatus('src-coingecko', '✅ טעון');
+        return {
+            marketCap: '$' + ((d.total_market_cap?.usd||0)/1e12).toFixed(2) + 'T',
+            btcDominance: (d.market_cap_percentage?.btc||0).toFixed(1) + '%',
+            change24h: (d.market_cap_change_percentage_24h_usd||0).toFixed(2) + '%',
+            activeCrypto: d.active_cryptocurrencies
+        };
+    } catch(e) {
+        setSourceStatus('src-coingecko', '❌ לא זמין');
+        return null;
+    }
+}
+
+async function fetchCryptoRank() {
+    const key = localStorage.getItem('cr_apikey');
+    if (!key) { setSourceStatus('src-cryptorank', '🔑 נדרש מפתח'); return null; }
+    setSourceStatus('src-cryptorank', '⏳ טוען');
+    try {
+        const res = await fetch('https://api.cryptorank.io/v1/currencies?limit=20&api_key=' + key);
+        const data = await res.json();
+        const top = (data.data || []).slice(0,5).map(c => c.symbol + ' $' + (c.values?.USD?.price||0).toFixed(2)).join(', ');
+        setSourceStatus('src-cryptorank', '✅ טעון');
+        return { top };
+    } catch(e) {
+        setSourceStatus('src-cryptorank', '❌ לא זמין');
+        return null;
+    }
+}
+
+async function fetchSantiment() {
+    const key = localStorage.getItem('san_apikey');
+    if (!key) { setSourceStatus('src-santiment', '🔑 נדרש מפתח'); return null; }
+    setSourceStatus('src-santiment', '⏳ טוען');
+    try {
+        const query = `{ getMetric(metric: "social_volume_total") { timeseriesData(slug: "bitcoin", from: "${new Date(Date.now()-86400000).toISOString()}", to: "${new Date().toISOString()}", interval: "1d") { datetime value } } }`;
+        const res = await fetch('https://api.santiment.net/graphql', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Apikey ' + key },
+            body: JSON.stringify({ query })
+        });
+        const data = await res.json();
+        const vals = data?.data?.getMetric?.timeseriesData || [];
+        const vol = vals[vals.length-1]?.value || 0;
+        setSourceStatus('src-santiment', '✅ טעון');
+        return { btcSocialVol: Math.round(vol) };
+    } catch(e) {
+        setSourceStatus('src-santiment', '❌ לא זמין');
+        return null;
+    }
+}
+
+async function fetchCoinGlass() {
+    const key = localStorage.getItem('cg_apikey');
+    if (!key) { setSourceStatus('src-coinglass', '🔑 נדרש מפתח'); return null; }
+    setSourceStatus('src-coinglass', '⏳ טוען');
+    try {
+        const res = await fetch('https://open-api.coinglass.com/public/v2/open_interest?symbol=BTC&time_type=h4', {
+            headers: { 'coinglassSecret': key }
+        });
+        const data = await res.json();
+        const oi = data?.data?.openInterest || 'N/A';
+        setSourceStatus('src-coinglass', '✅ טעון');
+        return { btcOI: oi };
+    } catch(e) {
+        setSourceStatus('src-coinglass', '❌ לא זמין');
+        return null;
+    }
+}
+
+async function fetchMyFXBook() {
+    setSourceStatus('src-myfxbook', '⏳ טוען');
+    try {
+        const res = await fetch('https://www.myfxbook.com/api/get-community-outlook.json');
+        const data = await res.json();
+        setSourceStatus('src-myfxbook', '✅ טעון');
+        return { raw: JSON.stringify(data).slice(0, 200) };
+    } catch(e) {
+        setSourceStatus('src-myfxbook', '⚠️ חלקי (CORS)');
+        return null;
+    }
+}
+
+function buildInsightsPrompt(collected) {
+    let marketData = '';
+
+    if (collected.coingecko) {
+        marketData += `\n--- נתוני שוק גלובלי (CoinGecko) ---\nשווי שוק כולל: ${collected.coingecko.marketCap}\nדומיננטיות BTC: ${collected.coingecko.btcDominance}\nשינוי 24ש: ${collected.coingecko.change24h}\nמטבעות פעילים: ${collected.coingecko.activeCrypto}`;
+    }
+    if (collected.defillama) {
+        marketData += `\n\n--- DeFi TVL (DeFiLlama) ---\nTVL כולל: ${collected.defillama.tvl}\nTop 5 פרוטוקולים: ${collected.defillama.top5}`;
+    }
+    if (collected.feargreed) {
+        marketData += `\n\n--- מדד פחד ותאוות בצע ---\nהיום: ${collected.feargreed.today}\nאתמול: ${collected.feargreed.yesterday}`;
+    }
+    if (collected.forex) {
+        marketData += `\n\n--- אירועי מאקרו (Forex Factory) ---\n${collected.forex.events}`;
+    }
+    if (collected.cryptorank) {
+        marketData += `\n\n--- מחירי מטבעות מובילים (CryptoRank) ---\n${collected.cryptorank.top}`;
+    }
+    if (collected.santiment) {
+        marketData += `\n\n--- סנטימנט חברתי (Santiment) ---\nנפח חברתי BTC (24ש): ${collected.santiment.btcSocialVol}`;
+    }
+    if (collected.coinglass) {
+        marketData += `\n\n--- ריבית פתוחה BTC (CoinGlass) ---\n${collected.coinglass.btcOI}`;
+    }
+    if (collected.myfxbook) {
+        marketData += `\n\n--- MyFXBook Community Outlook ---\n${collected.myfxbook.raw}`;
+    }
+    if (collected.arkham) {
+        marketData += `\n\n--- הערות Arkham Intelligence (ידני) ---\n${collected.arkham}`;
+    }
+    if (collected.unlocks) {
+        marketData += `\n\n--- שחרורי טוקנים קרובים (ידני) ---\n${collected.unlocks}`;
+    }
+
+    if (!marketData.trim()) marketData = 'לא נאספו נתונים — ניתוח כללי בלבד.';
+
+    return `אתה מומחה לניתוח שוק קריפטו ומאקרו. נתח את הנתונים הבאים וספק תובנות מסחר מעשיות בעברית.
+
+נתוני שוק:
+${marketData}
+
+ספק:
+1. סיכום מצב השוק (2-3 משפטים)
+2. 3 תובנות מסחר מעשיות לטווח הקצר (24-48 שעות)
+3. סיכונים עיקריים לשים לב אליהם
+4. הזדמנויות פוטנציאליות
+5. המלצה כללית: בולי / בֵּרי / ניטרלי
+
+היה תמציתי, מקצועי, ומעשי. אל תחזור על הנתונים הגולמיים.`;
+}
+
+async function callClaudeAPI(prompt) {
+    const apiKey = localStorage.getItem('anthropic_apikey');
+    if (!apiKey) throw new Error('חסר Claude API Key — אנא הגדר בהגדרות');
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 1500,
+            messages: [{ role: 'user', content: prompt }]
+        })
+    });
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error('Claude API שגיאה: ' + (err?.error?.message || res.status));
+    }
+
+    const data = await res.json();
+    return data.content?.[0]?.text || '';
+}
+
+async function runInsightsPipeline() {
+    const btn = document.getElementById('insights-update-btn');
+    if (btn) btn.disabled = true;
+
+    showInsightsLoading(true);
+    setLoadingMsg('אוסף נתוני שוק...');
+
+    // Reset statuses
+    ['src-coingecko','src-defillama','src-feargreed','src-forex','src-cryptorank','src-santiment','src-coinglass','src-myfxbook','src-arkham','src-unlocks'].forEach(id => {
+        setSourceStatus(id, '⏳ טוען');
+    });
+
+    // Fetch all sources in parallel
+    const [cgRes, dlRes, fgRes, fxRes, crRes, sanRes, cglass, mfxRes] = await Promise.allSettled([
+        fetchCoinGeckoGlobal(),
+        fetchDefiLlama(),
+        fetchFearGreedForInsights(),
+        fetchForexFactory(),
+        fetchCryptoRank(),
+        fetchSantiment(),
+        fetchCoinGlass(),
+        fetchMyFXBook()
+    ]);
+
+    const collected = {
+        coingecko: cgRes.status === 'fulfilled' ? cgRes.value : null,
+        defillama: dlRes.status === 'fulfilled' ? dlRes.value : null,
+        feargreed: fgRes.status === 'fulfilled' ? fgRes.value : null,
+        forex: fxRes.status === 'fulfilled' ? fxRes.value : null,
+        cryptorank: crRes.status === 'fulfilled' ? crRes.value : null,
+        santiment: sanRes.status === 'fulfilled' ? sanRes.value : null,
+        coinglass: cglass.status === 'fulfilled' ? cglass.value : null,
+        myfxbook: mfxRes.status === 'fulfilled' ? mfxRes.value : null,
+        arkham: localStorage.getItem('ark_notes') || '',
+        unlocks: localStorage.getItem('token_unlocks') || ''
+    };
+
+    // Manual sources
+    setSourceStatus('src-arkham', collected.arkham ? '✅ טעון' : '📝 ידני');
+    setSourceStatus('src-unlocks', collected.unlocks ? '✅ טעון' : '📝 ידני');
+
+    setLoadingMsg('מנתח עם Claude AI...');
+
+    try {
+        const prompt = buildInsightsPrompt(collected);
+        const result = await callClaudeAPI(prompt);
+
+        showInsightsContent(result);
+
+        // Update timestamp
+        const now = new Date();
+        const metaEl = document.getElementById('insights-last-updated');
+        if (metaEl) metaEl.textContent = 'עודכן: ' + now.toLocaleTimeString('he-IL') + ' ' + now.toLocaleDateString('he-IL');
+
+        // Cache
+        const sourceStatuses = ['src-coingecko','src-defillama','src-feargreed','src-forex','src-cryptorank','src-santiment','src-coinglass','src-myfxbook','src-arkham','src-unlocks'].map(id => ({
+            id,
+            status: document.getElementById(id + '-status')?.textContent || ''
+        }));
+        localStorage.setItem('ai_insights_cache', JSON.stringify({ text: result, ts: Date.now(), sources: sourceStatuses }));
+
+    } catch(e) {
+        showInsightsLoading(false);
+        const placeholder = document.getElementById('insights-placeholder');
+        if (placeholder) {
+            placeholder.style.display = 'block';
+            placeholder.innerHTML = '<div style="font-size:2rem;">❌</div><div style="margin-top:10px;color:var(--red);">' + e.message + '</div>';
+        }
+        const card = document.getElementById('insights-output-card');
+        if (card) { card.style.alignItems = 'center'; card.style.justifyContent = 'center'; }
+        showToast('❌ ' + e.message);
+    }
+
+    if (btn) btn.disabled = false;
+}
+
+// ==================== END AI INSIGHTS ENGINE ====================
+
     </script><span id="PING_IFRAME_FORM_DETECTION" style="display: none;"></span></body></html>
