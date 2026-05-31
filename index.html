@@ -36,7 +36,7 @@
     --purple: #a855f7;
     --purple-light: rgba(168, 85, 247, 0.15);
     --orange: #f97316;
-    --nav-height: 70px;
+    --nav-height: 58px;
     --header-height: 60px;
 }
 
@@ -2452,7 +2452,10 @@ html, body {
                             <div class="analysis-card-title">נתוני שוק גלובליים</div>
                             <div class="global-stats-bar" id="crypto-global-stats">
                                 <div class="global-stat-pill">שווי שוק: <span id="ag-mcap">טוען...</span></div>
-                                <div class="global-stat-pill">BTC Dominance: <span id="ag-btcdom">—</span></div>
+                                <div class="global-stat-pill">BTC Dom: <span id="ag-btcdom">—</span></div>
+                                <div class="global-stat-pill">ETH Dom: <span id="ag-ethdom">—</span></div>
+                                <div class="global-stat-pill">Alts Dom: <span id="ag-altdom">—</span></div>
+                                <div class="global-stat-pill">DXY: <span id="ag-dxy">—</span></div>
                                 <div class="global-stat-pill">נפח 24ש: <span id="ag-vol">—</span></div>
                             </div>
                             <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
@@ -2545,6 +2548,20 @@ html, body {
                         <div id="projects-list" style="margin-top:12px;"></div>
                     </div>
 
+                    <!-- Alerts Card -->
+                    <div class="analysis-card" id="alerts-card" style="border-color:rgba(245,158,11,0.4);">
+                        <div class="analysis-card-title" style="display:flex;justify-content:space-between;align-items:center;">
+                            <span>🔔 התראות קנייה/מכירת יתר</span>
+                            <button onclick="runOverboughtCheck()" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.5);border-radius:8px;padding:3px 10px;color:#fde68a;font-weight:700;cursor:pointer;font-family:inherit;font-size:0.75rem;">🔍 בדוק עכשיו</button>
+                        </div>
+                        <div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:8px;">בודק RSI על TOP10 + זהב + S&P500 בטווחי זמן 12ש / יומי / שבועי</div>
+                        <div id="alerts-email-row" style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
+                            <input id="alert-email" type="email" placeholder="מייל לקבלת התראות" value="7023omer@gmail.com" style="flex:1;min-width:160px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-family:inherit;font-size:0.8rem;">
+                            <button onclick="enableBrowserAlerts()" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);border-radius:8px;padding:6px 12px;color:var(--accent-light);font-weight:700;cursor:pointer;font-family:inherit;font-size:0.75rem;">🔔 אפשר התראות דפדפן</button>
+                        </div>
+                        <div id="alerts-results" style="font-size:0.82rem;line-height:1.8;">לחץ "בדוק עכשיו" לסריקה מלאה</div>
+                    </div>
+
                     <!-- Market Conclusions (always visible) -->
                     <div class="market-conclusions-card">
                         <div class="market-conclusions-title">📡 כיווני שוק פוטנציאליים</div>
@@ -2557,42 +2574,33 @@ html, body {
         </main>
 
         <!-- Bottom Navigation -->
-        <nav class="bottom-nav" style="display:grid!important;grid-template-columns:repeat(9,1fr)!important;width:100%!important;overflow:visible!important;height:64px!important;">
-            <button class="nav-item" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="dashboard" onclick="switchPage(&#39;dashboard&#39;)" fdprocessedid="nzo2bb">
-                <span class="nav-icon">🏠</span>
-                <span class="nav-label">דשבורד</span>
+        <nav id="bottom-nav-bar" style="position:fixed;bottom:0;left:0;right:0;height:58px;background:var(--bg-card);border-top:1px solid var(--border);z-index:100;display:table;table-layout:fixed;width:100%;padding-bottom:env(safe-area-inset-bottom,0);">
+            <button class="nav-item" data-page="dashboard" onclick="switchPage('dashboard')" style="display:table-cell;text-align:center;vertical-align:middle;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;width:11.1%;">
+                <div style="font-size:1.1rem;">🏠</div><div style="font-size:0.42rem;color:var(--text-muted);">דשבורד</div>
             </button>
-            <button class="nav-item" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="journal" onclick="switchPage(&#39;journal&#39;)" fdprocessedid="kqmbtc">
-                <span class="nav-icon">📓</span>
-                <span class="nav-label">יומן</span>
+            <button class="nav-item" data-page="journal" onclick="switchPage('journal')" style="display:table-cell;text-align:center;vertical-align:middle;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;">
+                <div style="font-size:1.1rem;">📓</div><div style="font-size:0.42rem;color:var(--text-muted);">יומן</div>
             </button>
-            <button class="nav-item nav-item--macro" style="background:rgba(99,102,241,0.2)!important;border:1px solid rgba(99,102,241,0.5)!important;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="analysis" onclick="switchPage('analysis')">
-                <span class="nav-icon">📊</span>
-                <span class="nav-label">מאקרו</span>
+            <button class="nav-item nav-item--macro" data-page="analysis" onclick="switchPage('analysis')" style="display:table-cell;text-align:center;vertical-align:middle;background:rgba(99,102,241,0.2);border:none;border-top:2px solid rgba(99,102,241,0.7);cursor:pointer;font-family:inherit;padding:2px 0;">
+                <div style="font-size:1.1rem;">📊</div><div style="font-size:0.42rem;color:#a5b4fc;font-weight:700;">מאקרו</div>
             </button>
-            <button class="nav-item" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="strategies" onclick="switchPage(&#39;strategies&#39;)" fdprocessedid="cvzgvd">
-                <span class="nav-icon">🧠</span>
-                <span class="nav-label">אסטרטגיה</span>
+            <button class="nav-item" data-page="strategies" onclick="switchPage('strategies')" style="display:table-cell;text-align:center;vertical-align:middle;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;">
+                <div style="font-size:1.1rem;">🧠</div><div style="font-size:0.42rem;color:var(--text-muted);">אסטרטגיה</div>
             </button>
-            <button class="nav-item" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="risk" onclick="switchPage(&#39;risk&#39;)" fdprocessedid="80evid">
-                <span class="nav-icon">⚖️</span>
-                <span class="nav-label">סיכון</span>
+            <button class="nav-item" data-page="risk" onclick="switchPage('risk')" style="display:table-cell;text-align:center;vertical-align:middle;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;">
+                <div style="font-size:1.1rem;">⚖️</div><div style="font-size:0.42rem;color:var(--text-muted);">סיכון</div>
             </button>
-            <button class="nav-item" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="whales" onclick="switchPage(&#39;whales&#39;)" fdprocessedid="2xz1ja">
-                <span class="nav-icon">🐋</span>
-                <span class="nav-label">לווייתנים</span>
+            <button class="nav-item" data-page="whales" onclick="switchPage('whales')" style="display:table-cell;text-align:center;vertical-align:middle;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;">
+                <div style="font-size:1.1rem;">🐋</div><div style="font-size:0.42rem;color:var(--text-muted);">לווייתנים</div>
             </button>
-            <button class="nav-item" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="portfolio" onclick="switchPage(&#39;portfolio&#39;)" fdprocessedid="2j9qktp">
-                <span class="nav-icon">💼</span>
-                <span class="nav-label">תיק</span>
+            <button class="nav-item" data-page="portfolio" onclick="switchPage('portfolio')" style="display:table-cell;text-align:center;vertical-align:middle;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;">
+                <div style="font-size:1.1rem;">💼</div><div style="font-size:0.42rem;color:var(--text-muted);">תיק</div>
             </button>
-            <button class="nav-item active" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="history" onclick="switchPage(&#39;history&#39;)" fdprocessedid="hm0px3">
-                <span class="nav-icon">📋</span>
-                <span class="nav-label">היסטוריה</span>
+            <button class="nav-item" data-page="history" onclick="switchPage('history')" style="display:table-cell;text-align:center;vertical-align:middle;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;">
+                <div style="font-size:1.1rem;">📋</div><div style="font-size:0.42rem;color:var(--text-muted);">היסטוריה</div>
             </button>
-            <button class="nav-item" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0px;width:100%;min-width:0;overflow:hidden;background:none;border:none;cursor:pointer;font-family:inherit;border-radius:8px;" data-page="insights" onclick="switchPage('insights')">
-                <span class="nav-icon">🤖</span>
-                <span class="nav-label">AI</span>
+            <button class="nav-item" data-page="insights" onclick="switchPage('insights')" style="display:table-cell;text-align:center;vertical-align:middle;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;">
+                <div style="font-size:1.1rem;">🤖</div><div style="font-size:0.42rem;color:var(--text-muted);">AI</div>
             </button>
         </nav>
 
@@ -6002,6 +6010,196 @@ async function runInsightsPipeline() {
     showToast('✅ תובנות עודכנו');
 }
 // ==================== END INSIGHTS BLOCK 1 ====================
+
+// ==================== DOMINANCE + DXY + ALERTS ====================
+
+async function fetchDominanceAndDXY() {
+    // ETH + Alts dominance from CoinGecko global (already fetched, just update)
+    try {
+        const r = await fetch('https://api.coingecko.com/api/v3/global').then(r=>r.json());
+        const d = r && r.data;
+        if (!d) return;
+        const btcD = d.market_cap_percentage && d.market_cap_percentage.btc || 0;
+        const ethD = d.market_cap_percentage && d.market_cap_percentage.eth || 0;
+        const altD = Math.max(0, 100 - btcD - ethD).toFixed(1);
+        const ethEl = document.getElementById('ag-ethdom');
+        const altEl = document.getElementById('ag-altdom');
+        if (ethEl) ethEl.textContent = ethD.toFixed(1) + '%';
+        if (altEl) {
+            altEl.textContent = altD + '%';
+            altEl.style.color = parseFloat(altD) > 40 ? 'var(--green)' : 'var(--text-secondary)';
+        }
+    } catch(e) {}
+
+    // DXY via stooq
+    try {
+        const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?interval=1d&range=2d');
+        const dxy = await fetch(url).then(r=>r.json());
+        const price = dxy && dxy.chart && dxy.chart.result && dxy.chart.result[0] && dxy.chart.result[0].meta && dxy.chart.result[0].meta.regularMarketPrice;
+        const dxyEl = document.getElementById('ag-dxy');
+        if (dxyEl && price) {
+            dxyEl.textContent = price.toFixed(2);
+            dxyEl.style.color = price > 104 ? '#ef4444' : price > 100 ? '#f59e0b' : '#22c55e';
+            dxyEl.title = price > 104 ? 'דולר חזק מאוד — לחץ על קריפטו' : price > 100 ? 'דולר מתון' : 'דולר חלש — טוב לקריפטו';
+        }
+    } catch(e) {}
+}
+
+// ===== RSI CALCULATOR =====
+function calcRSI(prices, period) {
+    if (!prices || prices.length < period + 1) return null;
+    var gains = 0, losses = 0;
+    for (var i = 1; i <= period; i++) {
+        var diff = prices[i] - prices[i-1];
+        if (diff > 0) gains += diff; else losses -= diff;
+    }
+    var avgGain = gains / period;
+    var avgLoss = losses / period;
+    for (var i = period + 1; i < prices.length; i++) {
+        var diff = prices[i] - prices[i-1];
+        var g = diff > 0 ? diff : 0;
+        var l = diff < 0 ? -diff : 0;
+        avgGain = (avgGain * (period-1) + g) / period;
+        avgLoss = (avgLoss * (period-1) + l) / period;
+    }
+    if (avgLoss === 0) return 100;
+    var rs = avgGain / avgLoss;
+    return 100 - (100 / (1 + rs));
+}
+
+async function fetchOHLCV(coinId, days) {
+    try {
+        var url = 'https://api.coingecko.com/api/v3/coins/' + coinId + '/market_chart?vs_currency=usd&days=' + days + '&interval=' + (days<=3?'hourly':'daily');
+        var r = await fetch(url).then(r=>r.json());
+        return (r && r.prices || []).map(function(p){ return p[1]; });
+    } catch(e) { return []; }
+}
+
+async function runOverboughtCheck() {
+    var btn = event && event.target;
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ בודק...'; }
+    var el = document.getElementById('alerts-results');
+    if (el) el.innerHTML = '<span style="color:var(--text-secondary)">סורק נתונים...</span>';
+
+    var coins = [
+        {id:'bitcoin',name:'BTC'},
+        {id:'ethereum',name:'ETH'},
+        {id:'binancecoin',name:'BNB'},
+        {id:'solana',name:'SOL'},
+        {id:'ripple',name:'XRP'},
+        {id:'tether-gold',name:'זהב'}
+    ];
+
+    var alerts = [];
+
+    for (var i = 0; i < coins.length; i++) {
+        var coin = coins[i];
+        try {
+            // Daily RSI (30 days)
+            var dailyPrices = await fetchOHLCV(coin.id, 30);
+            var rsiDaily = dailyPrices.length >= 15 ? calcRSI(dailyPrices, 14) : null;
+
+            // 12h RSI (7 days hourly → take every 12)
+            var hourlyPrices = await fetchOHLCV(coin.id, 7);
+            var prices12h = [];
+            for (var j = 0; j < hourlyPrices.length; j += 12) prices12h.push(hourlyPrices[j]);
+            var rsi12h = prices12h.length >= 15 ? calcRSI(prices12h, 14) : null;
+
+            // Weekly RSI (6 months)
+            var weeklyPricesRaw = await fetchOHLCV(coin.id, 180);
+            var weeklyPrices = [];
+            for (var j = 0; j < weeklyPricesRaw.length; j += 7) weeklyPrices.push(weeklyPricesRaw[j]);
+            var rsiWeekly = weeklyPrices.length >= 15 ? calcRSI(weeklyPrices, 14) : null;
+
+            var coinAlerts = [];
+            var check = function(rsi, tf) {
+                if (rsi === null) return;
+                if (rsi >= 70) coinAlerts.push({ tf: tf, rsi: rsi.toFixed(0), type: 'מכירת יתר', color: '#ef4444', emoji: '🔴' });
+                else if (rsi <= 30) coinAlerts.push({ tf: tf, rsi: rsi.toFixed(0), type: 'קנייה יתר', color: '#22c55e', emoji: '🟢' });
+            };
+            check(rsi12h, '12ש');
+            check(rsiDaily, 'יומי');
+            check(rsiWeekly, 'שבועי');
+
+            if (coinAlerts.length > 0) {
+                coinAlerts.forEach(function(a) {
+                    alerts.push({ coin: coin.name, tf: a.tf, rsi: a.rsi, type: a.type, color: a.color, emoji: a.emoji });
+                });
+            }
+        } catch(e) {}
+    }
+
+    // Render results
+    var html = '';
+    if (alerts.length === 0) {
+        html = '<div style="color:var(--text-secondary);padding:8px 0;">✅ אין תנאי קנייה/מכירת יתר כרגע בטווחי הזמן הנבדקים</div>';
+    } else {
+        html = '<div style="margin-bottom:8px;font-weight:700;color:#fde68a;">⚠️ נמצאו ' + alerts.length + ' התראות:</div>';
+        alerts.forEach(function(a) {
+            html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">' +
+                '<span style="font-size:1rem;">' + a.emoji + '</span>' +
+                '<strong style="color:' + a.color + ';min-width:40px;">' + a.coin + '</strong>' +
+                '<span style="color:var(--text-secondary);font-size:0.78rem;">' + a.tf + '</span>' +
+                '<span style="color:' + a.color + ';">' + a.type + '</span>' +
+                '<span style="color:var(--text-secondary);font-size:0.78rem;margin-right:auto;">RSI ' + a.rsi + '</span>' +
+                '</div>';
+        });
+
+        // Send browser notification
+        sendAlertNotification(alerts);
+
+        // Send email option
+        var emailAddr = document.getElementById('alert-email') && document.getElementById('alert-email').value || '7023omer@gmail.com';
+        var emailBody = 'התראות RSI - ' + new Date().toLocaleDateString("he-IL") + "\n\n";
+        alerts.forEach(function(a){ emailBody += a.emoji + ' ' + a.coin + ' — ' + a.type + ' (' + a.tf + ') RSI:' + a.rsi + "\n"; });
+        var gmailUrl = 'https://mail.google.com/mail/?view=cm&to=' + encodeURIComponent(emailAddr) + '&su=' + encodeURIComponent('🔔 התראת RSI CryptoEdge') + '&body=' + encodeURIComponent(emailBody);
+        html += '<div style="margin-top:10px;"><a href="' + gmailUrl + '" target="_blank" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);border-radius:8px;padding:7px 14px;color:var(--accent-light);font-weight:700;text-decoration:none;font-size:0.8rem;display:inline-block;">📧 שלח התראה למייל</a></div>';
+    }
+
+    html += '<div style="font-size:0.7rem;color:var(--text-secondary);margin-top:8px;">עודכן: ' + new Date().toLocaleTimeString('he-IL') + '</div>';
+    if (el) el.innerHTML = html;
+    if (btn) { btn.disabled = false; btn.textContent = '🔍 בדוק עכשיו'; }
+}
+
+function sendAlertNotification(alerts) {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'granted') {
+        alerts.forEach(function(a) {
+            new Notification('CryptoEdge 🔔 ' + a.coin, {
+                body: a.emoji + ' ' + a.type + ' (' + a.tf + ') — RSI ' + a.rsi,
+                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📊</text></svg>'
+            });
+        });
+    }
+}
+
+function enableBrowserAlerts() {
+    if (!('Notification' in window)) { showToast('❌ דפדפן זה לא תומך בהתראות'); return; }
+    Notification.requestPermission().then(function(perm) {
+        if (perm === 'granted') showToast('✅ התראות דפדפן אופשרו!');
+        else showToast('❌ לא אושרו התראות — ניתן לשלוח למייל');
+    });
+}
+
+// Patch fetchCryptoGlobal to also update dominance/DXY
+var _origFetchCG = window.fetchCryptoGlobal;
+window.fetchCryptoGlobal = async function() {
+    if (_origFetchCG) await _origFetchCG();
+    await fetchDominanceAndDXY();
+};
+
+// Auto-check alerts every 4 hours if notifications enabled
+setInterval(function() {
+    if (Notification.permission === 'granted') {
+        var lastCheck = parseInt(localStorage.getItem('last_alert_check') || '0');
+        if (Date.now() - lastCheck > 4 * 3600 * 1000) {
+            localStorage.setItem('last_alert_check', Date.now());
+            runOverboughtCheck();
+        }
+    }
+}, 60 * 1000);
+
+// ==================== END DOMINANCE + DXY + ALERTS ====================
     </script>
 
 
