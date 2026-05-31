@@ -137,7 +137,7 @@ html, body {
 
 /* ==================== PAGES ==================== */
 .pages-container { flex: 1; overflow: hidden; position: relative; }
-.page { position: absolute; inset: 0; bottom: var(--nav-height); display: none; }
+.page { position: absolute; inset: 0; bottom: 58px; display: none; }
 .page.active { display: block; }
 .page-scroll { height: 100%; overflow-y: auto !important; -webkit-overflow-scrolling: touch; padding: 16px 16px 80px; }
 .page-scroll::-webkit-scrollbar { width: 4px; }
@@ -2575,35 +2575,35 @@ html, body {
         </main>
 
         <!-- Bottom Navigation -->
-        <nav id="bottom-nav-bar" style="position:fixed;bottom:0;left:0;right:0;height:58px;background:var(--bg-card);border-top:1px solid var(--border);z-index:100;display:table;table-layout:fixed;width:100%;padding-bottom:env(safe-area-inset-bottom,0);">
-            <button class="nav-item" data-page="dashboard" onclick="switchPage('dashboard')" style="display:table-cell;text-align:center;vertical-align:middle;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;width:11.1%;">
-                <div style="font-size:1.1rem;">🏠</div><div style="font-size:0.42rem;color:var(--text-muted);">דשבורד</div>
-            </button>
-            <button class="nav-item" data-page="journal" onclick="switchPage('journal')" style="display:table-cell;text-align:center;vertical-align:middle;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;">
-                <div style="font-size:1.1rem;">📓</div><div style="font-size:0.42rem;color:var(--text-muted);">יומן</div>
-            </button>
-            <button class="nav-item nav-item--macro" data-page="analysis" onclick="switchPage('analysis')" style="display:table-cell;text-align:center;vertical-align:middle;background:rgba(99,102,241,0.2);border:none;border-top:2px solid rgba(99,102,241,0.7);cursor:pointer;font-family:inherit;padding:2px 0;">
-                <div style="font-size:1.1rem;">📊</div><div style="font-size:0.42rem;color:#a5b4fc;font-weight:700;">מאקרו</div>
-            </button>
-            <button class="nav-item" data-page="strategies" onclick="switchPage('strategies')" style="display:table-cell;text-align:center;vertical-align:middle;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;">
-                <div style="font-size:1.1rem;">🧠</div><div style="font-size:0.42rem;color:var(--text-muted);">אסטרטגיה</div>
-            </button>
-            <button class="nav-item" data-page="risk" onclick="switchPage('risk')" style="display:table-cell;text-align:center;vertical-align:middle;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;">
-                <div style="font-size:1.1rem;">⚖️</div><div style="font-size:0.42rem;color:var(--text-muted);">סיכון</div>
-            </button>
-            <button class="nav-item" data-page="whales" onclick="switchPage('whales')" style="display:table-cell;text-align:center;vertical-align:middle;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;">
-                <div style="font-size:1.1rem;">🐋</div><div style="font-size:0.42rem;color:var(--text-muted);">לווייתנים</div>
-            </button>
-            <button class="nav-item" data-page="portfolio" onclick="switchPage('portfolio')" style="display:table-cell;text-align:center;vertical-align:middle;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;">
-                <div style="font-size:1.1rem;">💼</div><div style="font-size:0.42rem;color:var(--text-muted);">תיק</div>
-            </button>
-            <button class="nav-item" data-page="history" onclick="switchPage('history')" style="display:table-cell;text-align:center;vertical-align:middle;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;">
-                <div style="font-size:1.1rem;">📋</div><div style="font-size:0.42rem;color:var(--text-muted);">היסטוריה</div>
-            </button>
-            <button class="nav-item" data-page="insights" onclick="switchPage('insights')" style="display:table-cell;text-align:center;vertical-align:middle;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;">
-                <div style="font-size:1.1rem;">🤖</div><div style="font-size:0.42rem;color:var(--text-muted);">AI</div>
-            </button>
-        </nav>
+        <div id="bottom-nav-bar" style="position:fixed;bottom:0;left:0;right:0;height:58px;background:var(--bg-card);border-top:1px solid var(--border);z-index:1000;display:flex;flex-direction:row;width:100%;box-sizing:border-box;">
+            <div class="nav-item" data-page="dashboard" onclick="switchPage('dashboard')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
+                <span style="font-size:1.1rem;line-height:1;">🏠</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">דשבורד</span>
+            </div>
+            <div class="nav-item" data-page="journal" onclick="switchPage('journal')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
+                <span style="font-size:1.1rem;line-height:1;">📓</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">יומן</span>
+            </div>
+            <div class="nav-item nav-item--macro" data-page="analysis" onclick="switchPage('analysis')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;background:rgba(99,102,241,0.15);border-top:2px solid rgba(99,102,241,0.7);">
+                <span style="font-size:1.1rem;line-height:1;">📊</span><span style="font-size:0.42rem;color:#a5b4fc;font-weight:700;white-space:nowrap;">מאקרו</span>
+            </div>
+            <div class="nav-item" data-page="strategies" onclick="switchPage('strategies')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
+                <span style="font-size:1.1rem;line-height:1;">🧠</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">אסטרטגיה</span>
+            </div>
+            <div class="nav-item" data-page="risk" onclick="switchPage('risk')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
+                <span style="font-size:1.1rem;line-height:1;">⚖️</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">סיכון</span>
+            </div>
+            <div class="nav-item" data-page="whales" onclick="switchPage('whales')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
+                <span style="font-size:1.1rem;line-height:1;">🐋</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">לווייתנים</span>
+            </div>
+            <div class="nav-item" data-page="portfolio" onclick="switchPage('portfolio')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
+                <span style="font-size:1.1rem;line-height:1;">💼</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">תיק</span>
+            </div>
+            <div class="nav-item" data-page="history" onclick="switchPage('history')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
+                <span style="font-size:1.1rem;line-height:1;">📋</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">היסטוריה</span>
+            </div>
+            <div class="nav-item" data-page="insights" onclick="switchPage('insights')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
+                <span style="font-size:1.1rem;line-height:1;">🤖</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">AI</span>
+            </div>
+        </div>
 
     </div>
 
@@ -5501,6 +5501,7 @@ let _analysisData = { btcDom: null, marketCap: null, vol: null, btcChange: null,
 function initAnalysisPage() {
     switchAnalysisTab('crypto', document.querySelector('.analysis-tab'));
     fetchCryptoGlobal();
+    fetchDominanceAndDXY();
     fetchGoldPrice();
     fetchStocksAuto();
     fetchAnalysisNews();
