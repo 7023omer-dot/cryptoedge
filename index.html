@@ -2484,21 +2484,40 @@ html, body {
                     <!-- Stocks Tab -->
                     <div id="analysis-tab-stocks" class="analysis-tab-content">
                         <div class="analysis-card">
-                            <div class="analysis-card-title">נתוני מניות — הכנס ידנית</div>
-                            <div class="placeholder-mode-box">
-                                <label>S&P 500 (נוכחי)</label>
-                                <input type="number" id="stocks-sp500" value="5300" oninput="updateStocksAnalysis()">
-                                <label>NASDAQ (נוכחי)</label>
-                                <input type="number" id="stocks-nasdaq" value="16800" oninput="updateStocksAnalysis()">
-                                <label>VIX (מדד תנודתיות)</label>
-                                <input type="number" id="stocks-vix" value="18" step="0.1" oninput="updateStocksAnalysis()">
-                                <button onclick="updateStocksAnalysis()" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);border-radius:8px;padding:8px 18px;color:var(--accent-light);font-weight:700;cursor:pointer;font-family:inherit;font-size:0.85rem;">עדכן ניתוח</button>
+                            <div class="analysis-card-title" style="display:flex;justify-content:space-between;align-items:center;">
+                                <span>נתוני מניות — אוטומטי</span>
+                                <button onclick="fetchStocksAuto()" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);border-radius:8px;padding:4px 12px;color:var(--accent-light);font-weight:700;cursor:pointer;font-family:inherit;font-size:0.78rem;">🔄 רענן</button>
                             </div>
-                            <div class="analysis-auto-text" id="stocks-auto-analysis" style="margin-top:10px;">לחץ עדכן ניתוח לקבלת תובנות.</div>
+                            <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
+                                <div style="flex:1;min-width:80px;background:var(--bg-elevated);border-radius:10px;padding:10px;text-align:center;">
+                                    <div style="font-size:0.72rem;color:var(--text-secondary);margin-bottom:4px;">S&P 500</div>
+                                    <div id="stocks-sp500-display" style="font-size:1.2rem;font-weight:700;color:var(--green);">טוען...</div>
+                                    <div id="stocks-sp500-chg" style="font-size:0.75rem;"></div>
+                                </div>
+                                <div style="flex:1;min-width:80px;background:var(--bg-elevated);border-radius:10px;padding:10px;text-align:center;">
+                                    <div style="font-size:0.72rem;color:var(--text-secondary);margin-bottom:4px;">NASDAQ</div>
+                                    <div id="stocks-nasdaq-display" style="font-size:1.2rem;font-weight:700;color:var(--green);">טוען...</div>
+                                    <div id="stocks-nasdaq-chg" style="font-size:0.75rem;"></div>
+                                </div>
+                                <div style="flex:1;min-width:80px;background:var(--bg-elevated);border-radius:10px;padding:10px;text-align:center;">
+                                    <div style="font-size:0.72rem;color:var(--text-secondary);margin-bottom:4px;">VIX</div>
+                                    <div id="stocks-vix-display" style="font-size:1.2rem;font-weight:700;color:#f59e0b;">טוען...</div>
+                                    <div id="stocks-vix-label" style="font-size:0.75rem;color:var(--text-secondary);"></div>
+                                </div>
+                                <div style="flex:1;min-width:80px;background:var(--bg-elevated);border-radius:10px;padding:10px;text-align:center;">
+                                    <div style="font-size:0.72rem;color:var(--text-secondary);margin-bottom:4px;">Fear &amp; Greed</div>
+                                    <div id="stocks-fng-display" style="font-size:1.2rem;font-weight:700;">טוען...</div>
+                                    <div id="stocks-fng-label" style="font-size:0.75rem;color:var(--text-secondary);"></div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="stocks-sp500" value="5300">
+                            <input type="hidden" id="stocks-nasdaq" value="16800">
+                            <input type="hidden" id="stocks-vix" value="18">
+                            <div class="analysis-auto-text" id="stocks-auto-analysis">טוען ניתוח...</div>
                         </div>
                         <div class="analysis-card">
                             <div class="analysis-card-title">קורלציה S&P500 — BTC</div>
-                            <div class="analysis-auto-text">
+                            <div class="analysis-auto-text" id="stocks-btc-corr">
                                 📊 קורלציה היסטורית: ב-2020–2023 הציגו BTC ו-S&P500 קורלציה חיובית של כ-0.6–0.8 בתקופות לחץ. כאשר ה-S&P500 יורד בחדות, BTC לרוב עוקב.<br><br>
                                 🔑 כלל אצבע: אם VIX &gt;25 ו-SP500 יורד — צפה ללחץ גם בקריפטו. אם VIX &lt;18 ו-SP500 עולה — סביבת Risk-On, טובה לאלטקוינים.
                             </div>
@@ -5458,8 +5477,97 @@ let _analysisData = { btcDom: null, marketCap: null, vol: null, btcChange: null,
 function initAnalysisPage() {
     switchAnalysisTab('crypto', document.querySelector('.analysis-tab'));
     fetchCryptoGlobal();
+    fetchGoldPrice();
+    fetchStocksAuto();
     loadAnalysisProjects();
+}
+
+async function fetchStocksAuto() {
+    // S&P500 + NASDAQ via stooq (no CORS issues for index data)
+    const sp500El = document.getElementById('stocks-sp500-display');
+    const nasdaqEl = document.getElementById('stocks-nasdaq-display');
+    const vixEl = document.getElementById('stocks-vix-display');
+    const vixLbl = document.getElementById('stocks-vix-label');
+    const sp500chg = document.getElementById('stocks-sp500-chg');
+    const nasdaqchg = document.getElementById('stocks-nasdaq-chg');
+    const fngEl = document.getElementById('stocks-fng-display');
+    const fngLbl = document.getElementById('stocks-fng-label');
+
+    // Fear & Greed (works without CORS issues)
+    try {
+        const fgr = await fetch('https://api.alternative.me/fng/?limit=1').then(r => r.json());
+        const fgv = parseInt(fgr?.data?.[0]?.value || 50);
+        const fgl = fgr?.data?.[0]?.value_classification || '';
+        if (fngEl) {
+            const fgColor = fgv <= 25 ? '#ef4444' : fgv <= 45 ? '#f97316' : fgv <= 55 ? '#f59e0b' : fgv <= 75 ? '#84cc16' : '#22c55e';
+            fngEl.style.color = fgColor;
+            fngEl.textContent = fgv;
+        }
+        if (fngLbl) {
+            const hebrewLabel = fgl === 'Extreme Fear' ? 'פחד קיצוני' : fgl === 'Fear' ? 'פחד' : fgl === 'Neutral' ? 'ניטרלי' : fgl === 'Greed' ? 'חמדנות' : fgl === 'Extreme Greed' ? 'חמדנות קיצונית' : fgl;
+            fngLbl.textContent = hebrewLabel;
+        }
+        _analysisData.fngValue = fgv;
+    } catch(e) {
+        if (fngEl) fngEl.textContent = '—';
+    }
+
+    // Try Binance for BTC price (already works), use for VIX approximation via options market
+    // For stocks: use Yahoo Finance via allorigins proxy
+    try {
+        const symbols = ['^GSPC', '^IXIC', '^VIX'];
+        const results = await Promise.allSettled(symbols.map(s =>
+            fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + s + '?interval=1d&range=2d')).then(r => r.json())
+        ));
+
+        const parseYahoo = (res) => {
+            if (res.status !== 'fulfilled') return null;
+            try {
+                const meta = res.value?.chart?.result?.[0]?.meta;
+                return { price: meta?.regularMarketPrice, prevClose: meta?.previousClose, change: meta?.regularMarketPrice - meta?.previousClose };
+            } catch(e) { return null; }
+        };
+
+        const sp = parseYahoo(results[0]);
+        const nq = parseYahoo(results[1]);
+        const vix = parseYahoo(results[2]);
+
+        if (sp && sp500El) {
+            sp500El.textContent = sp.price?.toLocaleString('en-US', {maximumFractionDigits: 0});
+            const spChgPct = sp.prevClose ? ((sp.change / sp.prevClose) * 100).toFixed(2) : null;
+            if (sp500chg && spChgPct) {
+                sp500chg.style.color = sp.change >= 0 ? 'var(--green)' : 'var(--red)';
+                sp500chg.textContent = (sp.change >= 0 ? '+' : '') + spChgPct + '%';
+            }
+            document.getElementById('stocks-sp500').value = sp.price || 5300;
+            _analysisData.sp500 = sp.price;
+        }
+        if (nq && nasdaqEl) {
+            nasdaqEl.textContent = nq.price?.toLocaleString('en-US', {maximumFractionDigits: 0});
+            const nqChgPct = nq.prevClose ? ((nq.change / nq.prevClose) * 100).toFixed(2) : null;
+            if (nasdaqchg && nqChgPct) {
+                nasdaqchg.style.color = nq.change >= 0 ? 'var(--green)' : 'var(--red)';
+                nasdaqchg.textContent = (nq.change >= 0 ? '+' : '') + nqChgPct + '%';
+            }
+            document.getElementById('stocks-nasdaq').value = nq.price || 16800;
+        }
+        if (vix && vixEl) {
+            const vixVal = vix.price?.toFixed(1);
+            vixEl.textContent = vixVal;
+            vixEl.style.color = vix.price > 25 ? '#ef4444' : vix.price > 18 ? '#f59e0b' : '#22c55e';
+            if (vixLbl) vixLbl.textContent = vix.price > 25 ? 'פחד גבוה' : vix.price > 18 ? 'מתון' : 'נמוך';
+            document.getElementById('stocks-vix').value = vix.price || 18;
+            _analysisData.vix = vix.price;
+        }
+    } catch(e) {
+        // Fallback: show cached or defaults
+        if (sp500El && sp500El.textContent === 'טוען...') sp500El.textContent = '—';
+        if (nasdaqEl && nasdaqEl.textContent === 'טוען...') nasdaqEl.textContent = '—';
+        if (vixEl && vixEl.textContent === 'טוען...') vixEl.textContent = '—';
+    }
+
     updateStocksAnalysis();
+    generateMarketConclusions();
 }
 
 function switchAnalysisTab(tab, btn) {
