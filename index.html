@@ -508,15 +508,20 @@ html, body {
     height: var(--nav-height);
     background: var(--bg-card);
     border-top: 1px solid var(--border);
-    display: grid; grid-template-columns: repeat(9, 1fr);
-    align-items: center; flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
     padding: 0 2px;
     padding-bottom: env(safe-area-inset-bottom, 0);
 }
+.bottom-nav::-webkit-scrollbar { display: none; }
 .nav-item {
     display: flex; flex-direction: column; align-items: center; gap: 2px;
-    padding: 8px 4px; background: none; border: none; cursor: pointer;
+    padding: 8px 6px; background: none; border: none; cursor: pointer;
     font-family: inherit; transition: all 0.2s; border-radius: 10px;
+    flex: 1 0 auto; min-width: 52px;
 }
 .nav-item.active .nav-icon, .nav-item.active .nav-label { color: var(--accent-light); }
 .nav-icon { font-size: 1.05rem; transition: transform 0.2s; }
@@ -1231,9 +1236,9 @@ html, body {
 /* ==================== ANALYSIS PAGE ==================== */
 .analysis-page { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
 .analysis-header { font-size: 1.2rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-.nav-item--macro { background: rgba(99,102,241,0.18) !important; border: 1.5px solid rgba(99,102,241,0.5) !important; border-radius: 12px !important; }
-.nav-item--macro .nav-icon { font-size: 1.35rem !important; }
-.nav-item--macro .nav-label { color: var(--accent-light) !important; font-weight: 700 !important; }
+.nav-item--macro { background: rgba(99,102,241,0.22) !important; border: 1.5px solid rgba(99,102,241,0.6) !important; border-radius: 12px !important; }
+.nav-item--macro .nav-icon { font-size: 1.1rem !important; }
+.nav-item--macro .nav-label { color: #a5b4fc !important; font-weight: 700 !important; }
 .analysis-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
 .analysis-tabs::-webkit-scrollbar { display: none; }
 .analysis-tab { flex: 0 0 auto; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px; font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; font-family: inherit; transition: all 0.2s; white-space: nowrap; }
@@ -2431,8 +2436,8 @@ html, body {
 
         <!-- Analysis Page -->
         <section id="page-analysis" class="page">
-            <div class="page-scroll">
-                <div class="analysis-page">
+            <div class="page-scroll" style="overflow-y:auto;-webkit-overflow-scrolling:touch;">
+                <div class="analysis-page" style="padding-bottom:30px;">
                     <div class="analysis-header">📊 איסוף נתונים ומאקרו</div>
                     <div class="analysis-tabs">
                         <button class="analysis-tab active" onclick="switchAnalysisTab('crypto',this)">🪙 קריפטו</button>
