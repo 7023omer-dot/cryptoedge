@@ -1405,8 +1405,14 @@ html, body {
                     <div class="export-bar">
                         <button class="btn-export json" onclick="exportJSON()">⬇️ ייצא JSON</button>
                         <button class="btn-export csv" onclick="exportCSV()">⬇️ ייצא CSV</button>
-                        <button class="btn-export imp" onclick="document.getElementById(&#39;import-file&#39;).click()">⬆️ ייבא</button>
+                        <button class="btn-export imp" onclick="document.getElementById('import-file').click()">⬆️ ייבא</button>
                         <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importJSON(event)">
+                    </div>
+
+                    <!-- Reports Row -->
+                    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+                        <button onclick="showMonthlyReport()" style="flex:1;padding:10px;background:rgba(99,102,241,0.15);border:1px solid var(--accent);color:var(--accent-light);border-radius:10px;font-size:0.82rem;font-family:inherit;cursor:pointer;font-weight:700;">📊 דוח חודשי</button>
+                        <button onclick="showStatsReport()" style="flex:1;padding:10px;background:rgba(16,185,129,0.15);border:1px solid var(--green);color:var(--green);border-radius:10px;font-size:0.82rem;font-family:inherit;cursor:pointer;font-weight:700;">📈 דוח סטטיסטי</button>
                     </div>
 
                     <!-- Status Count Pills -->
@@ -8079,10 +8085,43 @@ function buildSrConclusion({ closed, wins, losses, totalPnl, winRate, profitFact
 }
 
 function emailStatsReport() {
-    const conclusionEl = document.getElementById('sr-conclusion');
     const monthLabel = document.getElementById('sr-month-label');
-    const subject = encodeURIComponent('דוח סטטיסטי CryptoEdge — ' + (monthLabel?.textContent || ''));
-    const body = encodeURIComponent((conclusionEl?.textContent || '') + '\n\n— נשלח מ-CryptoEdge');
+    const gridEl     = document.getElementById('sr-stats-grid');
+    const pairEl     = document.getElementById('sr-pair-table-wrap');
+    const concEl     = document.getElementById('sr-conclusion');
+    const month      = monthLabel?.textContent || '';
+
+    // Build plain-text version of the full report
+    let txt = `📈 ${month}\n${'═'.repeat(40)}\n\n`;
+
+    // Extract stat cards text
+    if (gridEl) {
+        gridEl.querySelectorAll('.sr-stat-card').forEach(c => {
+            const val = c.querySelector('.sr-stat-val')?.textContent?.trim() || '';
+            const lbl = c.querySelector('.sr-stat-lbl')?.textContent?.trim() || '';
+            txt += `• ${lbl}: ${val}\n`;
+        });
+    }
+
+    // Pair table
+    if (pairEl) {
+        txt += `\n📊 ביצועים לפי זוג:\n`;
+        pairEl.querySelectorAll('tr').forEach((row, i) => {
+            if (i === 0) return;
+            const cells = [...row.querySelectorAll('td')].map(td => td.textContent.trim());
+            txt += `  ${cells.join(' | ')}\n`;
+        });
+    }
+
+    // Conclusion
+    if (concEl) {
+        txt += `\n🤖 סיכום אוטומטי:\n${concEl.textContent.trim()}\n`;
+    }
+
+    txt += `\n${'─'.repeat(36)}\nנוצר ע"י CryptoEdge | ${new Date().toLocaleDateString('he-IL')}`;
+
+    const subject = encodeURIComponent(`📈 דוח סטטיסטי CryptoEdge — ${month}`);
+    const body    = encodeURIComponent(txt);
     window.open(`https://mail.google.com/mail/?view=cm&to=7023omer@gmail.com&su=${subject}&body=${body}`, '_blank');
 }
 
