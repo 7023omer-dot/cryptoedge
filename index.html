@@ -5008,6 +5008,20 @@ function importJSON(event) {
     event.target.value = '';
 }
 
+// ==================== STATS REPORT (copy in block 1) ====================
+function showStatsReport() {
+    try {
+        const modal = document.getElementById('stats-report-modal');
+        if (!modal) { showToast('❌ שגיאה: מודל לא נמצא'); return; }
+        modal.style.cssText = 'display:flex !important;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.88);align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 0;';
+        buildStatsReport();
+    } catch(e) { showToast('❌ ' + e.message); }
+}
+function closeStatsReportModal() {
+    const m = document.getElementById('stats-report-modal');
+    if (m) m.style.cssText = 'display:none';
+}
+
     </script>
 
 
