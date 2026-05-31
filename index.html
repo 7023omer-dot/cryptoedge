@@ -8640,18 +8640,158 @@ async function callClaudeAPI(prompt) {
     return data.content?.[0]?.text || '';
 }
 
-async function runInsightsPipeline() {
-    // Check for API key first
-    const existingKey = localStorage.getItem('anthropic_apikey');
-    if (!existingKey) {
-        const key = window.prompt('הכנס Claude API Key כדי להפעיל תובנות AI\n(קבל מ: console.anthropic.com)');
-        if (!key || !key.trim()) {
-            showToast('❌ נדרש API Key להפעלת תובנות');
-            return;
-        }
-        localStorage.setItem('anthropic_apikey', key.trim());
-        showToast('✅ API Key נשמר!');
+
+function generateRuleBasedInsights(data) {
+    const fg = data?.feargreed;
+    const cg = data?.coingecko;
+    const dl = data?.defillama;
+    const fx = data?.forex;
+
+    const fgVal = fg?.value ? parseInt(fg.value) : null;
+    const btcDom = cg?.btcDom ? parseFloat(cg.btcDom) : null;
+    const btcChg = cg?.btcChange24h ? parseFloat(cg.btcChange24h) : null;
+    const mcap = cg?.totalMcap ? parseFloat(cg.totalMcap) : null;
+    const mcapChg = cg?.mcapChange24h ? parseFloat(cg.mcapChange24h) : null;
+    const tvl = dl?.totalTvl ? parseFloat(dl.totalTvl) : null;
+    const vix = parseFloat(localStorage.getItem('last_vix') || '0') || null;
+
+    let lines = [];
+
+    // ===== MARKET SENTIMENT =====
+    lines.push('═══════════════════════════════');
+    lines.push('📊 מצב שוק — ' + new Date().toLocaleDateString('he-IL'));
+    lines.push('═══════════════════════════════');
+    lines.push('');
+
+    // Fear & Greed
+    if (fgVal !== null) {
+        let fgLabel, fgEmoji, fgTip;
+        if (fgVal <= 20) { fgLabel = 'פחד קיצוני'; fgEmoji = '😱'; fgTip = 'היסטורית — זמן קנייה. הצבא קונה כשאחרים פוחדים.'; }
+        else if (fgVal <= 40) { fgLabel = 'פחד'; fgEmoji = '😨'; fgTip = 'שוק לחוץ. חפש רמות תמיכה לכניסות long מדודות.'; }
+        else if (fgVal <= 60) { fgLabel = 'ניטרלי'; fgEmoji = '😐'; fgTip = 'שוק מאוזן. המתן לאיתות ברור לפני כניסה.'; }
+        else if (fgVal <= 80) { fgLabel = 'חמדנות'; fgEmoji = '😏'; fgTip = 'עירנות גבוהה. אל תרדוף אחרי רכבות שעזבו.'; }
+        else { fgLabel = 'חמדנות קיצונית'; fgEmoji = '🤑'; fgTip = 'שיא תאוות בצע — לרוב קרוב לפסגה. שקול חלקי רווחים.'; }
+        lines.push('🧠 Fear & Greed: ' + fgVal + '/100 — ' + fgEmoji + ' ' + fgLabel);
+        lines.push('   ↳ ' + fgTip);
+        lines.push('');
     }
+
+    // BTC Dominance
+    if (btcDom !== null) {
+        if (btcDom > 58) {
+            lines.push('🟠 BTC Dominance: ' + btcDom.toFixed(1) + '% — גבוה מאוד');
+            lines.push('   ↳ כסף זורם ל-BTC, לא לאלטים. עדיף להתמקד ב-BTC/ETH.');
+        } else if (btcDom > 50) {
+            lines.push('🟡 BTC Dominance: ' + btcDom.toFixed(1) + '% — בינוני-גבוה');
+            lines.push('   ↳ BTC מוביל. אלטקוינים עם ביצועי חסר יחסית.');
+        } else if (btcDom > 42) {
+            lines.push('🟢 BTC Dominance: ' + btcDom.toFixed(1) + '% — בינוני');
+            lines.push('   ↳ תנאים נוחים לאלטקוינים. עונת אלטים מתחילה להתבשל.');
+        } else {
+            lines.push('🚀 BTC Dominance: ' + btcDom.toFixed(1) + '% — נמוך');
+            lines.push('   ↳ עונת אלטים פעילה. אלטים מובילים את השוק.');
+        }
+        lines.push('');
+    }
+
+    // BTC 24h change
+    if (btcChg !== null) {
+        if (btcChg > 5) {
+            lines.push('📈 BTC שינוי 24ש: +' + btcChg.toFixed(2) + '% — עלייה חזקה');
+            lines.push('   ↳ מומנטום חיובי. שמור על stops, אל תרדוף.');
+        } else if (btcChg > 1) {
+            lines.push('📈 BTC שינוי 24ש: +' + btcChg.toFixed(2) + '%');
+            lines.push('   ↳ יום ירוק מתון. שוק בריא.');
+        } else if (btcChg > -1) {
+            lines.push('➡️ BTC שינוי 24ש: ' + btcChg.toFixed(2) + '%');
+            lines.push('   ↳ יום שטוח. צפה להתפרצות לאחד הכיוונים.');
+        } else if (btcChg > -5) {
+            lines.push('📉 BTC שינוי 24ש: ' + btcChg.toFixed(2) + '%');
+            lines.push('   ↳ לחץ קל. בדוק רמות תמיכה קרובות.');
+        } else {
+            lines.push('🔴 BTC שינוי 24ש: ' + btcChg.toFixed(2) + '% — ירידה חדה');
+            lines.push('   ↳ לחץ מכירה חזק. אל תתפוס סכין נופל. המתן לייצוב.');
+        }
+        lines.push('');
+    }
+
+    // DeFi TVL
+    if (tvl !== null) {
+        const tvlB = (tvl / 1e9).toFixed(0);
+        if (tvl > 100e9) {
+            lines.push('🏦 DeFi TVL: $' + tvlB + 'B — בריא');
+            lines.push('   ↳ נזילות גבוהה ב-DeFi, סביבה יציבה.');
+        } else if (tvl > 50e9) {
+            lines.push('🏦 DeFi TVL: $' + tvlB + 'B — בינוני');
+            lines.push('   ↳ נזילות DeFi מתונה.');
+        } else {
+            lines.push('⚠️ DeFi TVL: $' + tvlB + 'B — נמוך');
+            lines.push('   ↳ יציאת נזילות מ-DeFi — זהירות עם פרוטוקולים קטנים.');
+        }
+        lines.push('');
+    }
+
+    // ===== TRADING RECOMMENDATIONS =====
+    lines.push('═══════════════════════════════');
+    lines.push('💡 המלצות מסחר');
+    lines.push('═══════════════════════════════');
+    lines.push('');
+
+    let recs = [];
+    if (fgVal !== null && fgVal < 30 && btcChg !== null && btcChg < -3) {
+        recs.push('🟢 כניסה הדרגתית Long BTC — פחד + ירידה = הזדמנות קלאסית');
+    }
+    if (fgVal !== null && fgVal > 80) {
+        recs.push('🔴 הימנע מכניסות חדשות — חמדנות קיצונית, סיכון לתיקון');
+    }
+    if (btcDom !== null && btcDom < 43) {
+        recs.push('🟢 שקול אלטקוינים עם פאנדמנטלס חזק — עונת אלטים פעילה');
+    }
+    if (btcDom !== null && btcDom > 56) {
+        recs.push('🟠 הצמד ל-BTC/ETH — אלטים חלשים יחסית כרגע');
+    }
+    if (fgVal !== null && fgVal >= 40 && fgVal <= 60) {
+        recs.push('🟡 שוק ניטרלי — בחר נכסים ספציפיים עם קטליסט ברור');
+    }
+    if (!recs.length) {
+        recs.push('🟡 שמור על פוזיציות קיימות, אין איתות חד-משמעי כרגע');
+    }
+    recs.forEach(r => { lines.push(r); lines.push(''); });
+
+    // ===== RISKS =====
+    lines.push('═══════════════════════════════');
+    lines.push('⚠️ סיכונים לשים לב');
+    lines.push('═══════════════════════════════');
+    lines.push('');
+
+    if (fgVal !== null && fgVal > 75) lines.push('• חמדנות גבוהה — קרוב לאזור שיא אפשרי');
+    if (btcChg !== null && Math.abs(btcChg) > 7) lines.push('• תנודתיות גבוהה — הקטן גודל פוזיציות');
+    if (btcDom !== null && btcDom > 60) lines.push('• BTC Dominance גבוה — אלטים בסיכון מוגבר');
+    lines.push('• עקוב אחרי חדשות מאקרו (פד, רגולציה)');
+    lines.push('• שמור על Stop Loss בכל פוזיציה פתוחה');
+    lines.push('');
+
+    // ===== CONCLUSION =====
+    lines.push('═══════════════════════════════');
+    let verdict = '🟡 ניטרלי';
+    let verdictText = 'המתן לאיתות ברור';
+    if (fgVal !== null) {
+        if (fgVal < 30) { verdict = '🟢 בולי — הזדמנות'; verdictText = 'פחד בשוק = הזדמנות למשקיע סבלני'; }
+        else if (fgVal > 75) { verdict = '🔴 זהירות'; verdictText = 'חמדנות גבוהה — היזהר מרדיפה'; }
+        else if (fgVal > 55 && (btcChg||0) > 2) { verdict = '🟢 בולי מתון'; verdictText = 'מומנטום חיובי, שמור stops'; }
+        else if (fgVal < 45 && (btcChg||0) < -2) { verdict = '🟠 דובי מתון'; verdictText = 'לחץ בשוק, המתן לייצוב'; }
+    }
+    lines.push('📌 מסקנה: ' + verdict);
+    lines.push('   ' + verdictText);
+    lines.push('═══════════════════════════════');
+    lines.push('');
+    lines.push('⚡ ניתוח אוטומטי | ' + new Date().toLocaleString('he-IL'));
+
+    return lines.join('\n');
+}
+
+async function runInsightsPipeline() {
+    const apiKey = localStorage.getItem('anthropic_apikey');
 
     const btn = document.getElementById('insights-update-btn');
     if (btn) btn.disabled = true;
@@ -8693,11 +8833,17 @@ async function runInsightsPipeline() {
     setSourceStatus('src-arkham', collected.arkham ? '✅ טעון' : '📝 ידני');
     setSourceStatus('src-unlocks', collected.unlocks ? '✅ טעון' : '📝 ידני');
 
-    setLoadingMsg('מנתח עם Claude AI...');
+    setLoadingMsg('מנתח נתונים...');
 
     try {
-        const prompt = buildInsightsPrompt(collected);
-        const result = await callClaudeAPI(prompt);
+        let result;
+        const apiKey = localStorage.getItem('anthropic_apikey');
+        if (apiKey) {
+            const prompt = buildInsightsPrompt(collected);
+            result = await callClaudeAPI(prompt);
+        } else {
+            result = generateRuleBasedInsights(collected);
+        }
 
         showInsightsContent(result);
 
