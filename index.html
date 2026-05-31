@@ -505,28 +505,28 @@ html, body {
 
 /* ==================== BOTTOM NAV ==================== */
 .bottom-nav {
-    height: var(--nav-height);
+    height: var(--nav-height) !important;
     background: var(--bg-card);
     border-top: 1px solid var(--border);
-    display: flex;
+    display: grid !important;
+    grid-template-columns: repeat(9, 1fr) !important;
     align-items: center;
     flex-shrink: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding: 0 2px;
-    padding-bottom: env(safe-area-inset-bottom, 0);
+    width: 100%;
+    padding: 0 !important;
+    padding-bottom: env(safe-area-inset-bottom, 0) !important;
+    overflow: visible;
 }
-.bottom-nav::-webkit-scrollbar { display: none; }
 .nav-item {
-    display: flex; flex-direction: column; align-items: center; gap: 2px;
-    padding: 8px 6px; background: none; border: none; cursor: pointer;
-    font-family: inherit; transition: all 0.2s; border-radius: 10px;
-    flex: 1 0 auto; min-width: 52px;
+    display: flex !important; flex-direction: column; align-items: center; gap: 1px;
+    padding: 5px 1px !important; background: none; border: none; cursor: pointer;
+    font-family: inherit; transition: all 0.2s; border-radius: 8px;
+    width: 100%; min-width: 0; overflow: hidden;
 }
 .nav-item.active .nav-icon, .nav-item.active .nav-label { color: var(--accent-light); }
-.nav-icon { font-size: 1.05rem; transition: transform 0.2s; }
+.nav-icon { font-size: 1.1rem; transition: transform 0.2s; }
 .nav-item.active .nav-icon { transform: scale(1.1); }
-.nav-label { font-size: 0.52rem; color: var(--text-muted); }
+.nav-label { font-size: 0.48rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
 /* ==================== MODAL ==================== */
 .modal-overlay {
@@ -2436,7 +2436,7 @@ html, body {
 
         <!-- Analysis Page -->
         <section id="page-analysis" class="page">
-            <div class="page-scroll" style="overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="page-scroll" style="height:100%;overflow-y:scroll !important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:80px;">
                 <div class="analysis-page" style="padding-bottom:30px;">
                     <div class="analysis-header">📊 איסוף נתונים ומאקרו</div>
                     <div class="analysis-tabs">
@@ -2469,6 +2469,13 @@ html, body {
                                     <tbody id="crypto-top10-body"><tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:20px;">טוען...</td></tr></tbody>
                                 </table>
                             </div>
+                        </div>
+                        <div class="analysis-card">
+                            <div class="analysis-card-title" style="display:flex;justify-content:space-between;align-items:center;">
+                                <span>📰 חדשות קריפטו חיות</span>
+                                <button onclick="fetchAnalysisNews()" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);border-radius:8px;padding:3px 10px;color:var(--accent-light);font-weight:700;cursor:pointer;font-family:inherit;font-size:0.75rem;">🔄 רענן</button>
+                            </div>
+                            <div id="analysis-news-list" style="font-size:0.82rem;line-height:1.8;color:var(--text);">טוען חדשות...</div>
                         </div>
                     </div>
 
@@ -5487,7 +5494,48 @@ function initAnalysisPage() {
     fetchCryptoGlobal();
     fetchGoldPrice();
     fetchStocksAuto();
+    fetchAnalysisNews();
     loadAnalysisProjects();
+}
+
+async function fetchAnalysisNews() {
+    const el = document.getElementById('analysis-news-list');
+    if (!el) return;
+    el.innerHTML = '<span style="color:var(--text-secondary)">טוען חדשות...</span>';
+    const feeds = [
+        'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://cointelegraph.com/rss'),
+        'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://coindesk.com/arc/outboundfeeds/rss/'),
+        'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://decrypt.co/feed')
+    ];
+    for (const url of feeds) {
+        try {
+            const xml = await fetch(url).then(r => r.text());
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(xml, 'text/xml');
+            const items = Array.from(doc.querySelectorAll('item')).slice(0, 8);
+            if (!items.length) continue;
+            el.innerHTML = items.map(item => {
+                const title = item.querySelector('title')?.textContent?.replace('<![CDATA[','').replace(']]>','').trim() || '';
+                const link = item.querySelector('link')?.textContent?.trim() || '#';
+                const pubDate = item.querySelector('pubDate')?.textContent || '';
+                const ago = pubDate ? hebrewTimeAgo(new Date(pubDate)) : '';
+                return '<div style="border-bottom:1px solid var(--border);padding:8px 0;">' +
+                    '<a href="' + link + '" target="_blank" style="color:var(--text);text-decoration:none;font-weight:600;font-size:0.83rem;">' + title + '</a>' +
+                    (ago ? '<div style="font-size:0.72rem;color:var(--text-secondary);margin-top:2px;">' + ago + '</div>' : '') +
+                    '</div>';
+            }).join('');
+            return;
+        } catch(e) {}
+    }
+    el.innerHTML = '<span style="color:var(--text-secondary)">לא ניתן לטעון חדשות כרגע</span>';
+}
+
+function hebrewTimeAgo(date) {
+    const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (diff < 60) return 'לפני פחות מדקה';
+    if (diff < 3600) return 'לפני ' + Math.floor(diff/60) + ' דקות';
+    if (diff < 86400) return 'לפני ' + Math.floor(diff/3600) + ' שעות';
+    return 'לפני ' + Math.floor(diff/86400) + ' ימים';
 }
 
 async function fetchStocksAuto() {
@@ -8593,6 +8641,18 @@ async function callClaudeAPI(prompt) {
 }
 
 async function runInsightsPipeline() {
+    // Check for API key first
+    const existingKey = localStorage.getItem('anthropic_apikey');
+    if (!existingKey) {
+        const key = window.prompt('הכנס Claude API Key כדי להפעיל תובנות AI\n(קבל מ: console.anthropic.com)');
+        if (!key || !key.trim()) {
+            showToast('❌ נדרש API Key להפעלת תובנות');
+            return;
+        }
+        localStorage.setItem('anthropic_apikey', key.trim());
+        showToast('✅ API Key נשמר!');
+    }
+
     const btn = document.getElementById('insights-update-btn');
     if (btn) btn.disabled = true;
 
