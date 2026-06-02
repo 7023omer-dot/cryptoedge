@@ -1106,6 +1106,98 @@ html, body {
     outline: none;
     border-color: var(--accent);
 }
+
+/* API Cards - professional layout */
+.api-cards-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.api-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    transition: border-color 0.2s;
+}
+.api-card.connected { border-color: rgba(16,185,129,0.4); }
+.api-card.error     { border-color: rgba(239,68,68,0.4); }
+.api-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+.api-card-icon { font-size: 1.2rem; flex-shrink: 0; }
+.api-card-info { flex: 1; min-width: 0; }
+.api-card-name { font-size: 0.88rem; font-weight: 700; color: var(--text); }
+.api-card-desc { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; }
+.api-card-badges { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+.badge-free  { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+.badge-paid  { background: rgba(245,158,11,0.12); color: var(--yellow); border: 1px solid rgba(245,158,11,0.3); font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+.badge-auto  { background: rgba(99,102,241,0.15); color: var(--accent-light); border: 1px solid rgba(99,102,241,0.3); font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+.api-status-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    background: var(--text-muted);
+}
+.api-status-dot.ok    { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.api-status-dot.err   { background: var(--red); }
+.api-status-dot.warn  { background: var(--yellow); }
+.api-card-input-row { display: flex; gap: 8px; align-items: center; }
+.api-card-input-row input {
+    flex: 1;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    color: var(--text);
+    font-size: 0.82rem;
+    font-family: inherit;
+    direction: ltr;
+    text-align: left;
+    min-width: 0;
+}
+.api-card-input-row input:focus { outline: none; border-color: var(--accent); }
+.api-test-btn {
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.3);
+    color: var(--accent-light);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 0.75rem;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: 600;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+.api-test-btn:hover { background: rgba(99,102,241,0.28); }
+.api-get-key-link {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 0.72rem;
+    color: var(--accent-light);
+    text-decoration: none;
+    opacity: 0.8;
+}
+.api-get-key-link:hover { opacity: 1; text-decoration: underline; }
+.api-status-text { font-size: 0.72rem; color: var(--text-muted); margin-top: 5px; }
+.api-manual-field textarea {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-size: 0.8rem;
+    font-family: inherit;
+    direction: rtl;
+    resize: vertical;
+    margin-top: 6px;
+}
+.api-manual-field textarea:focus { outline: none; border-color: var(--accent); }
+.api-section-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 14px 0 8px; }
+.insights-auto-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.insights-auto-row label { font-size: 0.8rem; color: var(--text-secondary); flex: 1; }
+.insights-auto-row input { width: 60px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; color: var(--text); font-size: 0.82rem; font-family: inherit; text-align: center; }
+
 .insights-save-btn {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
@@ -2374,36 +2466,118 @@ html, body {
 
                 <!-- Settings Panel -->
                 <div class="insights-settings-panel" id="insights-settings-panel" style="display:none;">
-                    <div class="insights-settings-grid">
-                        <div class="insights-setting-field">
-                            <label>🔑 Claude API Key (נדרש)</label>
-                            <input type="password" id="ins-anthropic-key" placeholder="sk-ant-..." autocomplete="off">
-                        </div>
-                        <div class="insights-setting-field">
-                            <label>🔑 CryptoRank API Key</label>
-                            <input type="password" id="ins-cr-key" placeholder="אופציונלי" autocomplete="off">
-                        </div>
-                        <div class="insights-setting-field">
-                            <label>🔑 Santiment API Key</label>
-                            <input type="password" id="ins-san-key" placeholder="אופציונלי" autocomplete="off">
-                        </div>
-                        <div class="insights-setting-field">
-                            <label>🔑 CoinGlass API Key</label>
-                            <input type="password" id="ins-cg-key" placeholder="אופציונלי" autocomplete="off">
-                        </div>
-                        <div class="insights-setting-field full">
-                            <label>📝 Arkham Intelligence - הערות ידניות</label>
-                            <textarea id="ins-arkham-notes" placeholder="הכנס תובנות Arkham ידנית (כתובות לווייתנים, תנועות גדולות...)" rows="3"></textarea>
-                        </div>
-                        <div class="insights-setting-field full">
-                            <label>🔓 Token Unlocks - אירועי שחרור קרובים</label>
-                            <textarea id="ins-token-unlocks" placeholder="הכנס אירועי שחרור טוקנים קרובים (תאריך, מטבע, כמות...)" rows="3"></textarea>
-                        </div>
-                        <div class="insights-setting-field">
-                            <label>⏱️ עדכון אוטומטי (שעות)</label>
-                            <input type="number" id="ins-auto-interval" placeholder="6" min="1" max="24" value="6">
+
+                    <div class="api-section-title">🤖 מנוע AI</div>
+                    <div class="api-cards-list">
+                        <!-- Claude -->
+                        <div class="api-card" id="apicard-claude">
+                            <div class="api-card-header">
+                                <div class="api-card-icon">🧠</div>
+                                <div class="api-card-info">
+                                    <div class="api-card-name">Claude API <span style="font-size:0.7rem;color:var(--text-muted);">(Anthropic)</span></div>
+                                    <div class="api-card-desc">ניתוח AI מתקדם — מודל Haiku זול מאוד (~$0.001 לניתוח)</div>
+                                </div>
+                                <div class="api-card-badges">
+                                    <span class="badge-paid">💳 בתשלום</span>
+                                    <div class="api-status-dot" id="dot-claude"></div>
+                                </div>
+                            </div>
+                            <div class="api-card-input-row">
+                                <input type="password" id="ins-anthropic-key" placeholder="sk-ant-api03-..." autocomplete="off">
+                                <button class="api-test-btn" onclick="testApiKey('claude')">בדוק ✓</button>
+                            </div>
+                            <a class="api-get-key-link" href="https://console.anthropic.com/" target="_blank">🔗 קבל מפתח ב-console.anthropic.com ← API Keys</a>
+                            <div class="api-status-text" id="status-claude"></div>
                         </div>
                     </div>
+
+                    <div class="api-section-title">📊 נתוני שוק — חינמיים עם הרשמה</div>
+                    <div class="api-cards-list">
+                        <!-- CryptoRank -->
+                        <div class="api-card" id="apicard-cryptorank">
+                            <div class="api-card-header">
+                                <div class="api-card-icon">📊</div>
+                                <div class="api-card-info">
+                                    <div class="api-card-name">CryptoRank</div>
+                                    <div class="api-card-desc">מחירים + טרנדינג + מטבעות מובילים (30 req/min בחינם)</div>
+                                </div>
+                                <div class="api-card-badges">
+                                    <span class="badge-free">✅ חינמי</span>
+                                    <div class="api-status-dot" id="dot-cryptorank"></div>
+                                </div>
+                            </div>
+                            <div class="api-card-input-row">
+                                <input type="password" id="ins-cr-key" placeholder="הכנס API Key..." autocomplete="off">
+                                <button class="api-test-btn" onclick="testApiKey('cryptorank')">בדוק ✓</button>
+                            </div>
+                            <a class="api-get-key-link" href="https://cryptorank.io/account/api" target="_blank">🔗 הרשם חינם ב-cryptorank.io ← Account → API</a>
+                            <div class="api-status-text" id="status-cryptorank"></div>
+                        </div>
+                        <!-- Santiment -->
+                        <div class="api-card" id="apicard-santiment">
+                            <div class="api-card-header">
+                                <div class="api-card-icon">📈</div>
+                                <div class="api-card-info">
+                                    <div class="api-card-name">Santiment</div>
+                                    <div class="api-card-desc">סנטימנט חברתי, on-chain, MVRV — 1000 req/חודש חינם</div>
+                                </div>
+                                <div class="api-card-badges">
+                                    <span class="badge-free">✅ חינמי</span>
+                                    <div class="api-status-dot" id="dot-santiment"></div>
+                                </div>
+                            </div>
+                            <div class="api-card-input-row">
+                                <input type="password" id="ins-san-key" placeholder="הכנס API Key..." autocomplete="off">
+                                <button class="api-test-btn" onclick="testApiKey('santiment')">בדוק ✓</button>
+                            </div>
+                            <a class="api-get-key-link" href="https://app.santiment.net/account#api-keys" target="_blank">🔗 הרשם חינם ב-app.santiment.net ← Account → API Keys</a>
+                            <div class="api-status-text" id="status-santiment"></div>
+                        </div>
+                        <!-- CoinGlass -->
+                        <div class="api-card" id="apicard-coinglass">
+                            <div class="api-card-header">
+                                <div class="api-card-icon">🔮</div>
+                                <div class="api-card-info">
+                                    <div class="api-card-name">CoinGlass</div>
+                                    <div class="api-card-desc">ריבית פתוחה, לונג/שורט ריישיו, ליקווידציות</div>
+                                </div>
+                                <div class="api-card-badges">
+                                    <span class="badge-free">✅ חינמי</span>
+                                    <div class="api-status-dot" id="dot-coinglass"></div>
+                                </div>
+                            </div>
+                            <div class="api-card-input-row">
+                                <input type="password" id="ins-cg-key" placeholder="הכנס API Key..." autocomplete="off">
+                                <button class="api-test-btn" onclick="testApiKey('coinglass')">בדוק ✓</button>
+                            </div>
+                            <a class="api-get-key-link" href="https://www.coinglass.com/user/login" target="_blank">🔗 הרשם חינם ב-coinglass.com ← Account → API</a>
+                            <div class="api-status-text" id="status-coinglass"></div>
+                        </div>
+                    </div>
+
+                    <div class="api-section-title">✅ מקורות אוטומטיים — ללא מפתח</div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+                        <span style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:var(--green);font-size:0.72rem;padding:4px 10px;border-radius:20px;">🌐 CoinGecko</span>
+                        <span style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:var(--green);font-size:0.72rem;padding:4px 10px;border-radius:20px;">🦙 DeFiLlama</span>
+                        <span style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:var(--green);font-size:0.72rem;padding:4px 10px;border-radius:20px;">😨 Fear & Greed</span>
+                        <span style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:var(--green);font-size:0.72rem;padding:4px 10px;border-radius:20px;">📅 Forex Factory</span>
+                    </div>
+
+                    <div class="api-section-title">📝 נתונים ידניים</div>
+                    <div class="api-manual-field" style="margin-bottom:10px;">
+                        <label style="font-size:0.78rem;color:var(--text-secondary);">🕵️ Arkham Intelligence — הערות ווייתנים</label>
+                        <textarea id="ins-arkham-notes" placeholder="הכנס תובנות Arkham ידנית (כתובות לווייתנים, תנועות גדולות...)" rows="2"></textarea>
+                    </div>
+                    <div class="api-manual-field" style="margin-bottom:14px;">
+                        <label style="font-size:0.78rem;color:var(--text-secondary);">🔓 Token Unlocks — שחרורי טוקנים קרובים</label>
+                        <textarea id="ins-token-unlocks" placeholder="לדוגמה: 2024-02-01 ARB 50M tokens unlock" rows="2"></textarea>
+                    </div>
+
+                    <div class="insights-auto-row">
+                        <label>⏱️ עדכון אוטומטי ברקע (שעות)</label>
+                        <input type="number" id="ins-auto-interval" placeholder="6" min="1" max="24" value="6">
+                    </div>
+
                     <button class="insights-save-btn" onclick="saveInsightsSettings()">💾 שמור הגדרות</button>
                 </div>
 
@@ -8889,6 +9063,7 @@ function initInsightsPage() {
 
     // Mark key-required sources
     updateSourceKeyStatuses();
+    updateApiCardDots();
 
     // Show clear message if Claude API key is missing
     const anthropicKey = localStorage.getItem('anthropic_apikey');
@@ -8919,6 +9094,85 @@ function updateSourceKeyStatuses() {
     if (!cgKey) setSourceStatus('src-coinglass', '🔑 נדרש מפתח');
     setSourceStatus('src-arkham', '📝 ידני');
     setSourceStatus('src-unlocks', '📝 ידני');
+    updateApiCardDots();
+}
+
+function updateApiCardDots() {
+    const configs = [
+        { key: 'anthropic_apikey', dot: 'dot-claude', card: 'apicard-claude' },
+        { key: 'cr_apikey',        dot: 'dot-cryptorank', card: 'apicard-cryptorank' },
+        { key: 'san_apikey',       dot: 'dot-santiment', card: 'apicard-santiment' },
+        { key: 'cg_apikey',        dot: 'dot-coinglass', card: 'apicard-coinglass' },
+    ];
+    configs.forEach(({ key, dot, card }) => {
+        const dotEl = document.getElementById(dot);
+        const cardEl = document.getElementById(card);
+        const hasKey = !!localStorage.getItem(key);
+        if (dotEl) dotEl.className = 'api-status-dot' + (hasKey ? ' ok' : '');
+        if (cardEl) { cardEl.classList.toggle('connected', hasKey); cardEl.classList.remove('error'); }
+    });
+}
+
+async function testApiKey(service) {
+    const configs = {
+        claude:     { lsKey: 'anthropic_apikey', inputId: 'ins-anthropic-key', dot: 'dot-claude', card: 'apicard-claude', status: 'status-claude' },
+        cryptorank: { lsKey: 'cr_apikey', inputId: 'ins-cr-key', dot: 'dot-cryptorank', card: 'apicard-cryptorank', status: 'status-cryptorank' },
+        santiment:  { lsKey: 'san_apikey', inputId: 'ins-san-key', dot: 'dot-santiment', card: 'apicard-santiment', status: 'status-santiment' },
+        coinglass:  { lsKey: 'cg_apikey', inputId: 'ins-cg-key', dot: 'dot-coinglass', card: 'apicard-coinglass', status: 'status-coinglass' },
+    };
+    const cfg = configs[service];
+    if (!cfg) return;
+
+    const inputEl = document.getElementById(cfg.inputId);
+    const key = (inputEl?.value || '').trim() || localStorage.getItem(cfg.lsKey) || '';
+    const dotEl = document.getElementById(cfg.dot);
+    const cardEl = document.getElementById(cfg.card);
+    const statusEl = document.getElementById(cfg.status);
+
+    if (!key) { if (statusEl) statusEl.textContent = '⚠️ אנא הכנס מפתח API תחילה'; return; }
+    if (statusEl) statusEl.textContent = '⏳ בודק...';
+    if (dotEl) dotEl.className = 'api-status-dot warn';
+
+    try {
+        let ok = false;
+        if (service === 'claude') {
+            const r = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 5, messages: [{ role: 'user', content: 'hi' }] })
+            });
+            ok = r.ok || r.status === 400; // 400 = bad request but key valid
+        } else if (service === 'cryptorank') {
+            const r = await fetch(`https://api.cryptorank.io/v1/currencies?api_key=${key}&limit=1`);
+            ok = r.ok;
+        } else if (service === 'santiment') {
+            const r = await fetch('https://api.santiment.net/graphql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Apikey ${key}` },
+                body: JSON.stringify({ query: '{ currentUser { id } }' })
+            });
+            ok = r.ok;
+        } else if (service === 'coinglass') {
+            const r = await fetch('https://open-api.coinglass.com/public/v2/open_interest_history?symbol=BTC&time_type=h1&limit=1', {
+                headers: { 'coinglassSecret': key }
+            });
+            ok = r.ok;
+        }
+
+        if (ok) {
+            localStorage.setItem(cfg.lsKey, key);
+            if (dotEl) dotEl.className = 'api-status-dot ok';
+            if (cardEl) { cardEl.classList.add('connected'); cardEl.classList.remove('error'); }
+            if (statusEl) statusEl.textContent = '✅ מחובר בהצלחה!';
+            showToast('✅ ' + service + ' מחובר!');
+        } else {
+            throw new Error('מפתח לא תקין');
+        }
+    } catch(e) {
+        if (dotEl) dotEl.className = 'api-status-dot err';
+        if (cardEl) { cardEl.classList.add('error'); cardEl.classList.remove('connected'); }
+        if (statusEl) statusEl.textContent = '❌ ' + (e.message || 'שגיאת חיבור');
+    }
 }
 
 function toggleInsightsSettings() {
