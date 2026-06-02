@@ -944,6 +944,30 @@ html, body {
 .btn-report.secondary { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-secondary); }
 .btn-report:active { opacity: 0.8; }
 
+/* ==================== MARKET DATABASE PAGE ==================== */
+.db-live-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.db-stat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:10px 12px; }
+.db-stat-label { font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; }
+.db-stat-value { font-size:1.05rem; font-weight:800; color:var(--text); }
+.db-stat-sub { font-size:0.65rem; color:var(--text-secondary); margin-top:2px; }
+.db-tabs { display:flex; gap:6px; margin-bottom:12px; overflow-x:auto; padding-bottom:2px; }
+.db-tab { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-secondary); border-radius:8px; padding:5px 12px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.db-tab.active { background:rgba(99,102,241,0.2); border-color:var(--accent); color:var(--accent-light); }
+.db-tab-content { display:none; }
+.db-tab-content.active { display:block; }
+.db-mini-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px; }
+.db-mini-stat { background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px; padding:8px 10px; text-align:center; }
+.db-mini-stat-val { font-size:0.9rem; font-weight:800; color:var(--text); }
+.db-mini-stat-lbl { font-size:0.6rem; color:var(--text-muted); margin-top:2px; }
+.db-chart-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:10px; margin-bottom:12px; }
+.db-chart-title { font-size:0.72rem; color:var(--text-secondary); font-weight:700; margin-bottom:8px; }
+.db-table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+.db-table { width:100%; border-collapse:collapse; font-size:0.72rem; }
+.db-table th { background:var(--bg-elevated); color:var(--text-muted); padding:7px 8px; text-align:right; font-weight:700; font-size:0.65rem; text-transform:uppercase; border-bottom:1px solid var(--border); }
+.db-table td { padding:6px 8px; border-bottom:1px solid rgba(37,37,64,0.5); color:var(--text); }
+.db-table tr:last-child td { border-bottom:none; }
+.db-table tr:hover td { background:rgba(99,102,241,0.05); }
+
 /* ==================== STATS REPORT MODAL ==================== */
 .stats-report-modal-overlay {
     display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
@@ -2654,6 +2678,114 @@ html, body {
             </div>
         </section>
 
+        <!-- Database Page -->
+        <section id="page-database" class="page">
+            <div class="page-scroll" style="height:100%;overflow-y:scroll !important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:80px;">
+                <div style="padding:14px 14px 0;">
+                    <!-- Header -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                        <h2 style="font-size:1.1rem;font-weight:800;">🗄️ מסד נתונים שוק</h2>
+                        <div style="display:flex;gap:8px;">
+                            <span id="db-size-badge" style="font-size:0.72rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--text-muted);">0 KB</span>
+                            <button onclick="exportDatabase()" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);color:var(--accent-light);border-radius:8px;padding:5px 12px;font-size:0.78rem;font-family:inherit;cursor:pointer;font-weight:700;">📤 ייצוא</button>
+                        </div>
+                    </div>
+
+                    <!-- Live Stats Row -->
+                    <div class="db-live-stats" id="db-live-stats">
+                        <div class="db-stat-card">
+                            <div class="db-stat-label">BTC מחיר</div>
+                            <div class="db-stat-value" id="db-btc-price">—</div>
+                            <div class="db-stat-sub" id="db-btc-sub">טוען...</div>
+                        </div>
+                        <div class="db-stat-card">
+                            <div class="db-stat-label">Funding Rate</div>
+                            <div class="db-stat-value" id="db-funding">—</div>
+                            <div class="db-stat-sub">BTC Perp</div>
+                        </div>
+                        <div class="db-stat-card">
+                            <div class="db-stat-label">Long/Short</div>
+                            <div class="db-stat-value" id="db-ls-ratio">—</div>
+                            <div class="db-stat-sub">יחס לונג/שורט</div>
+                        </div>
+                        <div class="db-stat-card">
+                            <div class="db-stat-label">רשומות שנאספו</div>
+                            <div class="db-stat-value" id="db-total-records">—</div>
+                            <div class="db-stat-sub">סה״כ</div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="db-tabs">
+                        <button class="db-tab active" onclick="switchDbTab('prices',this)">💰 מחירים</button>
+                        <button class="db-tab" onclick="switchDbTab('market',this)">🌍 שוק</button>
+                        <button class="db-tab" onclick="switchDbTab('onchain',this)">⛓️ On-Chain</button>
+                        <button class="db-tab" onclick="switchDbTab('defi',this)">🏦 DeFi</button>
+                    </div>
+
+                    <!-- Prices Tab -->
+                    <div id="db-tab-prices" class="db-tab-content active">
+                        <div class="db-mini-stats" id="db-prices-ministats"></div>
+                        <div class="db-chart-wrap">
+                            <div class="db-chart-title">היסטוריית מחירים BTC</div>
+                            <canvas id="db-chart-prices" height="120" style="width:100%;"></canvas>
+                        </div>
+                        <div class="db-table-wrap">
+                            <table class="db-table">
+                                <thead><tr><th>זמן</th><th>BTC</th><th>ETH</th><th>SOL</th><th>BNB</th></tr></thead>
+                                <tbody id="db-table-prices-body"><tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:16px;">אין נתונים עדיין</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Market Tab -->
+                    <div id="db-tab-market" class="db-tab-content">
+                        <div class="db-mini-stats" id="db-market-ministats"></div>
+                        <div class="db-chart-wrap">
+                            <div class="db-chart-title">שווי שוק כולל (USD)</div>
+                            <canvas id="db-chart-market" height="120" style="width:100%;"></canvas>
+                        </div>
+                        <div class="db-table-wrap">
+                            <table class="db-table">
+                                <thead><tr><th>זמן</th><th>שווי שוק</th><th>BTC Dom%</th><th>נפח 24ש</th><th>שינוי%</th></tr></thead>
+                                <tbody id="db-table-market-body"><tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:16px;">אין נתונים עדיין</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- On-Chain Tab -->
+                    <div id="db-tab-onchain" class="db-tab-content">
+                        <div class="db-mini-stats" id="db-onchain-ministats"></div>
+                        <div class="db-chart-wrap">
+                            <div class="db-chart-title">Funding Rate היסטוריה</div>
+                            <canvas id="db-chart-onchain" height="120" style="width:100%;"></canvas>
+                        </div>
+                        <div class="db-table-wrap">
+                            <table class="db-table">
+                                <thead><tr><th>זמן</th><th>Funding%</th><th>Long%</th><th>Short%</th><th>OI</th></tr></thead>
+                                <tbody id="db-table-onchain-body"><tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:16px;">אין נתונים עדיין</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- DeFi Tab -->
+                    <div id="db-tab-defi" class="db-tab-content">
+                        <div class="db-mini-stats" id="db-defi-ministats"></div>
+                        <div class="db-chart-wrap">
+                            <div class="db-chart-title">TVL כולל (USD)</div>
+                            <canvas id="db-chart-defi" height="120" style="width:100%;"></canvas>
+                        </div>
+                        <div class="db-table-wrap">
+                            <table class="db-table">
+                                <thead><tr><th>זמן</th><th>TVL</th></tr></thead>
+                                <tbody id="db-table-defi-body"><tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:16px;">אין נתונים עדיין</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Analysis Page -->
         <section id="page-analysis" class="page">
             <div class="page-scroll" style="height:100%;overflow-y:scroll !important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:80px;">
@@ -2823,6 +2955,9 @@ html, body {
             <div class="nav-item" data-page="insights" onclick="switchPage('insights')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;position:relative;">
                 <span style="font-size:1.1rem;line-height:1;">🤖</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">AI</span>
                 <span id="insights-nav-badge" style="display:none;position:absolute;top:2px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent);"></span>
+            </div>
+            <div class="nav-item" data-page="database" onclick="switchPage('database')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
+                <span style="font-size:1.1rem;line-height:1;">🗄️</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">דאטה</span>
             </div>
         </div>
 
@@ -3177,6 +3312,7 @@ function initApp() {
     setInterval(fetchLivePrices, 60 * 1000);           // every 60 sec
     setInterval(fetchCryptoNews, 10 * 60 * 1000);      // every 10 min
     initAutoInsights();
+    initMarketDatabase();
 }
 
 // ==================== FEAR & GREED INDEX ====================
@@ -3332,12 +3468,14 @@ function switchPage(pageName) {
         portfolio: 'תיק השקעות',
         history: 'היסטוריית עסקאות',
         insights: 'תובנות AI',
-        analysis: 'ניתוח שוק'
+        analysis: 'ניתוח שוק',
+        database: 'מסד נתונים שוק'
     };
     document.getElementById('page-title').textContent = titles[pageName] || 'CryptoEdge';
     if (pageName === 'history') renderHistory();
     if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; }
     if (pageName === 'analysis') initAnalysisPage();
+    if (pageName === 'database') renderDatabasePage();
 }
 
 // ==================== DASHBOARD STATS ====================
@@ -6616,6 +6754,7 @@ function initApp() {
     setInterval(fetchLivePrices, 60 * 1000);           // every 60 sec
     setInterval(fetchCryptoNews, 10 * 60 * 1000);      // every 10 min
     initAutoInsights();
+    initMarketDatabase();
 }
 
 // ==================== FEAR & GREED INDEX ====================
@@ -6771,12 +6910,14 @@ function switchPage(pageName) {
         portfolio: 'תיק השקעות',
         history: 'היסטוריית עסקאות',
         insights: 'תובנות AI',
-        analysis: 'ניתוח שוק'
+        analysis: 'ניתוח שוק',
+        database: 'מסד נתונים שוק'
     };
     document.getElementById('page-title').textContent = titles[pageName] || 'CryptoEdge';
     if (pageName === 'history') renderHistory();
     if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; }
     if (pageName === 'analysis') initAnalysisPage();
+    if (pageName === 'database') renderDatabasePage();
 }
 
 // ==================== DASHBOARD STATS ====================
