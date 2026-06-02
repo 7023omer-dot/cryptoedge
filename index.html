@@ -959,6 +959,8 @@ html, body {
 .db-mini-stat { background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px; padding:8px 10px; text-align:center; }
 .db-mini-stat-val { font-size:0.9rem; font-weight:800; color:var(--text); }
 .db-mini-stat-lbl { font-size:0.6rem; color:var(--text-muted); margin-top:2px; }
+.db-mini-val { font-size:0.9rem; font-weight:800; color:var(--text); }
+.db-mini-label { font-size:0.6rem; color:var(--text-muted); margin-bottom:2px; }
 .db-chart-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:10px; margin-bottom:12px; }
 .db-chart-title { font-size:0.72rem; color:var(--text-secondary); font-weight:700; margin-bottom:8px; }
 .db-table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
@@ -3660,6 +3662,12 @@ function saveTrade() {
         finalAmount
     };
 
+    // attach market context snapshot
+    const lastPrice = dbGet('mdb_prices').slice(-1)[0];
+    const lastMkt = dbGet('mdb_market').slice(-1)[0];
+    const lastFG = dbGet('mdb_sentiment').slice(-1)[0];
+    if (lastPrice) trade.mktContext = { btc: lastPrice.btc, eth: lastPrice.eth, fg: lastFG?.fg, btcDom: lastMkt?.btcDom, mcapChg24h: lastMkt?.change24h };
+
     if (editId) {
         const idx = trades.findIndex(t => t.id === editId);
         if (idx >= 0) trades[idx] = trade;
@@ -5719,6 +5727,333 @@ function importJSON(event) {
     event.target.value = '';
 }
 
+// ==================== MARKET DATABASE ENGINE ====================
+function dbGet(key) { try { return JSON.parse(localStorage.getItem(key)||'[]'); } catch { return []; } }
+function dbPush(key, row, maxLen) {
+  const arr = dbGet(key);
+  arr.push(row);
+  if (arr.length > maxLen) arr.splice(0, arr.length - maxLen);
+  localStorage.setItem(key, JSON.stringify(arr));
+}
+function dbSize() {
+  let bytes = 0;
+  ['mdb_prices','mdb_market','mdb_sentiment','mdb_onchain','mdb_defi'].forEach(k => {
+    bytes += (localStorage.getItem(k)||'').length * 2;
+  });
+  return (bytes/1024).toFixed(1);
+}
+
+async function collectPrices() {
+  const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=["BTCUSDT","ETHUSDT","SOLUSDT","BNBUSDT"]');
+  const data = await res.json();
+  const row = { ts: Date.now() };
+  data.forEach(d => {
+    if (d.symbol==='BTCUSDT') row.btc = parseFloat(d.price);
+    if (d.symbol==='ETHUSDT') row.eth = parseFloat(d.price);
+    if (d.symbol==='SOLUSDT') row.sol = parseFloat(d.price);
+    if (d.symbol==='BNBUSDT') row.bnb = parseFloat(d.price);
+  });
+  dbPush('mdb_prices', row, 2016);
+}
+
+async function collectMarket() {
+  const res = await fetch('https://api.coingecko.com/api/v3/global');
+  const d = (await res.json()).data;
+  dbPush('mdb_market', {
+    ts: Date.now(),
+    totalMcap: d.total_market_cap?.usd || 0,
+    btcDom: parseFloat(d.market_cap_percentage?.btc||0).toFixed(2),
+    totalVol: d.total_volume?.usd || 0,
+    change24h: parseFloat(d.market_cap_change_percentage_24h_usd||0).toFixed(2)
+  }, 2880);
+}
+
+async function collectSentiment() {
+  const res = await fetch('https://api.alternative.me/fng/?limit=1&format=json');
+  const d = (await res.json()).data[0];
+  dbPush('mdb_sentiment', { ts: Date.now(), fg: parseInt(d.value), fgLabel: d.value_classification }, 720);
+}
+
+async function collectOnchain() {
+  const [fr, ls, oi] = await Promise.allSettled([
+    fetch('https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1').then(r=>r.json()),
+    fetch('https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=1h&limit=1').then(r=>r.json()),
+    fetch('https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT').then(r=>r.json())
+  ]);
+  dbPush('mdb_onchain', {
+    ts: Date.now(),
+    btcFundingRate: fr.status==='fulfilled' ? parseFloat(fr.value[0]?.fundingRate||0)*100 : null,
+    longPct: ls.status==='fulfilled' ? parseFloat(ls.value[0]?.longAccount||0)*100 : null,
+    shortPct: ls.status==='fulfilled' ? parseFloat(ls.value[0]?.shortAccount||0)*100 : null,
+    btcOI: oi.status==='fulfilled' ? parseFloat(oi.value?.openInterest||0) : null
+  }, 720);
+}
+
+async function collectDefi() {
+  const r2 = await fetch('https://api.llama.fi/v2/historicalChainTvl');
+  const data = await r2.json();
+  const last = data[data.length-1];
+  dbPush('mdb_defi', { ts: Date.now(), tvl: last?.tvl || 0 }, 120);
+}
+
+function initMarketDatabase() {
+  collectPrices().catch(()=>{});
+  collectMarket().catch(()=>{});
+  collectSentiment().catch(()=>{});
+  collectOnchain().catch(()=>{});
+  collectDefi().catch(()=>{});
+  setInterval(() => collectPrices().catch(()=>{}),        5 * 60 * 1000);
+  setInterval(() => collectMarket().catch(()=>{}),       15 * 60 * 1000);
+  setInterval(() => collectSentiment().catch(()=>{}),    60 * 60 * 1000);
+  setInterval(() => collectOnchain().catch(()=>{}),      60 * 60 * 1000);
+  setInterval(() => collectDefi().catch(()=>{}),      6 * 60 * 60 * 1000);
+}
+
+function exportDatabase() {
+  const data = {
+    exported: new Date().toISOString(),
+    prices: dbGet('mdb_prices'),
+    market: dbGet('mdb_market'),
+    sentiment: dbGet('mdb_sentiment'),
+    onchain: dbGet('mdb_onchain'),
+    defi: dbGet('mdb_defi')
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'cryptoedge-database-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('✅ מסד נתונים יוצא!');
+}
+
+function switchDbTab(tabName, btn) {
+  document.querySelectorAll('.db-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.db-tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  const el = document.getElementById('db-tab-' + tabName);
+  if (el) el.classList.add('active');
+  renderDbTabContent(tabName);
+}
+
+function renderDbTabContent(tabName) {
+  if (tabName === 'prices') renderDbPrices();
+  else if (tabName === 'market') renderDbMarket();
+  else if (tabName === 'onchain') renderDbOnchain();
+  else if (tabName === 'defi') renderDbDefi();
+}
+
+function fmtDbTime(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('he-IL', {day:'2-digit',month:'2-digit'}) + ' ' +
+         d.toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'});
+}
+
+function fmtNum(n, decimals) {
+  if (n == null || isNaN(n)) return '—';
+  return parseFloat(n).toLocaleString('en-US', {maximumFractionDigits: decimals != null ? decimals : 2});
+}
+
+function fmtBig(n) {
+  if (!n || isNaN(n)) return '—';
+  if (n >= 1e12) return '$' + (n/1e12).toFixed(2) + 'T';
+  if (n >= 1e9)  return '$' + (n/1e9).toFixed(1) + 'B';
+  if (n >= 1e6)  return '$' + (n/1e6).toFixed(1) + 'M';
+  return '$' + n.toFixed(0);
+}
+
+function drawDbChart(canvasId, data, key, color) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || !data.length) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 300;
+  const H = canvas.height || 120;
+  canvas.width = W;
+  const vals = data.map(r => r[key]).filter(v => v != null && !isNaN(v));
+  if (!vals.length) return;
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  const range = max - min || 1;
+  ctx.clearRect(0,0,W,H);
+  // gradient fill
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0, (color||'#6366f1')+'44');
+  grad.addColorStop(1, 'transparent');
+  ctx.beginPath();
+  data.forEach((r, i) => {
+    if (r[key] == null) return;
+    const x = (i / (data.length-1||1)) * W;
+    const y = H - ((r[key] - min) / range) * (H-10) - 5;
+    i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle = color || '#6366f1';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+}
+
+function renderDbPrices() {
+  const prices = dbGet('mdb_prices');
+  // mini stats
+  const latest = prices[prices.length-1];
+  const prev = prices[prices.length-2];
+  let html = '';
+  if (latest) {
+    const chg = prev ? ((latest.btc - prev.btc)/prev.btc*100).toFixed(2) : null;
+    const chgColor = chg >= 0 ? 'var(--green)' : 'var(--red)';
+    html = `<div class="db-mini-stat"><div class="db-mini-label">BTC</div><div class="db-mini-val">$${fmtNum(latest.btc,0)}</div>${chg!=null?`<div style="color:${chgColor};font-size:0.72rem;">${chg>0?'+':''}${chg}%</div>`:''}</div>
+    <div class="db-mini-stat"><div class="db-mini-label">ETH</div><div class="db-mini-val">$${fmtNum(latest.eth,0)}</div></div>
+    <div class="db-mini-stat"><div class="db-mini-label">SOL</div><div class="db-mini-val">$${fmtNum(latest.sol,1)}</div></div>
+    <div class="db-mini-stat"><div class="db-mini-label">BNB</div><div class="db-mini-val">$${fmtNum(latest.bnb,1)}</div></div>`;
+  } else {
+    html = '<div style="color:var(--text-muted);font-size:0.82rem;padding:8px;">אין נתונים עדיין</div>';
+  }
+  const ms = document.getElementById('db-prices-ministats');
+  if (ms) ms.innerHTML = html;
+  // chart
+  setTimeout(() => drawDbChart('db-chart-prices', prices, 'btc', '#f59e0b'), 50);
+  // table
+  const tbody = document.getElementById('db-table-prices-body');
+  if (tbody) {
+    const rows = prices.slice(-10).reverse();
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:16px;">אין נתונים עדיין</td></tr>'; return; }
+    tbody.innerHTML = rows.map(r => `<tr>
+      <td>${fmtDbTime(r.ts)}</td>
+      <td>$${fmtNum(r.btc,0)}</td>
+      <td>$${fmtNum(r.eth,0)}</td>
+      <td>$${fmtNum(r.sol,1)}</td>
+      <td>$${fmtNum(r.bnb,1)}</td>
+    </tr>`).join('');
+  }
+}
+
+function renderDbMarket() {
+  const market = dbGet('mdb_market');
+  const latest = market[market.length-1];
+  let html = '';
+  if (latest) {
+    const chg = parseFloat(latest.change24h);
+    const chgColor = chg >= 0 ? 'var(--green)' : 'var(--red)';
+    html = `<div class="db-mini-stat"><div class="db-mini-label">שווי שוק</div><div class="db-mini-val">${fmtBig(latest.totalMcap)}</div></div>
+    <div class="db-mini-stat"><div class="db-mini-label">BTC Dom%</div><div class="db-mini-val">${latest.btcDom}%</div></div>
+    <div class="db-mini-stat"><div class="db-mini-label">שינוי 24ש</div><div class="db-mini-val" style="color:${chgColor};">${chg>0?'+':''}${chg}%</div></div>`;
+  } else {
+    html = '<div style="color:var(--text-muted);font-size:0.82rem;padding:8px;">אין נתונים עדיין</div>';
+  }
+  const ms = document.getElementById('db-market-ministats');
+  if (ms) ms.innerHTML = html;
+  setTimeout(() => drawDbChart('db-chart-market', market, 'totalMcap', '#3b82f6'), 50);
+  const tbody = document.getElementById('db-table-market-body');
+  if (tbody) {
+    const rows = market.slice(-10).reverse();
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:16px;">אין נתונים עדיין</td></tr>'; return; }
+    tbody.innerHTML = rows.map(r => `<tr>
+      <td>${fmtDbTime(r.ts)}</td>
+      <td>${fmtBig(r.totalMcap)}</td>
+      <td>${r.btcDom}%</td>
+      <td>${fmtBig(r.totalVol)}</td>
+      <td style="color:${parseFloat(r.change24h)>=0?'var(--green)':'var(--red)'};">${parseFloat(r.change24h)>=0?'+':''}${r.change24h}%</td>
+    </tr>`).join('');
+  }
+}
+
+function renderDbOnchain() {
+  const onchain = dbGet('mdb_onchain');
+  const latest = onchain[onchain.length-1];
+  let html = '';
+  if (latest) {
+    const frColor = (latest.btcFundingRate||0) >= 0 ? 'var(--green)' : 'var(--red)';
+    html = `<div class="db-mini-stat"><div class="db-mini-label">Funding Rate</div><div class="db-mini-val" style="color:${frColor};">${fmtNum(latest.btcFundingRate,4)}%</div></div>
+    <div class="db-mini-stat"><div class="db-mini-label">Long%</div><div class="db-mini-val" style="color:var(--green);">${fmtNum(latest.longPct,1)}%</div></div>
+    <div class="db-mini-stat"><div class="db-mini-label">Short%</div><div class="db-mini-val" style="color:var(--red);">${fmtNum(latest.shortPct,1)}%</div></div>
+    <div class="db-mini-stat"><div class="db-mini-label">OI BTC</div><div class="db-mini-val">${fmtNum(latest.btcOI,0)}</div></div>`;
+  } else {
+    html = '<div style="color:var(--text-muted);font-size:0.82rem;padding:8px;">אין נתונים עדיין</div>';
+  }
+  const ms = document.getElementById('db-onchain-ministats');
+  if (ms) ms.innerHTML = html;
+  setTimeout(() => drawDbChart('db-chart-onchain', onchain, 'btcFundingRate', '#a855f7'), 50);
+  const tbody = document.getElementById('db-table-onchain-body');
+  if (tbody) {
+    const rows = onchain.slice(-10).reverse();
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:16px;">אין נתונים עדיין</td></tr>'; return; }
+    tbody.innerHTML = rows.map(r => `<tr>
+      <td>${fmtDbTime(r.ts)}</td>
+      <td style="color:${(r.btcFundingRate||0)>=0?'var(--green)':'var(--red)'};">${fmtNum(r.btcFundingRate,4)}%</td>
+      <td style="color:var(--green);">${fmtNum(r.longPct,1)}%</td>
+      <td style="color:var(--red);">${fmtNum(r.shortPct,1)}%</td>
+      <td>${fmtNum(r.btcOI,0)}</td>
+    </tr>`).join('');
+  }
+}
+
+function renderDbDefi() {
+  const defi = dbGet('mdb_defi');
+  const latest = defi[defi.length-1];
+  let html = '';
+  if (latest) {
+    html = `<div class="db-mini-stat"><div class="db-mini-label">TVL כולל</div><div class="db-mini-val">${fmtBig(latest.tvl)}</div></div>`;
+  } else {
+    html = '<div style="color:var(--text-muted);font-size:0.82rem;padding:8px;">אין נתונים עדיין</div>';
+  }
+  const ms = document.getElementById('db-defi-ministats');
+  if (ms) ms.innerHTML = html;
+  setTimeout(() => drawDbChart('db-chart-defi', defi, 'tvl', '#10b981'), 50);
+  const tbody = document.getElementById('db-table-defi-body');
+  if (tbody) {
+    const rows = defi.slice(-10).reverse();
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:16px;">אין נתונים עדיין</td></tr>'; return; }
+    tbody.innerHTML = rows.map(r => `<tr>
+      <td>${fmtDbTime(r.ts)}</td>
+      <td>${fmtBig(r.tvl)}</td>
+    </tr>`).join('');
+  }
+}
+
+function renderDatabasePage() {
+  // Update size badge
+  const badge = document.getElementById('db-size-badge');
+  if (badge) badge.textContent = dbSize() + ' KB';
+
+  // Live stats
+  const prices = dbGet('mdb_prices');
+  const onchain = dbGet('mdb_onchain');
+  const lastP = prices[prices.length-1];
+  const lastO = onchain[onchain.length-1];
+
+  const btcEl = document.getElementById('db-btc-price');
+  const btcSub = document.getElementById('db-btc-sub');
+  if (btcEl) btcEl.textContent = lastP ? '$' + fmtNum(lastP.btc, 0) : '—';
+  if (btcSub && lastP) {
+    const prev = prices[prices.length-2];
+    if (prev) {
+      const chg = ((lastP.btc - prev.btc)/prev.btc*100).toFixed(2);
+      btcSub.innerHTML = `<span style="color:${chg>=0?'var(--green)':'var(--red)'};">${chg>0?'+':''}${chg}%</span>`;
+    }
+  }
+
+  const fundEl = document.getElementById('db-funding');
+  if (fundEl) fundEl.textContent = lastO ? fmtNum(lastO.btcFundingRate,4) + '%' : '—';
+
+  const lsEl = document.getElementById('db-ls-ratio');
+  if (lsEl && lastO && lastO.longPct && lastO.shortPct) {
+    lsEl.innerHTML = `<span style="color:var(--green);">${fmtNum(lastO.longPct,1)}%</span> / <span style="color:var(--red);">${fmtNum(lastO.shortPct,1)}%</span>`;
+  } else if (lsEl) lsEl.textContent = '—';
+
+  const totEl = document.getElementById('db-total-records');
+  if (totEl) {
+    const total = ['mdb_prices','mdb_market','mdb_sentiment','mdb_onchain','mdb_defi'].reduce((s,k) => s + dbGet(k).length, 0);
+    totEl.textContent = total.toLocaleString();
+  }
+
+  // Render active tab
+  const activeTab = document.querySelector('#page-database .db-tab.active');
+  const tabName = activeTab ? activeTab.getAttribute('onclick').match(/switchDbTab\('(\w+)'/)?.[1] : 'prices';
+  renderDbTabContent(tabName || 'prices');
+}
+
 // ==================== STATS REPORT ====================
 function closeStatsReportModal() {
     const m = document.getElementById('stats-report-modal');
@@ -7101,6 +7436,12 @@ function saveTrade() {
         pnl: Math.round(pnl * 100) / 100, rr: Math.round(rr * 100) / 100,
         finalAmount
     };
+
+    // attach market context snapshot
+    const lastPrice = dbGet('mdb_prices').slice(-1)[0];
+    const lastMkt = dbGet('mdb_market').slice(-1)[0];
+    const lastFG = dbGet('mdb_sentiment').slice(-1)[0];
+    if (lastPrice) trade.mktContext = { btc: lastPrice.btc, eth: lastPrice.eth, fg: lastFG?.fg, btcDom: lastMkt?.btcDom, mcapChg24h: lastMkt?.change24h };
 
     if (editId) {
         const idx = trades.findIndex(t => t.id === editId);
