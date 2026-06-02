@@ -7652,7 +7652,7 @@ function renderHistory() {
 }
 
 // ==================== STRATEGIES ====================
-
+const PROFILES = {
     day: {
         icon: '⚡',
         title: 'סוחר יומי',
@@ -7782,7 +7782,7 @@ function renderHistory() {
     }
 };
 
-
+const MY_STRATEGY = {
     trading: [
         { icon: '⚖️', text: 'יחס סיכון/סיכוי קבוע לפחות 1 ל-3. לא להיכנס לעסקה עם R:R נמוך יותר.' },
         { icon: '🕐', text: 'תזמון כניסה לעסקה לפי הטיימפריים הנכון. עסקה יומית: לחפש אזורי מכירת יתר ב-RSI בשעתי/4 שעתי. סווינג: 4 שעתי/12 שעתי.' },
@@ -7930,7 +7930,7 @@ function showToast(msg) {
 
 // ==================== LIVE PRICES ====================
 // Maps trade pair base symbol → CoinGecko ID
-
+const COIN_GECKO_IDS = {
     BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana',
     SUI: 'sui', ALGO: 'algorand', WIF: 'dog-wif-hat',
     BNB: 'binancecoin', AVAX: 'avalanche-2', MATIC: 'matic-network',
@@ -9671,8 +9671,7 @@ function showInsightsContent(text) {
         // Render line breaks and style sections
         const html = text
             .replace(/═+/g, '<hr style="border:1px solid rgba(99,102,241,0.3);margin:8px 0;">')
-            .replace(/
-/g, '<br>');
+            .replace(/\n/g, '<br>');
         content.innerHTML = html;
         content.style.cssText = 'display:block;font-size:0.85rem;line-height:1.8;color:var(--text);white-space:normal;';
     }
