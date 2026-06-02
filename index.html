@@ -1418,6 +1418,15 @@ html, body {
                     </div>
 
 
+                    <!-- Equity Curve Dashboard Card -->
+                    <div class="equity-curve-card" id="dashboard-equity-card" style="margin-bottom:14px;">
+                        <div class="equity-curve-header">
+                            <span class="equity-curve-title">📈 עקומת הון</span>
+                            <span class="equity-curve-badge flat" id="dashboard-equity-badge">—</span>
+                        </div>
+                        <canvas id="dashboard-equity-canvas" style="width:100%;height:120px;display:block;border-radius:8px;"></canvas>
+                    </div>
+
                     <!-- Live Prices -->
                     <div class="section-title">מחירים בזמן אמת <span class="live-dot"></span></div>
                     <div class="live-prices-grid">
@@ -1495,11 +1504,13 @@ html, body {
 
                     <!-- Export / Import -->
                     <div class="export-bar">
+                        <button class="btn-export json" onclick="exportJSON()" style="background:rgba(99,102,241,0.2);border-color:rgba(99,102,241,0.5);font-weight:700;">💾 גיבוי עכשיו</button>
                         <button class="btn-export json" onclick="exportJSON()">⬇️ ייצא JSON</button>
                         <button class="btn-export csv" onclick="exportCSV()">⬇️ ייצא CSV</button>
                         <button class="btn-export imp" onclick="document.getElementById('import-file').click()">⬆️ ייבא</button>
                         <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importJSON(event)">
                     </div>
+                    <div id="last-backup-display" style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:right;padding:0 2px;"></div>
 
                     <!-- Reports Row -->
                     <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
@@ -1900,6 +1911,37 @@ html, body {
 
                     <div class="section-title">תיק השקעות</div>
                     <p class="section-subtitle">5 המטבעות שלי — דאטה מקיף על כל נכס</p>
+
+                    <!-- TradingView BTC/USDT Widget -->
+                    <div class="tradingview-widget-container" style="margin-bottom:16px;border-radius:16px;overflow:hidden;border:1px solid var(--border);">
+                        <div id="tradingview_btc" style="height:300px;"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                        <script type="text/javascript">
+                        (function() {
+                            if (typeof TradingView !== 'undefined') {
+                                new TradingView.widget({
+                                    "autosize": true,
+                                    "symbol": "BINANCE:BTCUSDT",
+                                    "interval": "D",
+                                    "timezone": "Asia/Jerusalem",
+                                    "theme": "dark",
+                                    "style": "1",
+                                    "locale": "he_IL",
+                                    "toolbar_bg": "#0d0d1f",
+                                    "enable_publishing": false,
+                                    "hide_top_toolbar": false,
+                                    "hide_legend": false,
+                                    "save_image": false,
+                                    "container_id": "tradingview_btc",
+                                    "backgroundColor": "#060610",
+                                    "gridColor": "rgba(37,37,64,0.5)"
+                                });
+                            } else {
+                                document.getElementById('tradingview_btc').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-secondary);font-size:0.85rem;">📊 <a href="https://www.tradingview.com/chart/?symbol=BINANCE:BTCUSDT" target="_blank" style="color:var(--accent-light);margin-right:6px;">פתח גרף BTC/USDT ב-TradingView</a></div>';
+                            }
+                        })();
+                        </script>
+                    </div>
 
                     <!-- Coins -->
                     <div id="coins-list">
@@ -2650,16 +2692,22 @@ html, body {
                 <div class="form-row">
                     <div class="form-field third">
                         <label>כניסה ($)</label>
-                        <input type="number" id="trade-entry" placeholder="45000" oninput="updatePctHelpers()">
+                        <input type="number" id="trade-entry" placeholder="45000" oninput="updatePctHelpers();updateRRPreview()">
                     </div>
                     <div class="form-field third">
                         <label>סטופ ($)</label>
-                        <input type="number" id="trade-stop" placeholder="43000" oninput="updatePctHelpers()">
+                        <input type="number" id="trade-stop" placeholder="43000" oninput="updatePctHelpers();updateRRPreview()">
                     </div>
                     <div class="form-field third">
                         <label>יעד ($)</label>
-                        <input type="number" id="trade-target" placeholder="50000" oninput="updatePctHelpers()">
+                        <input type="number" id="trade-target" placeholder="50000" oninput="updatePctHelpers();updateRRPreview()">
                     </div>
+                </div>
+                <!-- R:R Live Preview -->
+                <div id="rr-preview-bar" style="display:none;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);border-radius:10px;padding:8px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:0.82rem;color:var(--text-secondary);">יחס סיכון/תגמול:</span>
+                    <span id="rr-preview-val" style="font-size:1rem;font-weight:700;color:var(--accent-light);">—</span>
+                    <span id="rr-preview-badge" style="font-size:0.75rem;padding:2px 8px;border-radius:6px;"></span>
                 </div>
                 <!-- PCT Helpers (auto-calculated) -->
                 <div class="pct-helpers" id="pct-helpers" style="display:none;">
@@ -2933,6 +2981,7 @@ function initApp() {
     fetchLivePrices();
     fetchCryptoNews();
     showProfile('day');
+    restoreJournalFilter();
     renderTradesList();
     renderDetailedStats();
     renderAnalytics();
@@ -2941,6 +2990,8 @@ function initApp() {
     setDefaultDate();
     calculateRisk();
     checkMonthlyReportReminder();
+    updateLastBackupDisplay();
+    setTimeout(drawDashboardEquityCurve, 300);
 
     // Auto-refresh intervals
     setInterval(fetchFearGreed, 5 * 60 * 1000);       // every 5 min
@@ -3133,6 +3184,67 @@ function updateDashboardStats() {
     pnlCard.style.borderColor = totalPnl >= 0 ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
 }
 
+// ==================== HELPERS (FILTER/BACKUP/EQUITY) ====================
+function restoreJournalFilter() {
+    const saved = localStorage.getItem('journal_filter') || 'all';
+    journalFilter = saved;
+    const btnMap = { all: '.filter-btn:first-child', limit: '#filter-limit', open: '#filter-open' };
+    const btnEl = document.querySelector(btnMap[saved] || '.filter-btn:first-child');
+    if (btnEl) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+    }
+}
+function updateLastBackupDisplay() {
+    const ts = localStorage.getItem('last_backup_ts');
+    const el = document.getElementById('last-backup-display');
+    if (!el) return;
+    if (ts) {
+        const d = new Date(parseInt(ts));
+        const str = d.toLocaleDateString('he-IL') + ' ' + d.toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'});
+        el.textContent = '💾 גיבוי אוטומטי אחרון: ' + str;
+    } else { el.textContent = '💾 טרם בוצע גיבוי אוטומטי'; }
+}
+function autoBackupTrades() {
+    try { localStorage.setItem('last_backup_ts', Date.now().toString()); localStorage.setItem('trades_auto_backup', JSON.stringify(trades)); } catch(e) {}
+    updateLastBackupDisplay();
+}
+function drawDashboardEquityCurve() {
+    const canvas = document.getElementById('dashboard-equity-canvas');
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.offsetWidth || 320; const H = 120;
+    canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.height = H + 'px';
+    const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
+    const closed = trades.filter(t => ['win','loss','breakeven'].includes(t.status) && t.date)
+        .sort((a, b) => new Date(a.date+(a.time?'T'+a.time:'')) - new Date(b.date+(b.time?'T'+b.time:'')));
+    const badgeEl = document.getElementById('dashboard-equity-badge');
+    if (closed.length < 2) {
+        ctx.fillStyle='rgba(120,120,160,0.5)'; ctx.font='12px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('צריך לפחות 2 עסקאות סגורות', W/2, H/2);
+        if (badgeEl) { badgeEl.textContent='אין נתונים'; badgeEl.className='equity-curve-badge flat'; } return;
+    }
+    let cum = 0;
+    const points = [0, ...closed.map(t => { cum += (t.pnl||0); return cum; })];
+    const finalPnl = points[points.length-1]; const isUp = finalPnl >= 0;
+    if (badgeEl) { badgeEl.textContent=(isUp?'+':'')+'$'+finalPnl.toFixed(0); badgeEl.className='equity-curve-badge '+(isUp?'up':'down'); }
+    const pad={top:12,bottom:20,left:6,right:6};
+    const minV=Math.min(...points); const maxV=Math.max(...points); const range=maxV-minV||1;
+    const toX=i=>pad.left+i*(W-pad.left-pad.right)/(points.length-1);
+    const toY=v=>H-pad.bottom-((v-minV)/range)*(H-pad.top-pad.bottom);
+    ctx.setLineDash([3,3]); ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.left,toY(0)); ctx.lineTo(W-pad.right,toY(0)); ctx.stroke(); ctx.setLineDash([]);
+    const grad=ctx.createLinearGradient(0,pad.top,0,H-pad.bottom);
+    grad.addColorStop(0,isUp?'rgba(16,185,129,0.25)':'rgba(239,68,68,0.25)'); grad.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.beginPath(); ctx.moveTo(toX(0),toY(points[0]));
+    points.forEach((v,i)=>ctx.lineTo(toX(i),toY(v)));
+    ctx.lineTo(toX(points.length-1),H-pad.bottom); ctx.lineTo(toX(0),H-pad.bottom); ctx.closePath();
+    ctx.fillStyle=grad; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(toX(0),toY(points[0]));
+    points.forEach((v,i)=>ctx.lineTo(toX(i),toY(v)));
+    ctx.strokeStyle=isUp?'#10b981':'#ef4444'; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.stroke();
+}
+
 // ==================== TRADING JOURNAL ====================
 function setDefaultDate() {
     const dateInput = document.getElementById('trade-date');
@@ -3238,6 +3350,8 @@ function saveTrade() {
     }
 
     setData('trades', trades);
+    autoBackupTrades();
+    drawDashboardEquityCurve();
     closeTradeModal();
     renderTradesList();
     renderDetailedStats();
@@ -3283,6 +3397,7 @@ let _deletedTrade = null;
 function deleteTrade(id) {
     const trade = trades.find(t => t.id === id);
     if (!trade) return;
+    if (!confirm(`האם אתה בטוח שברצונך למחוק את עסקת ${trade.pair}?\nפעולה זו ניתנת לביטול למשך 5 שניות.`)) return;
     // Clear any previous undo
     if (_deleteUndoTimer) { clearTimeout(_deleteUndoTimer); _deletedTrade = null; }
     _deletedTrade = trade;
@@ -3326,8 +3441,9 @@ function undoDelete() {
 
 function filterJournal(filter, btn) {
     journalFilter = filter;
+    try { localStorage.setItem('journal_filter', filter); } catch(e) {}
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    if (btn) btn.classList.add('active');
     renderTradesList();
     renderDetailedStats();
     renderAnalytics();
@@ -4559,6 +4675,29 @@ function updatePctHelpers() {
     } else {
         box.style.display = 'none';
     }
+}
+
+if (typeof updateRRPreview === 'undefined') {
+function updateRRPreview() {
+    const entry  = parseFloat(document.getElementById('trade-entry')?.value);
+    const stop   = parseFloat(document.getElementById('trade-stop')?.value);
+    const target = parseFloat(document.getElementById('trade-target')?.value);
+    const bar = document.getElementById('rr-preview-bar');
+    const valEl = document.getElementById('rr-preview-val');
+    const badgeEl = document.getElementById('rr-preview-badge');
+    if (!bar || !valEl || !badgeEl) return;
+    if (entry && stop && target && stop !== entry) {
+        const rr = Math.abs(target - entry) / Math.abs(entry - stop);
+        bar.style.display = 'flex';
+        valEl.textContent = rr.toFixed(2) + ':1';
+        if (rr >= 3) { badgeEl.textContent = '✅ מצוין'; badgeEl.style.cssText = 'font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(16,185,129,0.15);color:#10b981;'; }
+        else if (rr >= 2) { badgeEl.textContent = '👍 טוב'; badgeEl.style.cssText = 'font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(99,102,241,0.15);color:#818cf8;'; }
+        else if (rr >= 1) { badgeEl.textContent = '⚠️ מינימלי'; badgeEl.style.cssText = 'font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(245,158,11,0.15);color:#f59e0b;'; }
+        else { badgeEl.textContent = '❌ גרוע'; badgeEl.style.cssText = 'font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(239,68,68,0.15);color:#ef4444;'; }
+    } else {
+        bar.style.display = 'none';
+    }
+}
 }
 
 
@@ -6280,6 +6419,7 @@ function initApp() {
     fetchLivePrices();
     fetchCryptoNews();
     showProfile('day');
+    restoreJournalFilter();
     renderTradesList();
     renderDetailedStats();
     renderAnalytics();
@@ -6288,6 +6428,8 @@ function initApp() {
     setDefaultDate();
     calculateRisk();
     checkMonthlyReportReminder();
+    updateLastBackupDisplay();
+    setTimeout(drawDashboardEquityCurve, 300);
 
     // Auto-refresh intervals
     setInterval(fetchFearGreed, 5 * 60 * 1000);       // every 5 min
@@ -6480,6 +6622,67 @@ function updateDashboardStats() {
     pnlCard.style.borderColor = totalPnl >= 0 ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
 }
 
+// ==================== HELPERS (FILTER/BACKUP/EQUITY) ====================
+function restoreJournalFilter() {
+    const saved = localStorage.getItem('journal_filter') || 'all';
+    journalFilter = saved;
+    const btnMap = { all: '.filter-btn:first-child', limit: '#filter-limit', open: '#filter-open' };
+    const btnEl = document.querySelector(btnMap[saved] || '.filter-btn:first-child');
+    if (btnEl) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+    }
+}
+function updateLastBackupDisplay() {
+    const ts = localStorage.getItem('last_backup_ts');
+    const el = document.getElementById('last-backup-display');
+    if (!el) return;
+    if (ts) {
+        const d = new Date(parseInt(ts));
+        const str = d.toLocaleDateString('he-IL') + ' ' + d.toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'});
+        el.textContent = '💾 גיבוי אוטומטי אחרון: ' + str;
+    } else { el.textContent = '💾 טרם בוצע גיבוי אוטומטי'; }
+}
+function autoBackupTrades() {
+    try { localStorage.setItem('last_backup_ts', Date.now().toString()); localStorage.setItem('trades_auto_backup', JSON.stringify(trades)); } catch(e) {}
+    updateLastBackupDisplay();
+}
+function drawDashboardEquityCurve() {
+    const canvas = document.getElementById('dashboard-equity-canvas');
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.offsetWidth || 320; const H = 120;
+    canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.height = H + 'px';
+    const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
+    const closed = trades.filter(t => ['win','loss','breakeven'].includes(t.status) && t.date)
+        .sort((a, b) => new Date(a.date+(a.time?'T'+a.time:'')) - new Date(b.date+(b.time?'T'+b.time:'')));
+    const badgeEl = document.getElementById('dashboard-equity-badge');
+    if (closed.length < 2) {
+        ctx.fillStyle='rgba(120,120,160,0.5)'; ctx.font='12px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('צריך לפחות 2 עסקאות סגורות', W/2, H/2);
+        if (badgeEl) { badgeEl.textContent='אין נתונים'; badgeEl.className='equity-curve-badge flat'; } return;
+    }
+    let cum = 0;
+    const points = [0, ...closed.map(t => { cum += (t.pnl||0); return cum; })];
+    const finalPnl = points[points.length-1]; const isUp = finalPnl >= 0;
+    if (badgeEl) { badgeEl.textContent=(isUp?'+':'')+'$'+finalPnl.toFixed(0); badgeEl.className='equity-curve-badge '+(isUp?'up':'down'); }
+    const pad={top:12,bottom:20,left:6,right:6};
+    const minV=Math.min(...points); const maxV=Math.max(...points); const range=maxV-minV||1;
+    const toX=i=>pad.left+i*(W-pad.left-pad.right)/(points.length-1);
+    const toY=v=>H-pad.bottom-((v-minV)/range)*(H-pad.top-pad.bottom);
+    ctx.setLineDash([3,3]); ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.left,toY(0)); ctx.lineTo(W-pad.right,toY(0)); ctx.stroke(); ctx.setLineDash([]);
+    const grad=ctx.createLinearGradient(0,pad.top,0,H-pad.bottom);
+    grad.addColorStop(0,isUp?'rgba(16,185,129,0.25)':'rgba(239,68,68,0.25)'); grad.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.beginPath(); ctx.moveTo(toX(0),toY(points[0]));
+    points.forEach((v,i)=>ctx.lineTo(toX(i),toY(v)));
+    ctx.lineTo(toX(points.length-1),H-pad.bottom); ctx.lineTo(toX(0),H-pad.bottom); ctx.closePath();
+    ctx.fillStyle=grad; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(toX(0),toY(points[0]));
+    points.forEach((v,i)=>ctx.lineTo(toX(i),toY(v)));
+    ctx.strokeStyle=isUp?'#10b981':'#ef4444'; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.stroke();
+}
+
 // ==================== TRADING JOURNAL ====================
 function setDefaultDate() {
     const dateInput = document.getElementById('trade-date');
@@ -6585,6 +6788,8 @@ function saveTrade() {
     }
 
     setData('trades', trades);
+    autoBackupTrades();
+    drawDashboardEquityCurve();
     closeTradeModal();
     renderTradesList();
     renderDetailedStats();
@@ -6630,6 +6835,7 @@ let _deletedTrade = null;
 function deleteTrade(id) {
     const trade = trades.find(t => t.id === id);
     if (!trade) return;
+    if (!confirm(`האם אתה בטוח שברצונך למחוק את עסקת ${trade.pair}?\nפעולה זו ניתנת לביטול למשך 5 שניות.`)) return;
     // Clear any previous undo
     if (_deleteUndoTimer) { clearTimeout(_deleteUndoTimer); _deletedTrade = null; }
     _deletedTrade = trade;
@@ -6673,8 +6879,9 @@ function undoDelete() {
 
 function filterJournal(filter, btn) {
     journalFilter = filter;
+    try { localStorage.setItem('journal_filter', filter); } catch(e) {}
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    if (btn) btn.classList.add('active');
     renderTradesList();
     renderDetailedStats();
     renderAnalytics();
@@ -7908,6 +8115,29 @@ function updatePctHelpers() {
     }
 }
 
+if (typeof updateRRPreview === 'undefined') {
+function updateRRPreview() {
+    const entry  = parseFloat(document.getElementById('trade-entry')?.value);
+    const stop   = parseFloat(document.getElementById('trade-stop')?.value);
+    const target = parseFloat(document.getElementById('trade-target')?.value);
+    const bar = document.getElementById('rr-preview-bar');
+    const valEl = document.getElementById('rr-preview-val');
+    const badgeEl = document.getElementById('rr-preview-badge');
+    if (!bar || !valEl || !badgeEl) return;
+    if (entry && stop && target && stop !== entry) {
+        const rr = Math.abs(target - entry) / Math.abs(entry - stop);
+        bar.style.display = 'flex';
+        valEl.textContent = rr.toFixed(2) + ':1';
+        if (rr >= 3) { badgeEl.textContent = '✅ מצוין'; badgeEl.style.cssText = 'font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(16,185,129,0.15);color:#10b981;'; }
+        else if (rr >= 2) { badgeEl.textContent = '👍 טוב'; badgeEl.style.cssText = 'font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(99,102,241,0.15);color:#818cf8;'; }
+        else if (rr >= 1) { badgeEl.textContent = '⚠️ מינימלי'; badgeEl.style.cssText = 'font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(245,158,11,0.15);color:#f59e0b;'; }
+        else { badgeEl.textContent = '❌ גרוע'; badgeEl.style.cssText = 'font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(239,68,68,0.15);color:#ef4444;'; }
+    } else {
+        bar.style.display = 'none';
+    }
+}
+}
+
 
 // ==================== PORTFOLIO ROI ====================
 function getPortfolioData() {
@@ -8647,6 +8877,25 @@ function initInsightsPage() {
 
     // Mark key-required sources
     updateSourceKeyStatuses();
+
+    // Show clear message if Claude API key is missing
+    const anthropicKey = localStorage.getItem('anthropic_apikey');
+    if (!anthropicKey) {
+        const placeholder = document.getElementById('insights-placeholder');
+        if (placeholder) {
+            placeholder.innerHTML = `
+                <div style="font-size:2.5rem;">🔑</div>
+                <div style="font-size:1.05rem;font-weight:700;margin-top:12px;color:var(--text);">נדרש מפתח API של Claude</div>
+                <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:8px;line-height:1.6;max-width:280px;text-align:center;">
+                    כדי לקבל תובנות AI, יש להזין מפתח Claude API.<br>
+                    לחץ על ⚙️ למעלה → הכנס מפתח API → שמור הגדרות.
+                </div>
+                <div style="margin-top:12px;">
+                    <button onclick="toggleInsightsSettings()" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);color:var(--accent-light);padding:8px 18px;border-radius:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">⚙️ הגדר מפתח API</button>
+                </div>
+            `;
+        }
+    }
 }
 
 function updateSourceKeyStatuses() {
