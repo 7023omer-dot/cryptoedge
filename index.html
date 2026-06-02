@@ -2399,6 +2399,10 @@ html, body {
                             <label>🔓 Token Unlocks - אירועי שחרור קרובים</label>
                             <textarea id="ins-token-unlocks" placeholder="הכנס אירועי שחרור טוקנים קרובים (תאריך, מטבע, כמות...)" rows="3"></textarea>
                         </div>
+                        <div class="insights-setting-field">
+                            <label>⏱️ עדכון אוטומטי (שעות)</label>
+                            <input type="number" id="ins-auto-interval" placeholder="6" min="1" max="24" value="6">
+                        </div>
                     </div>
                     <button class="insights-save-btn" onclick="saveInsightsSettings()">💾 שמור הגדרות</button>
                 </div>
@@ -2642,8 +2646,9 @@ html, body {
             <div class="nav-item" data-page="history" onclick="switchPage('history')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
                 <span style="font-size:1.1rem;line-height:1;">📋</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">היסטוריה</span>
             </div>
-            <div class="nav-item" data-page="insights" onclick="switchPage('insights')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
+            <div class="nav-item" data-page="insights" onclick="switchPage('insights')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;position:relative;">
                 <span style="font-size:1.1rem;line-height:1;">🤖</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">AI</span>
+                <span id="insights-nav-badge" style="display:none;position:absolute;top:2px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent);"></span>
             </div>
         </div>
 
@@ -2997,6 +3002,7 @@ function initApp() {
     setInterval(fetchFearGreed, 5 * 60 * 1000);       // every 5 min
     setInterval(fetchLivePrices, 60 * 1000);           // every 60 sec
     setInterval(fetchCryptoNews, 10 * 60 * 1000);      // every 10 min
+    initAutoInsights();
 }
 
 // ==================== FEAR & GREED INDEX ====================
@@ -3156,7 +3162,7 @@ function switchPage(pageName) {
     };
     document.getElementById('page-title').textContent = titles[pageName] || 'CryptoEdge';
     if (pageName === 'history') renderHistory();
-    if (pageName === 'insights') initInsightsPage();
+    if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; }
     if (pageName === 'analysis') initAnalysisPage();
 }
 
@@ -6435,6 +6441,7 @@ function initApp() {
     setInterval(fetchFearGreed, 5 * 60 * 1000);       // every 5 min
     setInterval(fetchLivePrices, 60 * 1000);           // every 60 sec
     setInterval(fetchCryptoNews, 10 * 60 * 1000);      // every 10 min
+    initAutoInsights();
 }
 
 // ==================== FEAR & GREED INDEX ====================
@@ -6594,7 +6601,7 @@ function switchPage(pageName) {
     };
     document.getElementById('page-title').textContent = titles[pageName] || 'CryptoEdge';
     if (pageName === 'history') renderHistory();
-    if (pageName === 'insights') initInsightsPage();
+    if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; }
     if (pageName === 'analysis') initAnalysisPage();
 }
 
@@ -8854,6 +8861,11 @@ function initInsightsPage() {
     if (arkhamEl && localStorage.getItem('ark_notes')) arkhamEl.value = localStorage.getItem('ark_notes');
     const unlocksEl = document.getElementById('ins-token-unlocks');
     if (unlocksEl && localStorage.getItem('token_unlocks')) unlocksEl.value = localStorage.getItem('token_unlocks');
+    const intervalEl = document.getElementById('ins-auto-interval');
+    if (intervalEl) {
+        const ms = parseInt(localStorage.getItem('insights_auto_interval_ms') || '') || 6 * 60 * 60 * 1000;
+        intervalEl.value = String(Math.round(ms / 3600000));
+    }
 
     // Check cached insights (< 6 hours)
     try {
@@ -8931,6 +8943,12 @@ function saveInsightsSettings() {
     if (arkhamEl) localStorage.setItem('ark_notes', arkhamEl.value.trim());
     const unlocksEl = document.getElementById('ins-token-unlocks');
     if (unlocksEl) localStorage.setItem('token_unlocks', unlocksEl.value.trim());
+    const intervalEl = document.getElementById('ins-auto-interval');
+    if (intervalEl && intervalEl.value) {
+        const hrs = Math.max(1, Math.min(24, parseInt(intervalEl.value) || 6));
+        localStorage.setItem('insights_auto_interval_ms', String(hrs * 60 * 60 * 1000));
+        initAutoInsights(); // restart timer with new interval
+    }
     showToast('✅ הגדרות נשמרו!');
     toggleInsightsSettings();
     updateSourceKeyStatuses();
@@ -9435,6 +9453,55 @@ async function runInsightsPipeline() {
 }
 
 // ==================== END AI INSIGHTS ENGINE ====================
+
+// ==================== AUTO INSIGHTS BACKGROUND COLLECTOR ====================
+let _autoInsightsTimer = null;
+
+async function autoCollectInsights() {
+    const AUTO_INTERVAL_MS = parseInt(localStorage.getItem('insights_auto_interval_ms') || '') || 6 * 60 * 60 * 1000;
+    try {
+        const cached = JSON.parse(localStorage.getItem('ai_insights_cache') || 'null');
+        if (cached && cached.ts && (Date.now() - cached.ts) < AUTO_INTERVAL_MS) return;
+    } catch(e) {}
+
+    try {
+        const [cgRes, dlRes, fgRes, fxRes] = await Promise.allSettled([
+            fetchCoinGeckoGlobal(),
+            fetchDefiLlama(),
+            fetchFearGreedForInsights(),
+            fetchForexFactory()
+        ]);
+        const collected = {
+            coingecko: cgRes.status === 'fulfilled' ? cgRes.value : null,
+            defillama: dlRes.status === 'fulfilled' ? dlRes.value : null,
+            feargreed: fgRes.status === 'fulfilled' ? fgRes.value : null,
+            forex: fxRes.status === 'fulfilled' ? fxRes.value : null,
+            arkham: localStorage.getItem('ark_notes') || '',
+            unlocks: localStorage.getItem('token_unlocks') || ''
+        };
+
+        let result;
+        const apiKey = localStorage.getItem('anthropic_apikey');
+        if (apiKey) {
+            result = await callClaudeAPI(buildInsightsPrompt(collected));
+        } else {
+            result = generateRuleBasedInsights(collected);
+        }
+
+        if (result) {
+            localStorage.setItem('ai_insights_cache', JSON.stringify({ text: result, ts: Date.now(), sources: [] }));
+            const badge = document.getElementById('insights-nav-badge');
+            if (badge && currentPage !== 'insights') badge.style.display = 'block';
+        }
+    } catch(e) { /* silent fail in background */ }
+}
+
+function initAutoInsights() {
+    const AUTO_INTERVAL_MS = parseInt(localStorage.getItem('insights_auto_interval_ms') || '') || 6 * 60 * 60 * 1000;
+    setTimeout(autoCollectInsights, 10 * 1000);
+    if (_autoInsightsTimer) clearInterval(_autoInsightsTimer);
+    _autoInsightsTimer = setInterval(autoCollectInsights, AUTO_INTERVAL_MS);
+}
 
 // ==================== STATS REPORT MODAL ====================
 function showStatsReport() {
