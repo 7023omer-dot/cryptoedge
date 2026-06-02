@@ -944,6 +944,32 @@ html, body {
 .btn-report.secondary { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-secondary); }
 .btn-report:active { opacity: 0.8; }
 
+/* ==================== MARKET DATABASE PAGE ==================== */
+.db-live-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.db-stat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:10px 12px; }
+.db-stat-label { font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; }
+.db-stat-value { font-size:1.05rem; font-weight:800; color:var(--text); }
+.db-stat-sub { font-size:0.65rem; color:var(--text-secondary); margin-top:2px; }
+.db-tabs { display:flex; gap:6px; margin-bottom:12px; overflow-x:auto; padding-bottom:2px; }
+.db-tab { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-secondary); border-radius:8px; padding:5px 12px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.db-tab.active { background:rgba(99,102,241,0.2); border-color:var(--accent); color:var(--accent-light); }
+.db-tab-content { display:none; }
+.db-tab-content.active { display:block; }
+.db-mini-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px; }
+.db-mini-stat { background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px; padding:8px 10px; text-align:center; }
+.db-mini-stat-val { font-size:0.9rem; font-weight:800; color:var(--text); }
+.db-mini-stat-lbl { font-size:0.6rem; color:var(--text-muted); margin-top:2px; }
+.db-mini-val { font-size:0.9rem; font-weight:800; color:var(--text); }
+.db-mini-label { font-size:0.6rem; color:var(--text-muted); margin-bottom:2px; }
+.db-chart-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:10px; margin-bottom:12px; }
+.db-chart-title { font-size:0.72rem; color:var(--text-secondary); font-weight:700; margin-bottom:8px; }
+.db-table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+.db-table { width:100%; border-collapse:collapse; font-size:0.72rem; }
+.db-table th { background:var(--bg-elevated); color:var(--text-muted); padding:7px 8px; text-align:right; font-weight:700; font-size:0.65rem; text-transform:uppercase; border-bottom:1px solid var(--border); }
+.db-table td { padding:6px 8px; border-bottom:1px solid rgba(37,37,64,0.5); color:var(--text); }
+.db-table tr:last-child td { border-bottom:none; }
+.db-table tr:hover td { background:rgba(99,102,241,0.05); }
+
 /* ==================== STATS REPORT MODAL ==================== */
 .stats-report-modal-overlay {
     display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
@@ -1106,6 +1132,98 @@ html, body {
     outline: none;
     border-color: var(--accent);
 }
+
+/* API Cards - professional layout */
+.api-cards-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.api-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    transition: border-color 0.2s;
+}
+.api-card.connected { border-color: rgba(16,185,129,0.4); }
+.api-card.error     { border-color: rgba(239,68,68,0.4); }
+.api-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+.api-card-icon { font-size: 1.2rem; flex-shrink: 0; }
+.api-card-info { flex: 1; min-width: 0; }
+.api-card-name { font-size: 0.88rem; font-weight: 700; color: var(--text); }
+.api-card-desc { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; }
+.api-card-badges { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+.badge-free  { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+.badge-paid  { background: rgba(245,158,11,0.12); color: var(--yellow); border: 1px solid rgba(245,158,11,0.3); font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+.badge-auto  { background: rgba(99,102,241,0.15); color: var(--accent-light); border: 1px solid rgba(99,102,241,0.3); font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+.api-status-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    background: var(--text-muted);
+}
+.api-status-dot.ok    { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.api-status-dot.err   { background: var(--red); }
+.api-status-dot.warn  { background: var(--yellow); }
+.api-card-input-row { display: flex; gap: 8px; align-items: center; }
+.api-card-input-row input {
+    flex: 1;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    color: var(--text);
+    font-size: 0.82rem;
+    font-family: inherit;
+    direction: ltr;
+    text-align: left;
+    min-width: 0;
+}
+.api-card-input-row input:focus { outline: none; border-color: var(--accent); }
+.api-test-btn {
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.3);
+    color: var(--accent-light);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 0.75rem;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: 600;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+.api-test-btn:hover { background: rgba(99,102,241,0.28); }
+.api-get-key-link {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 0.72rem;
+    color: var(--accent-light);
+    text-decoration: none;
+    opacity: 0.8;
+}
+.api-get-key-link:hover { opacity: 1; text-decoration: underline; }
+.api-status-text { font-size: 0.72rem; color: var(--text-muted); margin-top: 5px; }
+.api-manual-field textarea {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-size: 0.8rem;
+    font-family: inherit;
+    direction: rtl;
+    resize: vertical;
+    margin-top: 6px;
+}
+.api-manual-field textarea:focus { outline: none; border-color: var(--accent); }
+.api-section-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 14px 0 8px; }
+.insights-auto-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.insights-auto-row label { font-size: 0.8rem; color: var(--text-secondary); flex: 1; }
+.insights-auto-row input { width: 60px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; color: var(--text); font-size: 0.82rem; font-family: inherit; text-align: center; }
+
 .insights-save-btn {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
@@ -1418,6 +1536,15 @@ html, body {
                     </div>
 
 
+                    <!-- Equity Curve Dashboard Card -->
+                    <div class="equity-curve-card" id="dashboard-equity-card" style="margin-bottom:14px;">
+                        <div class="equity-curve-header">
+                            <span class="equity-curve-title">📈 עקומת הון</span>
+                            <span class="equity-curve-badge flat" id="dashboard-equity-badge">—</span>
+                        </div>
+                        <canvas id="dashboard-equity-canvas" style="width:100%;height:120px;display:block;border-radius:8px;"></canvas>
+                    </div>
+
                     <!-- Live Prices -->
                     <div class="section-title">מחירים בזמן אמת <span class="live-dot"></span></div>
                     <div class="live-prices-grid">
@@ -1495,11 +1622,13 @@ html, body {
 
                     <!-- Export / Import -->
                     <div class="export-bar">
+                        <button class="btn-export json" onclick="exportJSON()" style="background:rgba(99,102,241,0.2);border-color:rgba(99,102,241,0.5);font-weight:700;">💾 גיבוי עכשיו</button>
                         <button class="btn-export json" onclick="exportJSON()">⬇️ ייצא JSON</button>
                         <button class="btn-export csv" onclick="exportCSV()">⬇️ ייצא CSV</button>
                         <button class="btn-export imp" onclick="document.getElementById('import-file').click()">⬆️ ייבא</button>
                         <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importJSON(event)">
                     </div>
+                    <div id="last-backup-display" style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;text-align:right;padding:0 2px;"></div>
 
                     <!-- Reports Row -->
                     <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
@@ -1900,6 +2029,37 @@ html, body {
 
                     <div class="section-title">תיק השקעות</div>
                     <p class="section-subtitle">5 המטבעות שלי — דאטה מקיף על כל נכס</p>
+
+                    <!-- TradingView BTC/USDT Widget -->
+                    <div class="tradingview-widget-container" style="margin-bottom:16px;border-radius:16px;overflow:hidden;border:1px solid var(--border);">
+                        <div id="tradingview_btc" style="height:300px;"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                        <script type="text/javascript">
+                        (function() {
+                            if (typeof TradingView !== 'undefined') {
+                                new TradingView.widget({
+                                    "autosize": true,
+                                    "symbol": "BINANCE:BTCUSDT",
+                                    "interval": "D",
+                                    "timezone": "Asia/Jerusalem",
+                                    "theme": "dark",
+                                    "style": "1",
+                                    "locale": "he_IL",
+                                    "toolbar_bg": "#0d0d1f",
+                                    "enable_publishing": false,
+                                    "hide_top_toolbar": false,
+                                    "hide_legend": false,
+                                    "save_image": false,
+                                    "container_id": "tradingview_btc",
+                                    "backgroundColor": "#060610",
+                                    "gridColor": "rgba(37,37,64,0.5)"
+                                });
+                            } else {
+                                document.getElementById('tradingview_btc').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-secondary);font-size:0.85rem;">📊 <a href="https://www.tradingview.com/chart/?symbol=BINANCE:BTCUSDT" target="_blank" style="color:var(--accent-light);margin-right:6px;">פתח גרף BTC/USDT ב-TradingView</a></div>';
+                            }
+                        })();
+                        </script>
+                    </div>
 
                     <!-- Coins -->
                     <div id="coins-list">
@@ -2332,32 +2492,118 @@ html, body {
 
                 <!-- Settings Panel -->
                 <div class="insights-settings-panel" id="insights-settings-panel" style="display:none;">
-                    <div class="insights-settings-grid">
-                        <div class="insights-setting-field">
-                            <label>🔑 Claude API Key (נדרש)</label>
-                            <input type="password" id="ins-anthropic-key" placeholder="sk-ant-..." autocomplete="off">
-                        </div>
-                        <div class="insights-setting-field">
-                            <label>🔑 CryptoRank API Key</label>
-                            <input type="password" id="ins-cr-key" placeholder="אופציונלי" autocomplete="off">
-                        </div>
-                        <div class="insights-setting-field">
-                            <label>🔑 Santiment API Key</label>
-                            <input type="password" id="ins-san-key" placeholder="אופציונלי" autocomplete="off">
-                        </div>
-                        <div class="insights-setting-field">
-                            <label>🔑 CoinGlass API Key</label>
-                            <input type="password" id="ins-cg-key" placeholder="אופציונלי" autocomplete="off">
-                        </div>
-                        <div class="insights-setting-field full">
-                            <label>📝 Arkham Intelligence - הערות ידניות</label>
-                            <textarea id="ins-arkham-notes" placeholder="הכנס תובנות Arkham ידנית (כתובות לווייתנים, תנועות גדולות...)" rows="3"></textarea>
-                        </div>
-                        <div class="insights-setting-field full">
-                            <label>🔓 Token Unlocks - אירועי שחרור קרובים</label>
-                            <textarea id="ins-token-unlocks" placeholder="הכנס אירועי שחרור טוקנים קרובים (תאריך, מטבע, כמות...)" rows="3"></textarea>
+
+                    <div class="api-section-title">🤖 מנוע AI</div>
+                    <div class="api-cards-list">
+                        <!-- Claude -->
+                        <div class="api-card" id="apicard-claude">
+                            <div class="api-card-header">
+                                <div class="api-card-icon">🧠</div>
+                                <div class="api-card-info">
+                                    <div class="api-card-name">Claude API <span style="font-size:0.7rem;color:var(--text-muted);">(Anthropic)</span></div>
+                                    <div class="api-card-desc">ניתוח AI מתקדם — מודל Haiku זול מאוד (~$0.001 לניתוח)</div>
+                                </div>
+                                <div class="api-card-badges">
+                                    <span class="badge-paid">💳 בתשלום</span>
+                                    <div class="api-status-dot" id="dot-claude"></div>
+                                </div>
+                            </div>
+                            <div class="api-card-input-row">
+                                <input type="password" id="ins-anthropic-key" placeholder="sk-ant-api03-..." autocomplete="off">
+                                <button class="api-test-btn" onclick="testApiKey('claude')">בדוק ✓</button>
+                            </div>
+                            <a class="api-get-key-link" href="https://console.anthropic.com/" target="_blank">🔗 קבל מפתח ב-console.anthropic.com ← API Keys</a>
+                            <div class="api-status-text" id="status-claude"></div>
                         </div>
                     </div>
+
+                    <div class="api-section-title">📊 נתוני שוק — חינמיים עם הרשמה</div>
+                    <div class="api-cards-list">
+                        <!-- CryptoRank -->
+                        <div class="api-card" id="apicard-cryptorank">
+                            <div class="api-card-header">
+                                <div class="api-card-icon">📊</div>
+                                <div class="api-card-info">
+                                    <div class="api-card-name">CryptoRank</div>
+                                    <div class="api-card-desc">מחירים + טרנדינג + מטבעות מובילים (30 req/min בחינם)</div>
+                                </div>
+                                <div class="api-card-badges">
+                                    <span class="badge-free">✅ חינמי</span>
+                                    <div class="api-status-dot" id="dot-cryptorank"></div>
+                                </div>
+                            </div>
+                            <div class="api-card-input-row">
+                                <input type="password" id="ins-cr-key" placeholder="הכנס API Key..." autocomplete="off">
+                                <button class="api-test-btn" onclick="testApiKey('cryptorank')">בדוק ✓</button>
+                            </div>
+                            <a class="api-get-key-link" href="https://cryptorank.io/account/api" target="_blank">🔗 הרשם חינם ב-cryptorank.io ← Account → API</a>
+                            <div class="api-status-text" id="status-cryptorank"></div>
+                        </div>
+                        <!-- Santiment -->
+                        <div class="api-card" id="apicard-santiment">
+                            <div class="api-card-header">
+                                <div class="api-card-icon">📈</div>
+                                <div class="api-card-info">
+                                    <div class="api-card-name">Santiment</div>
+                                    <div class="api-card-desc">סנטימנט חברתי, on-chain, MVRV — 1000 req/חודש חינם</div>
+                                </div>
+                                <div class="api-card-badges">
+                                    <span class="badge-free">✅ חינמי</span>
+                                    <div class="api-status-dot" id="dot-santiment"></div>
+                                </div>
+                            </div>
+                            <div class="api-card-input-row">
+                                <input type="password" id="ins-san-key" placeholder="הכנס API Key..." autocomplete="off">
+                                <button class="api-test-btn" onclick="testApiKey('santiment')">בדוק ✓</button>
+                            </div>
+                            <a class="api-get-key-link" href="https://app.santiment.net/account#api-keys" target="_blank">🔗 הרשם חינם ב-app.santiment.net ← Account → API Keys</a>
+                            <div class="api-status-text" id="status-santiment"></div>
+                        </div>
+                        <!-- CoinGlass -->
+                        <div class="api-card" id="apicard-coinglass">
+                            <div class="api-card-header">
+                                <div class="api-card-icon">🔮</div>
+                                <div class="api-card-info">
+                                    <div class="api-card-name">CoinGlass</div>
+                                    <div class="api-card-desc">ריבית פתוחה, לונג/שורט ריישיו, ליקווידציות</div>
+                                </div>
+                                <div class="api-card-badges">
+                                    <span class="badge-free">✅ חינמי</span>
+                                    <div class="api-status-dot" id="dot-coinglass"></div>
+                                </div>
+                            </div>
+                            <div class="api-card-input-row">
+                                <input type="password" id="ins-cg-key" placeholder="הכנס API Key..." autocomplete="off">
+                                <button class="api-test-btn" onclick="testApiKey('coinglass')">בדוק ✓</button>
+                            </div>
+                            <a class="api-get-key-link" href="https://www.coinglass.com/user/login" target="_blank">🔗 הרשם חינם ב-coinglass.com ← Account → API</a>
+                            <div class="api-status-text" id="status-coinglass"></div>
+                        </div>
+                    </div>
+
+                    <div class="api-section-title">✅ מקורות אוטומטיים — ללא מפתח</div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+                        <span style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:var(--green);font-size:0.72rem;padding:4px 10px;border-radius:20px;">🌐 CoinGecko</span>
+                        <span style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:var(--green);font-size:0.72rem;padding:4px 10px;border-radius:20px;">🦙 DeFiLlama</span>
+                        <span style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:var(--green);font-size:0.72rem;padding:4px 10px;border-radius:20px;">😨 Fear & Greed</span>
+                        <span style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:var(--green);font-size:0.72rem;padding:4px 10px;border-radius:20px;">📅 Forex Factory</span>
+                    </div>
+
+                    <div class="api-section-title">📝 נתונים ידניים</div>
+                    <div class="api-manual-field" style="margin-bottom:10px;">
+                        <label style="font-size:0.78rem;color:var(--text-secondary);">🕵️ Arkham Intelligence — הערות ווייתנים</label>
+                        <textarea id="ins-arkham-notes" placeholder="הכנס תובנות Arkham ידנית (כתובות לווייתנים, תנועות גדולות...)" rows="2"></textarea>
+                    </div>
+                    <div class="api-manual-field" style="margin-bottom:14px;">
+                        <label style="font-size:0.78rem;color:var(--text-secondary);">🔓 Token Unlocks — שחרורי טוקנים קרובים</label>
+                        <textarea id="ins-token-unlocks" placeholder="לדוגמה: 2024-02-01 ARB 50M tokens unlock" rows="2"></textarea>
+                    </div>
+
+                    <div class="insights-auto-row">
+                        <label>⏱️ עדכון אוטומטי ברקע (שעות)</label>
+                        <input type="number" id="ins-auto-interval" placeholder="6" min="1" max="24" value="6">
+                    </div>
+
                     <button class="insights-save-btn" onclick="saveInsightsSettings()">💾 שמור הגדרות</button>
                 </div>
 
@@ -2428,6 +2674,114 @@ html, body {
                             <span class="src-icon">🔓</span>
                             <span class="src-name">Token Unlocks</span>
                             <span class="src-status" id="src-unlocks-status">⏸ ממתין</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Database Page -->
+        <section id="page-database" class="page">
+            <div class="page-scroll" style="height:100%;overflow-y:scroll !important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:80px;">
+                <div style="padding:14px 14px 0;">
+                    <!-- Header -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                        <h2 style="font-size:1.1rem;font-weight:800;">🗄️ מסד נתונים שוק</h2>
+                        <div style="display:flex;gap:8px;">
+                            <span id="db-size-badge" style="font-size:0.72rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--text-muted);">0 KB</span>
+                            <button onclick="exportDatabase()" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);color:var(--accent-light);border-radius:8px;padding:5px 12px;font-size:0.78rem;font-family:inherit;cursor:pointer;font-weight:700;">📤 ייצוא</button>
+                        </div>
+                    </div>
+
+                    <!-- Live Stats Row -->
+                    <div class="db-live-stats" id="db-live-stats">
+                        <div class="db-stat-card">
+                            <div class="db-stat-label">BTC מחיר</div>
+                            <div class="db-stat-value" id="db-btc-price">—</div>
+                            <div class="db-stat-sub" id="db-btc-sub">טוען...</div>
+                        </div>
+                        <div class="db-stat-card">
+                            <div class="db-stat-label">Funding Rate</div>
+                            <div class="db-stat-value" id="db-funding">—</div>
+                            <div class="db-stat-sub">BTC Perp</div>
+                        </div>
+                        <div class="db-stat-card">
+                            <div class="db-stat-label">Long/Short</div>
+                            <div class="db-stat-value" id="db-ls-ratio">—</div>
+                            <div class="db-stat-sub">יחס לונג/שורט</div>
+                        </div>
+                        <div class="db-stat-card">
+                            <div class="db-stat-label">רשומות שנאספו</div>
+                            <div class="db-stat-value" id="db-total-records">—</div>
+                            <div class="db-stat-sub">סה״כ</div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="db-tabs">
+                        <button class="db-tab active" onclick="switchDbTab('prices',this)">💰 מחירים</button>
+                        <button class="db-tab" onclick="switchDbTab('market',this)">🌍 שוק</button>
+                        <button class="db-tab" onclick="switchDbTab('onchain',this)">⛓️ On-Chain</button>
+                        <button class="db-tab" onclick="switchDbTab('defi',this)">🏦 DeFi</button>
+                    </div>
+
+                    <!-- Prices Tab -->
+                    <div id="db-tab-prices" class="db-tab-content active">
+                        <div class="db-mini-stats" id="db-prices-ministats"></div>
+                        <div class="db-chart-wrap">
+                            <div class="db-chart-title">היסטוריית מחירים BTC</div>
+                            <canvas id="db-chart-prices" height="120" style="width:100%;"></canvas>
+                        </div>
+                        <div class="db-table-wrap">
+                            <table class="db-table">
+                                <thead><tr><th>זמן</th><th>BTC</th><th>ETH</th><th>SOL</th><th>BNB</th></tr></thead>
+                                <tbody id="db-table-prices-body"><tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:16px;">אין נתונים עדיין</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Market Tab -->
+                    <div id="db-tab-market" class="db-tab-content">
+                        <div class="db-mini-stats" id="db-market-ministats"></div>
+                        <div class="db-chart-wrap">
+                            <div class="db-chart-title">שווי שוק כולל (USD)</div>
+                            <canvas id="db-chart-market" height="120" style="width:100%;"></canvas>
+                        </div>
+                        <div class="db-table-wrap">
+                            <table class="db-table">
+                                <thead><tr><th>זמן</th><th>שווי שוק</th><th>BTC Dom%</th><th>נפח 24ש</th><th>שינוי%</th></tr></thead>
+                                <tbody id="db-table-market-body"><tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:16px;">אין נתונים עדיין</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- On-Chain Tab -->
+                    <div id="db-tab-onchain" class="db-tab-content">
+                        <div class="db-mini-stats" id="db-onchain-ministats"></div>
+                        <div class="db-chart-wrap">
+                            <div class="db-chart-title">Funding Rate היסטוריה</div>
+                            <canvas id="db-chart-onchain" height="120" style="width:100%;"></canvas>
+                        </div>
+                        <div class="db-table-wrap">
+                            <table class="db-table">
+                                <thead><tr><th>זמן</th><th>Funding%</th><th>Long%</th><th>Short%</th><th>OI</th></tr></thead>
+                                <tbody id="db-table-onchain-body"><tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:16px;">אין נתונים עדיין</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- DeFi Tab -->
+                    <div id="db-tab-defi" class="db-tab-content">
+                        <div class="db-mini-stats" id="db-defi-ministats"></div>
+                        <div class="db-chart-wrap">
+                            <div class="db-chart-title">TVL כולל (USD)</div>
+                            <canvas id="db-chart-defi" height="120" style="width:100%;"></canvas>
+                        </div>
+                        <div class="db-table-wrap">
+                            <table class="db-table">
+                                <thead><tr><th>זמן</th><th>TVL</th></tr></thead>
+                                <tbody id="db-table-defi-body"><tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:16px;">אין נתונים עדיין</td></tr></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -2600,8 +2954,12 @@ html, body {
             <div class="nav-item" data-page="history" onclick="switchPage('history')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
                 <span style="font-size:1.1rem;line-height:1;">📋</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">היסטוריה</span>
             </div>
-            <div class="nav-item" data-page="insights" onclick="switchPage('insights')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
+            <div class="nav-item" data-page="insights" onclick="switchPage('insights')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;position:relative;">
                 <span style="font-size:1.1rem;line-height:1;">🤖</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">AI</span>
+                <span id="insights-nav-badge" style="display:none;position:absolute;top:2px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent);"></span>
+            </div>
+            <div class="nav-item" data-page="database" onclick="switchPage('database')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
+                <span style="font-size:1.1rem;line-height:1;">🗄️</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">דאטה</span>
             </div>
         </div>
 
@@ -2650,16 +3008,22 @@ html, body {
                 <div class="form-row">
                     <div class="form-field third">
                         <label>כניסה ($)</label>
-                        <input type="number" id="trade-entry" placeholder="45000" oninput="updatePctHelpers()">
+                        <input type="number" id="trade-entry" placeholder="45000" oninput="updatePctHelpers();updateRRPreview()">
                     </div>
                     <div class="form-field third">
                         <label>סטופ ($)</label>
-                        <input type="number" id="trade-stop" placeholder="43000" oninput="updatePctHelpers()">
+                        <input type="number" id="trade-stop" placeholder="43000" oninput="updatePctHelpers();updateRRPreview()">
                     </div>
                     <div class="form-field third">
                         <label>יעד ($)</label>
-                        <input type="number" id="trade-target" placeholder="50000" oninput="updatePctHelpers()">
+                        <input type="number" id="trade-target" placeholder="50000" oninput="updatePctHelpers();updateRRPreview()">
                     </div>
+                </div>
+                <!-- R:R Live Preview -->
+                <div id="rr-preview-bar" style="display:none;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);border-radius:10px;padding:8px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:0.82rem;color:var(--text-secondary);">יחס סיכון/תגמול:</span>
+                    <span id="rr-preview-val" style="font-size:1rem;font-weight:700;color:var(--accent-light);">—</span>
+                    <span id="rr-preview-badge" style="font-size:0.75rem;padding:2px 8px;border-radius:6px;"></span>
                 </div>
                 <!-- PCT Helpers (auto-calculated) -->
                 <div class="pct-helpers" id="pct-helpers" style="display:none;">
@@ -2933,6 +3297,7 @@ function initApp() {
     fetchLivePrices();
     fetchCryptoNews();
     showProfile('day');
+    restoreJournalFilter();
     renderTradesList();
     renderDetailedStats();
     renderAnalytics();
@@ -2941,11 +3306,15 @@ function initApp() {
     setDefaultDate();
     calculateRisk();
     checkMonthlyReportReminder();
+    updateLastBackupDisplay();
+    setTimeout(drawDashboardEquityCurve, 300);
 
     // Auto-refresh intervals
     setInterval(fetchFearGreed, 5 * 60 * 1000);       // every 5 min
     setInterval(fetchLivePrices, 60 * 1000);           // every 60 sec
     setInterval(fetchCryptoNews, 10 * 60 * 1000);      // every 10 min
+    initAutoInsights();
+    initMarketDatabase();
 }
 
 // ==================== FEAR & GREED INDEX ====================
@@ -3101,12 +3470,14 @@ function switchPage(pageName) {
         portfolio: 'תיק השקעות',
         history: 'היסטוריית עסקאות',
         insights: 'תובנות AI',
-        analysis: 'ניתוח שוק'
+        analysis: 'ניתוח שוק',
+        database: 'מסד נתונים שוק'
     };
     document.getElementById('page-title').textContent = titles[pageName] || 'CryptoEdge';
     if (pageName === 'history') renderHistory();
-    if (pageName === 'insights') initInsightsPage();
+    if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; }
     if (pageName === 'analysis') initAnalysisPage();
+    if (pageName === 'database') renderDatabasePage();
 }
 
 // ==================== DASHBOARD STATS ====================
@@ -3131,6 +3502,67 @@ function updateDashboardStats() {
 
     const pnlCard = document.getElementById('stat-pnl');
     pnlCard.style.borderColor = totalPnl >= 0 ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
+}
+
+// ==================== HELPERS (FILTER/BACKUP/EQUITY) ====================
+function restoreJournalFilter() {
+    const saved = localStorage.getItem('journal_filter') || 'all';
+    journalFilter = saved;
+    const btnMap = { all: '.filter-btn:first-child', limit: '#filter-limit', open: '#filter-open' };
+    const btnEl = document.querySelector(btnMap[saved] || '.filter-btn:first-child');
+    if (btnEl) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+    }
+}
+function updateLastBackupDisplay() {
+    const ts = localStorage.getItem('last_backup_ts');
+    const el = document.getElementById('last-backup-display');
+    if (!el) return;
+    if (ts) {
+        const d = new Date(parseInt(ts));
+        const str = d.toLocaleDateString('he-IL') + ' ' + d.toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'});
+        el.textContent = '💾 גיבוי אוטומטי אחרון: ' + str;
+    } else { el.textContent = '💾 טרם בוצע גיבוי אוטומטי'; }
+}
+function autoBackupTrades() {
+    try { localStorage.setItem('last_backup_ts', Date.now().toString()); localStorage.setItem('trades_auto_backup', JSON.stringify(trades)); } catch(e) {}
+    updateLastBackupDisplay();
+}
+function drawDashboardEquityCurve() {
+    const canvas = document.getElementById('dashboard-equity-canvas');
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.offsetWidth || 320; const H = 120;
+    canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.height = H + 'px';
+    const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
+    const closed = trades.filter(t => ['win','loss','breakeven'].includes(t.status) && t.date)
+        .sort((a, b) => new Date(a.date+(a.time?'T'+a.time:'')) - new Date(b.date+(b.time?'T'+b.time:'')));
+    const badgeEl = document.getElementById('dashboard-equity-badge');
+    if (closed.length < 2) {
+        ctx.fillStyle='rgba(120,120,160,0.5)'; ctx.font='12px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('צריך לפחות 2 עסקאות סגורות', W/2, H/2);
+        if (badgeEl) { badgeEl.textContent='אין נתונים'; badgeEl.className='equity-curve-badge flat'; } return;
+    }
+    let cum = 0;
+    const points = [0, ...closed.map(t => { cum += (t.pnl||0); return cum; })];
+    const finalPnl = points[points.length-1]; const isUp = finalPnl >= 0;
+    if (badgeEl) { badgeEl.textContent=(isUp?'+':'')+'$'+finalPnl.toFixed(0); badgeEl.className='equity-curve-badge '+(isUp?'up':'down'); }
+    const pad={top:12,bottom:20,left:6,right:6};
+    const minV=Math.min(...points); const maxV=Math.max(...points); const range=maxV-minV||1;
+    const toX=i=>pad.left+i*(W-pad.left-pad.right)/(points.length-1);
+    const toY=v=>H-pad.bottom-((v-minV)/range)*(H-pad.top-pad.bottom);
+    ctx.setLineDash([3,3]); ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.left,toY(0)); ctx.lineTo(W-pad.right,toY(0)); ctx.stroke(); ctx.setLineDash([]);
+    const grad=ctx.createLinearGradient(0,pad.top,0,H-pad.bottom);
+    grad.addColorStop(0,isUp?'rgba(16,185,129,0.25)':'rgba(239,68,68,0.25)'); grad.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.beginPath(); ctx.moveTo(toX(0),toY(points[0]));
+    points.forEach((v,i)=>ctx.lineTo(toX(i),toY(v)));
+    ctx.lineTo(toX(points.length-1),H-pad.bottom); ctx.lineTo(toX(0),H-pad.bottom); ctx.closePath();
+    ctx.fillStyle=grad; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(toX(0),toY(points[0]));
+    points.forEach((v,i)=>ctx.lineTo(toX(i),toY(v)));
+    ctx.strokeStyle=isUp?'#10b981':'#ef4444'; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.stroke();
 }
 
 // ==================== TRADING JOURNAL ====================
@@ -3230,6 +3662,12 @@ function saveTrade() {
         finalAmount
     };
 
+    // attach market context snapshot
+    const lastPrice = dbGet('mdb_prices').slice(-1)[0];
+    const lastMkt = dbGet('mdb_market').slice(-1)[0];
+    const lastFG = dbGet('mdb_sentiment').slice(-1)[0];
+    if (lastPrice) trade.mktContext = { btc: lastPrice.btc, eth: lastPrice.eth, fg: lastFG?.fg, btcDom: lastMkt?.btcDom, mcapChg24h: lastMkt?.change24h };
+
     if (editId) {
         const idx = trades.findIndex(t => t.id === editId);
         if (idx >= 0) trades[idx] = trade;
@@ -3238,6 +3676,8 @@ function saveTrade() {
     }
 
     setData('trades', trades);
+    autoBackupTrades();
+    drawDashboardEquityCurve();
     closeTradeModal();
     renderTradesList();
     renderDetailedStats();
@@ -3283,6 +3723,7 @@ let _deletedTrade = null;
 function deleteTrade(id) {
     const trade = trades.find(t => t.id === id);
     if (!trade) return;
+    if (!confirm(`האם אתה בטוח שברצונך למחוק את עסקת ${trade.pair}?\nפעולה זו ניתנת לביטול למשך 5 שניות.`)) return;
     // Clear any previous undo
     if (_deleteUndoTimer) { clearTimeout(_deleteUndoTimer); _deletedTrade = null; }
     _deletedTrade = trade;
@@ -3326,8 +3767,9 @@ function undoDelete() {
 
 function filterJournal(filter, btn) {
     journalFilter = filter;
+    try { localStorage.setItem('journal_filter', filter); } catch(e) {}
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    if (btn) btn.classList.add('active');
     renderTradesList();
     renderDetailedStats();
     renderAnalytics();
@@ -4561,6 +5003,29 @@ function updatePctHelpers() {
     }
 }
 
+if (typeof updateRRPreview === 'undefined') {
+function updateRRPreview() {
+    const entry  = parseFloat(document.getElementById('trade-entry')?.value);
+    const stop   = parseFloat(document.getElementById('trade-stop')?.value);
+    const target = parseFloat(document.getElementById('trade-target')?.value);
+    const bar = document.getElementById('rr-preview-bar');
+    const valEl = document.getElementById('rr-preview-val');
+    const badgeEl = document.getElementById('rr-preview-badge');
+    if (!bar || !valEl || !badgeEl) return;
+    if (entry && stop && target && stop !== entry) {
+        const rr = Math.abs(target - entry) / Math.abs(entry - stop);
+        bar.style.display = 'flex';
+        valEl.textContent = rr.toFixed(2) + ':1';
+        if (rr >= 3) { badgeEl.textContent = '✅ מצוין'; badgeEl.style.cssText = 'font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(16,185,129,0.15);color:#10b981;'; }
+        else if (rr >= 2) { badgeEl.textContent = '👍 טוב'; badgeEl.style.cssText = 'font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(99,102,241,0.15);color:#818cf8;'; }
+        else if (rr >= 1) { badgeEl.textContent = '⚠️ מינימלי'; badgeEl.style.cssText = 'font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(245,158,11,0.15);color:#f59e0b;'; }
+        else { badgeEl.textContent = '❌ גרוע'; badgeEl.style.cssText = 'font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(239,68,68,0.15);color:#ef4444;'; }
+    } else {
+        bar.style.display = 'none';
+    }
+}
+}
+
 
 // ==================== PORTFOLIO ROI ====================
 function getPortfolioData() {
@@ -5260,6 +5725,333 @@ function importJSON(event) {
     };
     reader.readAsText(file);
     event.target.value = '';
+}
+
+// ==================== MARKET DATABASE ENGINE ====================
+function dbGet(key) { try { return JSON.parse(localStorage.getItem(key)||'[]'); } catch { return []; } }
+function dbPush(key, row, maxLen) {
+  const arr = dbGet(key);
+  arr.push(row);
+  if (arr.length > maxLen) arr.splice(0, arr.length - maxLen);
+  localStorage.setItem(key, JSON.stringify(arr));
+}
+function dbSize() {
+  let bytes = 0;
+  ['mdb_prices','mdb_market','mdb_sentiment','mdb_onchain','mdb_defi'].forEach(k => {
+    bytes += (localStorage.getItem(k)||'').length * 2;
+  });
+  return (bytes/1024).toFixed(1);
+}
+
+async function collectPrices() {
+  const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=["BTCUSDT","ETHUSDT","SOLUSDT","BNBUSDT"]');
+  const data = await res.json();
+  const row = { ts: Date.now() };
+  data.forEach(d => {
+    if (d.symbol==='BTCUSDT') row.btc = parseFloat(d.price);
+    if (d.symbol==='ETHUSDT') row.eth = parseFloat(d.price);
+    if (d.symbol==='SOLUSDT') row.sol = parseFloat(d.price);
+    if (d.symbol==='BNBUSDT') row.bnb = parseFloat(d.price);
+  });
+  dbPush('mdb_prices', row, 2016);
+}
+
+async function collectMarket() {
+  const res = await fetch('https://api.coingecko.com/api/v3/global');
+  const d = (await res.json()).data;
+  dbPush('mdb_market', {
+    ts: Date.now(),
+    totalMcap: d.total_market_cap?.usd || 0,
+    btcDom: parseFloat(d.market_cap_percentage?.btc||0).toFixed(2),
+    totalVol: d.total_volume?.usd || 0,
+    change24h: parseFloat(d.market_cap_change_percentage_24h_usd||0).toFixed(2)
+  }, 2880);
+}
+
+async function collectSentiment() {
+  const res = await fetch('https://api.alternative.me/fng/?limit=1&format=json');
+  const d = (await res.json()).data[0];
+  dbPush('mdb_sentiment', { ts: Date.now(), fg: parseInt(d.value), fgLabel: d.value_classification }, 720);
+}
+
+async function collectOnchain() {
+  const [fr, ls, oi] = await Promise.allSettled([
+    fetch('https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1').then(r=>r.json()),
+    fetch('https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=1h&limit=1').then(r=>r.json()),
+    fetch('https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT').then(r=>r.json())
+  ]);
+  dbPush('mdb_onchain', {
+    ts: Date.now(),
+    btcFundingRate: fr.status==='fulfilled' ? parseFloat(fr.value[0]?.fundingRate||0)*100 : null,
+    longPct: ls.status==='fulfilled' ? parseFloat(ls.value[0]?.longAccount||0)*100 : null,
+    shortPct: ls.status==='fulfilled' ? parseFloat(ls.value[0]?.shortAccount||0)*100 : null,
+    btcOI: oi.status==='fulfilled' ? parseFloat(oi.value?.openInterest||0) : null
+  }, 720);
+}
+
+async function collectDefi() {
+  const r2 = await fetch('https://api.llama.fi/v2/historicalChainTvl');
+  const data = await r2.json();
+  const last = data[data.length-1];
+  dbPush('mdb_defi', { ts: Date.now(), tvl: last?.tvl || 0 }, 120);
+}
+
+function initMarketDatabase() {
+  collectPrices().catch(()=>{});
+  collectMarket().catch(()=>{});
+  collectSentiment().catch(()=>{});
+  collectOnchain().catch(()=>{});
+  collectDefi().catch(()=>{});
+  setInterval(() => collectPrices().catch(()=>{}),        5 * 60 * 1000);
+  setInterval(() => collectMarket().catch(()=>{}),       15 * 60 * 1000);
+  setInterval(() => collectSentiment().catch(()=>{}),    60 * 60 * 1000);
+  setInterval(() => collectOnchain().catch(()=>{}),      60 * 60 * 1000);
+  setInterval(() => collectDefi().catch(()=>{}),      6 * 60 * 60 * 1000);
+}
+
+function exportDatabase() {
+  const data = {
+    exported: new Date().toISOString(),
+    prices: dbGet('mdb_prices'),
+    market: dbGet('mdb_market'),
+    sentiment: dbGet('mdb_sentiment'),
+    onchain: dbGet('mdb_onchain'),
+    defi: dbGet('mdb_defi')
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'cryptoedge-database-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('✅ מסד נתונים יוצא!');
+}
+
+function switchDbTab(tabName, btn) {
+  document.querySelectorAll('.db-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.db-tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  const el = document.getElementById('db-tab-' + tabName);
+  if (el) el.classList.add('active');
+  renderDbTabContent(tabName);
+}
+
+function renderDbTabContent(tabName) {
+  if (tabName === 'prices') renderDbPrices();
+  else if (tabName === 'market') renderDbMarket();
+  else if (tabName === 'onchain') renderDbOnchain();
+  else if (tabName === 'defi') renderDbDefi();
+}
+
+function fmtDbTime(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('he-IL', {day:'2-digit',month:'2-digit'}) + ' ' +
+         d.toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'});
+}
+
+function fmtNum(n, decimals) {
+  if (n == null || isNaN(n)) return '—';
+  return parseFloat(n).toLocaleString('en-US', {maximumFractionDigits: decimals != null ? decimals : 2});
+}
+
+function fmtBig(n) {
+  if (!n || isNaN(n)) return '—';
+  if (n >= 1e12) return '$' + (n/1e12).toFixed(2) + 'T';
+  if (n >= 1e9)  return '$' + (n/1e9).toFixed(1) + 'B';
+  if (n >= 1e6)  return '$' + (n/1e6).toFixed(1) + 'M';
+  return '$' + n.toFixed(0);
+}
+
+function drawDbChart(canvasId, data, key, color) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || !data.length) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 300;
+  const H = canvas.height || 120;
+  canvas.width = W;
+  const vals = data.map(r => r[key]).filter(v => v != null && !isNaN(v));
+  if (!vals.length) return;
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  const range = max - min || 1;
+  ctx.clearRect(0,0,W,H);
+  // gradient fill
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0, (color||'#6366f1')+'44');
+  grad.addColorStop(1, 'transparent');
+  ctx.beginPath();
+  data.forEach((r, i) => {
+    if (r[key] == null) return;
+    const x = (i / (data.length-1||1)) * W;
+    const y = H - ((r[key] - min) / range) * (H-10) - 5;
+    i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle = color || '#6366f1';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+}
+
+function renderDbPrices() {
+  const prices = dbGet('mdb_prices');
+  // mini stats
+  const latest = prices[prices.length-1];
+  const prev = prices[prices.length-2];
+  let html = '';
+  if (latest) {
+    const chg = prev ? ((latest.btc - prev.btc)/prev.btc*100).toFixed(2) : null;
+    const chgColor = chg >= 0 ? 'var(--green)' : 'var(--red)';
+    html = `<div class="db-mini-stat"><div class="db-mini-label">BTC</div><div class="db-mini-val">$${fmtNum(latest.btc,0)}</div>${chg!=null?`<div style="color:${chgColor};font-size:0.72rem;">${chg>0?'+':''}${chg}%</div>`:''}</div>
+    <div class="db-mini-stat"><div class="db-mini-label">ETH</div><div class="db-mini-val">$${fmtNum(latest.eth,0)}</div></div>
+    <div class="db-mini-stat"><div class="db-mini-label">SOL</div><div class="db-mini-val">$${fmtNum(latest.sol,1)}</div></div>
+    <div class="db-mini-stat"><div class="db-mini-label">BNB</div><div class="db-mini-val">$${fmtNum(latest.bnb,1)}</div></div>`;
+  } else {
+    html = '<div style="color:var(--text-muted);font-size:0.82rem;padding:8px;">אין נתונים עדיין</div>';
+  }
+  const ms = document.getElementById('db-prices-ministats');
+  if (ms) ms.innerHTML = html;
+  // chart
+  setTimeout(() => drawDbChart('db-chart-prices', prices, 'btc', '#f59e0b'), 50);
+  // table
+  const tbody = document.getElementById('db-table-prices-body');
+  if (tbody) {
+    const rows = prices.slice(-10).reverse();
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:16px;">אין נתונים עדיין</td></tr>'; return; }
+    tbody.innerHTML = rows.map(r => `<tr>
+      <td>${fmtDbTime(r.ts)}</td>
+      <td>$${fmtNum(r.btc,0)}</td>
+      <td>$${fmtNum(r.eth,0)}</td>
+      <td>$${fmtNum(r.sol,1)}</td>
+      <td>$${fmtNum(r.bnb,1)}</td>
+    </tr>`).join('');
+  }
+}
+
+function renderDbMarket() {
+  const market = dbGet('mdb_market');
+  const latest = market[market.length-1];
+  let html = '';
+  if (latest) {
+    const chg = parseFloat(latest.change24h);
+    const chgColor = chg >= 0 ? 'var(--green)' : 'var(--red)';
+    html = `<div class="db-mini-stat"><div class="db-mini-label">שווי שוק</div><div class="db-mini-val">${fmtBig(latest.totalMcap)}</div></div>
+    <div class="db-mini-stat"><div class="db-mini-label">BTC Dom%</div><div class="db-mini-val">${latest.btcDom}%</div></div>
+    <div class="db-mini-stat"><div class="db-mini-label">שינוי 24ש</div><div class="db-mini-val" style="color:${chgColor};">${chg>0?'+':''}${chg}%</div></div>`;
+  } else {
+    html = '<div style="color:var(--text-muted);font-size:0.82rem;padding:8px;">אין נתונים עדיין</div>';
+  }
+  const ms = document.getElementById('db-market-ministats');
+  if (ms) ms.innerHTML = html;
+  setTimeout(() => drawDbChart('db-chart-market', market, 'totalMcap', '#3b82f6'), 50);
+  const tbody = document.getElementById('db-table-market-body');
+  if (tbody) {
+    const rows = market.slice(-10).reverse();
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:16px;">אין נתונים עדיין</td></tr>'; return; }
+    tbody.innerHTML = rows.map(r => `<tr>
+      <td>${fmtDbTime(r.ts)}</td>
+      <td>${fmtBig(r.totalMcap)}</td>
+      <td>${r.btcDom}%</td>
+      <td>${fmtBig(r.totalVol)}</td>
+      <td style="color:${parseFloat(r.change24h)>=0?'var(--green)':'var(--red)'};">${parseFloat(r.change24h)>=0?'+':''}${r.change24h}%</td>
+    </tr>`).join('');
+  }
+}
+
+function renderDbOnchain() {
+  const onchain = dbGet('mdb_onchain');
+  const latest = onchain[onchain.length-1];
+  let html = '';
+  if (latest) {
+    const frColor = (latest.btcFundingRate||0) >= 0 ? 'var(--green)' : 'var(--red)';
+    html = `<div class="db-mini-stat"><div class="db-mini-label">Funding Rate</div><div class="db-mini-val" style="color:${frColor};">${fmtNum(latest.btcFundingRate,4)}%</div></div>
+    <div class="db-mini-stat"><div class="db-mini-label">Long%</div><div class="db-mini-val" style="color:var(--green);">${fmtNum(latest.longPct,1)}%</div></div>
+    <div class="db-mini-stat"><div class="db-mini-label">Short%</div><div class="db-mini-val" style="color:var(--red);">${fmtNum(latest.shortPct,1)}%</div></div>
+    <div class="db-mini-stat"><div class="db-mini-label">OI BTC</div><div class="db-mini-val">${fmtNum(latest.btcOI,0)}</div></div>`;
+  } else {
+    html = '<div style="color:var(--text-muted);font-size:0.82rem;padding:8px;">אין נתונים עדיין</div>';
+  }
+  const ms = document.getElementById('db-onchain-ministats');
+  if (ms) ms.innerHTML = html;
+  setTimeout(() => drawDbChart('db-chart-onchain', onchain, 'btcFundingRate', '#a855f7'), 50);
+  const tbody = document.getElementById('db-table-onchain-body');
+  if (tbody) {
+    const rows = onchain.slice(-10).reverse();
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:16px;">אין נתונים עדיין</td></tr>'; return; }
+    tbody.innerHTML = rows.map(r => `<tr>
+      <td>${fmtDbTime(r.ts)}</td>
+      <td style="color:${(r.btcFundingRate||0)>=0?'var(--green)':'var(--red)'};">${fmtNum(r.btcFundingRate,4)}%</td>
+      <td style="color:var(--green);">${fmtNum(r.longPct,1)}%</td>
+      <td style="color:var(--red);">${fmtNum(r.shortPct,1)}%</td>
+      <td>${fmtNum(r.btcOI,0)}</td>
+    </tr>`).join('');
+  }
+}
+
+function renderDbDefi() {
+  const defi = dbGet('mdb_defi');
+  const latest = defi[defi.length-1];
+  let html = '';
+  if (latest) {
+    html = `<div class="db-mini-stat"><div class="db-mini-label">TVL כולל</div><div class="db-mini-val">${fmtBig(latest.tvl)}</div></div>`;
+  } else {
+    html = '<div style="color:var(--text-muted);font-size:0.82rem;padding:8px;">אין נתונים עדיין</div>';
+  }
+  const ms = document.getElementById('db-defi-ministats');
+  if (ms) ms.innerHTML = html;
+  setTimeout(() => drawDbChart('db-chart-defi', defi, 'tvl', '#10b981'), 50);
+  const tbody = document.getElementById('db-table-defi-body');
+  if (tbody) {
+    const rows = defi.slice(-10).reverse();
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:16px;">אין נתונים עדיין</td></tr>'; return; }
+    tbody.innerHTML = rows.map(r => `<tr>
+      <td>${fmtDbTime(r.ts)}</td>
+      <td>${fmtBig(r.tvl)}</td>
+    </tr>`).join('');
+  }
+}
+
+function renderDatabasePage() {
+  // Update size badge
+  const badge = document.getElementById('db-size-badge');
+  if (badge) badge.textContent = dbSize() + ' KB';
+
+  // Live stats
+  const prices = dbGet('mdb_prices');
+  const onchain = dbGet('mdb_onchain');
+  const lastP = prices[prices.length-1];
+  const lastO = onchain[onchain.length-1];
+
+  const btcEl = document.getElementById('db-btc-price');
+  const btcSub = document.getElementById('db-btc-sub');
+  if (btcEl) btcEl.textContent = lastP ? '$' + fmtNum(lastP.btc, 0) : '—';
+  if (btcSub && lastP) {
+    const prev = prices[prices.length-2];
+    if (prev) {
+      const chg = ((lastP.btc - prev.btc)/prev.btc*100).toFixed(2);
+      btcSub.innerHTML = `<span style="color:${chg>=0?'var(--green)':'var(--red)'};">${chg>0?'+':''}${chg}%</span>`;
+    }
+  }
+
+  const fundEl = document.getElementById('db-funding');
+  if (fundEl) fundEl.textContent = lastO ? fmtNum(lastO.btcFundingRate,4) + '%' : '—';
+
+  const lsEl = document.getElementById('db-ls-ratio');
+  if (lsEl && lastO && lastO.longPct && lastO.shortPct) {
+    lsEl.innerHTML = `<span style="color:var(--green);">${fmtNum(lastO.longPct,1)}%</span> / <span style="color:var(--red);">${fmtNum(lastO.shortPct,1)}%</span>`;
+  } else if (lsEl) lsEl.textContent = '—';
+
+  const totEl = document.getElementById('db-total-records');
+  if (totEl) {
+    const total = ['mdb_prices','mdb_market','mdb_sentiment','mdb_onchain','mdb_defi'].reduce((s,k) => s + dbGet(k).length, 0);
+    totEl.textContent = total.toLocaleString();
+  }
+
+  // Render active tab
+  const activeTab = document.querySelector('#page-database .db-tab.active');
+  const tabName = activeTab ? activeTab.getAttribute('onclick').match(/switchDbTab\('(\w+)'/)?.[1] : 'prices';
+  renderDbTabContent(tabName || 'prices');
 }
 
 // ==================== STATS REPORT ====================
@@ -6280,6 +7072,7 @@ function initApp() {
     fetchLivePrices();
     fetchCryptoNews();
     showProfile('day');
+    restoreJournalFilter();
     renderTradesList();
     renderDetailedStats();
     renderAnalytics();
@@ -6288,11 +7081,15 @@ function initApp() {
     setDefaultDate();
     calculateRisk();
     checkMonthlyReportReminder();
+    updateLastBackupDisplay();
+    setTimeout(drawDashboardEquityCurve, 300);
 
     // Auto-refresh intervals
     setInterval(fetchFearGreed, 5 * 60 * 1000);       // every 5 min
     setInterval(fetchLivePrices, 60 * 1000);           // every 60 sec
     setInterval(fetchCryptoNews, 10 * 60 * 1000);      // every 10 min
+    initAutoInsights();
+    initMarketDatabase();
 }
 
 // ==================== FEAR & GREED INDEX ====================
@@ -6448,12 +7245,14 @@ function switchPage(pageName) {
         portfolio: 'תיק השקעות',
         history: 'היסטוריית עסקאות',
         insights: 'תובנות AI',
-        analysis: 'ניתוח שוק'
+        analysis: 'ניתוח שוק',
+        database: 'מסד נתונים שוק'
     };
     document.getElementById('page-title').textContent = titles[pageName] || 'CryptoEdge';
     if (pageName === 'history') renderHistory();
-    if (pageName === 'insights') initInsightsPage();
+    if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; }
     if (pageName === 'analysis') initAnalysisPage();
+    if (pageName === 'database') renderDatabasePage();
 }
 
 // ==================== DASHBOARD STATS ====================
@@ -6478,6 +7277,67 @@ function updateDashboardStats() {
 
     const pnlCard = document.getElementById('stat-pnl');
     pnlCard.style.borderColor = totalPnl >= 0 ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
+}
+
+// ==================== HELPERS (FILTER/BACKUP/EQUITY) ====================
+function restoreJournalFilter() {
+    const saved = localStorage.getItem('journal_filter') || 'all';
+    journalFilter = saved;
+    const btnMap = { all: '.filter-btn:first-child', limit: '#filter-limit', open: '#filter-open' };
+    const btnEl = document.querySelector(btnMap[saved] || '.filter-btn:first-child');
+    if (btnEl) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+    }
+}
+function updateLastBackupDisplay() {
+    const ts = localStorage.getItem('last_backup_ts');
+    const el = document.getElementById('last-backup-display');
+    if (!el) return;
+    if (ts) {
+        const d = new Date(parseInt(ts));
+        const str = d.toLocaleDateString('he-IL') + ' ' + d.toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'});
+        el.textContent = '💾 גיבוי אוטומטי אחרון: ' + str;
+    } else { el.textContent = '💾 טרם בוצע גיבוי אוטומטי'; }
+}
+function autoBackupTrades() {
+    try { localStorage.setItem('last_backup_ts', Date.now().toString()); localStorage.setItem('trades_auto_backup', JSON.stringify(trades)); } catch(e) {}
+    updateLastBackupDisplay();
+}
+function drawDashboardEquityCurve() {
+    const canvas = document.getElementById('dashboard-equity-canvas');
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.offsetWidth || 320; const H = 120;
+    canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.height = H + 'px';
+    const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
+    const closed = trades.filter(t => ['win','loss','breakeven'].includes(t.status) && t.date)
+        .sort((a, b) => new Date(a.date+(a.time?'T'+a.time:'')) - new Date(b.date+(b.time?'T'+b.time:'')));
+    const badgeEl = document.getElementById('dashboard-equity-badge');
+    if (closed.length < 2) {
+        ctx.fillStyle='rgba(120,120,160,0.5)'; ctx.font='12px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('צריך לפחות 2 עסקאות סגורות', W/2, H/2);
+        if (badgeEl) { badgeEl.textContent='אין נתונים'; badgeEl.className='equity-curve-badge flat'; } return;
+    }
+    let cum = 0;
+    const points = [0, ...closed.map(t => { cum += (t.pnl||0); return cum; })];
+    const finalPnl = points[points.length-1]; const isUp = finalPnl >= 0;
+    if (badgeEl) { badgeEl.textContent=(isUp?'+':'')+'$'+finalPnl.toFixed(0); badgeEl.className='equity-curve-badge '+(isUp?'up':'down'); }
+    const pad={top:12,bottom:20,left:6,right:6};
+    const minV=Math.min(...points); const maxV=Math.max(...points); const range=maxV-minV||1;
+    const toX=i=>pad.left+i*(W-pad.left-pad.right)/(points.length-1);
+    const toY=v=>H-pad.bottom-((v-minV)/range)*(H-pad.top-pad.bottom);
+    ctx.setLineDash([3,3]); ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.left,toY(0)); ctx.lineTo(W-pad.right,toY(0)); ctx.stroke(); ctx.setLineDash([]);
+    const grad=ctx.createLinearGradient(0,pad.top,0,H-pad.bottom);
+    grad.addColorStop(0,isUp?'rgba(16,185,129,0.25)':'rgba(239,68,68,0.25)'); grad.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.beginPath(); ctx.moveTo(toX(0),toY(points[0]));
+    points.forEach((v,i)=>ctx.lineTo(toX(i),toY(v)));
+    ctx.lineTo(toX(points.length-1),H-pad.bottom); ctx.lineTo(toX(0),H-pad.bottom); ctx.closePath();
+    ctx.fillStyle=grad; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(toX(0),toY(points[0]));
+    points.forEach((v,i)=>ctx.lineTo(toX(i),toY(v)));
+    ctx.strokeStyle=isUp?'#10b981':'#ef4444'; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.stroke();
 }
 
 // ==================== TRADING JOURNAL ====================
@@ -6577,6 +7437,12 @@ function saveTrade() {
         finalAmount
     };
 
+    // attach market context snapshot
+    const lastPrice = dbGet('mdb_prices').slice(-1)[0];
+    const lastMkt = dbGet('mdb_market').slice(-1)[0];
+    const lastFG = dbGet('mdb_sentiment').slice(-1)[0];
+    if (lastPrice) trade.mktContext = { btc: lastPrice.btc, eth: lastPrice.eth, fg: lastFG?.fg, btcDom: lastMkt?.btcDom, mcapChg24h: lastMkt?.change24h };
+
     if (editId) {
         const idx = trades.findIndex(t => t.id === editId);
         if (idx >= 0) trades[idx] = trade;
@@ -6585,6 +7451,8 @@ function saveTrade() {
     }
 
     setData('trades', trades);
+    autoBackupTrades();
+    drawDashboardEquityCurve();
     closeTradeModal();
     renderTradesList();
     renderDetailedStats();
@@ -6630,6 +7498,7 @@ let _deletedTrade = null;
 function deleteTrade(id) {
     const trade = trades.find(t => t.id === id);
     if (!trade) return;
+    if (!confirm(`האם אתה בטוח שברצונך למחוק את עסקת ${trade.pair}?\nפעולה זו ניתנת לביטול למשך 5 שניות.`)) return;
     // Clear any previous undo
     if (_deleteUndoTimer) { clearTimeout(_deleteUndoTimer); _deletedTrade = null; }
     _deletedTrade = trade;
@@ -6673,8 +7542,9 @@ function undoDelete() {
 
 function filterJournal(filter, btn) {
     journalFilter = filter;
+    try { localStorage.setItem('journal_filter', filter); } catch(e) {}
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    if (btn) btn.classList.add('active');
     renderTradesList();
     renderDetailedStats();
     renderAnalytics();
@@ -7908,6 +8778,29 @@ function updatePctHelpers() {
     }
 }
 
+if (typeof updateRRPreview === 'undefined') {
+function updateRRPreview() {
+    const entry  = parseFloat(document.getElementById('trade-entry')?.value);
+    const stop   = parseFloat(document.getElementById('trade-stop')?.value);
+    const target = parseFloat(document.getElementById('trade-target')?.value);
+    const bar = document.getElementById('rr-preview-bar');
+    const valEl = document.getElementById('rr-preview-val');
+    const badgeEl = document.getElementById('rr-preview-badge');
+    if (!bar || !valEl || !badgeEl) return;
+    if (entry && stop && target && stop !== entry) {
+        const rr = Math.abs(target - entry) / Math.abs(entry - stop);
+        bar.style.display = 'flex';
+        valEl.textContent = rr.toFixed(2) + ':1';
+        if (rr >= 3) { badgeEl.textContent = '✅ מצוין'; badgeEl.style.cssText = 'font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(16,185,129,0.15);color:#10b981;'; }
+        else if (rr >= 2) { badgeEl.textContent = '👍 טוב'; badgeEl.style.cssText = 'font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(99,102,241,0.15);color:#818cf8;'; }
+        else if (rr >= 1) { badgeEl.textContent = '⚠️ מינימלי'; badgeEl.style.cssText = 'font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(245,158,11,0.15);color:#f59e0b;'; }
+        else { badgeEl.textContent = '❌ גרוע'; badgeEl.style.cssText = 'font-size:0.75rem;padding:2px 8px;border-radius:6px;background:rgba(239,68,68,0.15);color:#ef4444;'; }
+    } else {
+        bar.style.display = 'none';
+    }
+}
+}
+
 
 // ==================== PORTFOLIO ROI ====================
 function getPortfolioData() {
@@ -8624,6 +9517,11 @@ function initInsightsPage() {
     if (arkhamEl && localStorage.getItem('ark_notes')) arkhamEl.value = localStorage.getItem('ark_notes');
     const unlocksEl = document.getElementById('ins-token-unlocks');
     if (unlocksEl && localStorage.getItem('token_unlocks')) unlocksEl.value = localStorage.getItem('token_unlocks');
+    const intervalEl = document.getElementById('ins-auto-interval');
+    if (intervalEl) {
+        const ms = parseInt(localStorage.getItem('insights_auto_interval_ms') || '') || 6 * 60 * 60 * 1000;
+        intervalEl.value = String(Math.round(ms / 3600000));
+    }
 
     // Check cached insights (< 6 hours)
     try {
@@ -8647,6 +9545,26 @@ function initInsightsPage() {
 
     // Mark key-required sources
     updateSourceKeyStatuses();
+    updateApiCardDots();
+
+    // Show clear message if Claude API key is missing
+    const anthropicKey = localStorage.getItem('anthropic_apikey');
+    if (!anthropicKey) {
+        const placeholder = document.getElementById('insights-placeholder');
+        if (placeholder) {
+            placeholder.innerHTML = `
+                <div style="font-size:2.5rem;">🔑</div>
+                <div style="font-size:1.05rem;font-weight:700;margin-top:12px;color:var(--text);">נדרש מפתח API של Claude</div>
+                <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:8px;line-height:1.6;max-width:280px;text-align:center;">
+                    כדי לקבל תובנות AI, יש להזין מפתח Claude API.<br>
+                    לחץ על ⚙️ למעלה → הכנס מפתח API → שמור הגדרות.
+                </div>
+                <div style="margin-top:12px;">
+                    <button onclick="toggleInsightsSettings()" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);color:var(--accent-light);padding:8px 18px;border-radius:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">⚙️ הגדר מפתח API</button>
+                </div>
+            `;
+        }
+    }
 }
 
 function updateSourceKeyStatuses() {
@@ -8658,6 +9576,85 @@ function updateSourceKeyStatuses() {
     if (!cgKey) setSourceStatus('src-coinglass', '🔑 נדרש מפתח');
     setSourceStatus('src-arkham', '📝 ידני');
     setSourceStatus('src-unlocks', '📝 ידני');
+    updateApiCardDots();
+}
+
+function updateApiCardDots() {
+    const configs = [
+        { key: 'anthropic_apikey', dot: 'dot-claude', card: 'apicard-claude' },
+        { key: 'cr_apikey',        dot: 'dot-cryptorank', card: 'apicard-cryptorank' },
+        { key: 'san_apikey',       dot: 'dot-santiment', card: 'apicard-santiment' },
+        { key: 'cg_apikey',        dot: 'dot-coinglass', card: 'apicard-coinglass' },
+    ];
+    configs.forEach(({ key, dot, card }) => {
+        const dotEl = document.getElementById(dot);
+        const cardEl = document.getElementById(card);
+        const hasKey = !!localStorage.getItem(key);
+        if (dotEl) dotEl.className = 'api-status-dot' + (hasKey ? ' ok' : '');
+        if (cardEl) { cardEl.classList.toggle('connected', hasKey); cardEl.classList.remove('error'); }
+    });
+}
+
+async function testApiKey(service) {
+    const configs = {
+        claude:     { lsKey: 'anthropic_apikey', inputId: 'ins-anthropic-key', dot: 'dot-claude', card: 'apicard-claude', status: 'status-claude' },
+        cryptorank: { lsKey: 'cr_apikey', inputId: 'ins-cr-key', dot: 'dot-cryptorank', card: 'apicard-cryptorank', status: 'status-cryptorank' },
+        santiment:  { lsKey: 'san_apikey', inputId: 'ins-san-key', dot: 'dot-santiment', card: 'apicard-santiment', status: 'status-santiment' },
+        coinglass:  { lsKey: 'cg_apikey', inputId: 'ins-cg-key', dot: 'dot-coinglass', card: 'apicard-coinglass', status: 'status-coinglass' },
+    };
+    const cfg = configs[service];
+    if (!cfg) return;
+
+    const inputEl = document.getElementById(cfg.inputId);
+    const key = (inputEl?.value || '').trim() || localStorage.getItem(cfg.lsKey) || '';
+    const dotEl = document.getElementById(cfg.dot);
+    const cardEl = document.getElementById(cfg.card);
+    const statusEl = document.getElementById(cfg.status);
+
+    if (!key) { if (statusEl) statusEl.textContent = '⚠️ אנא הכנס מפתח API תחילה'; return; }
+    if (statusEl) statusEl.textContent = '⏳ בודק...';
+    if (dotEl) dotEl.className = 'api-status-dot warn';
+
+    try {
+        let ok = false;
+        if (service === 'claude') {
+            const r = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 5, messages: [{ role: 'user', content: 'hi' }] })
+            });
+            ok = r.ok || r.status === 400; // 400 = bad request but key valid
+        } else if (service === 'cryptorank') {
+            const r = await fetch(`https://api.cryptorank.io/v1/currencies?api_key=${key}&limit=1`);
+            ok = r.ok;
+        } else if (service === 'santiment') {
+            const r = await fetch('https://api.santiment.net/graphql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Apikey ${key}` },
+                body: JSON.stringify({ query: '{ currentUser { id } }' })
+            });
+            ok = r.ok;
+        } else if (service === 'coinglass') {
+            const r = await fetch('https://open-api.coinglass.com/public/v2/open_interest_history?symbol=BTC&time_type=h1&limit=1', {
+                headers: { 'coinglassSecret': key }
+            });
+            ok = r.ok;
+        }
+
+        if (ok) {
+            localStorage.setItem(cfg.lsKey, key);
+            if (dotEl) dotEl.className = 'api-status-dot ok';
+            if (cardEl) { cardEl.classList.add('connected'); cardEl.classList.remove('error'); }
+            if (statusEl) statusEl.textContent = '✅ מחובר בהצלחה!';
+            showToast('✅ ' + service + ' מחובר!');
+        } else {
+            throw new Error('מפתח לא תקין');
+        }
+    } catch(e) {
+        if (dotEl) dotEl.className = 'api-status-dot err';
+        if (cardEl) { cardEl.classList.add('error'); cardEl.classList.remove('connected'); }
+        if (statusEl) statusEl.textContent = '❌ ' + (e.message || 'שגיאת חיבור');
+    }
 }
 
 function toggleInsightsSettings() {
@@ -8682,6 +9679,12 @@ function saveInsightsSettings() {
     if (arkhamEl) localStorage.setItem('ark_notes', arkhamEl.value.trim());
     const unlocksEl = document.getElementById('ins-token-unlocks');
     if (unlocksEl) localStorage.setItem('token_unlocks', unlocksEl.value.trim());
+    const intervalEl = document.getElementById('ins-auto-interval');
+    if (intervalEl && intervalEl.value) {
+        const hrs = Math.max(1, Math.min(24, parseInt(intervalEl.value) || 6));
+        localStorage.setItem('insights_auto_interval_ms', String(hrs * 60 * 60 * 1000));
+        initAutoInsights(); // restart timer with new interval
+    }
     showToast('✅ הגדרות נשמרו!');
     toggleInsightsSettings();
     updateSourceKeyStatuses();
@@ -9186,6 +10189,55 @@ async function runInsightsPipeline() {
 }
 
 // ==================== END AI INSIGHTS ENGINE ====================
+
+// ==================== AUTO INSIGHTS BACKGROUND COLLECTOR ====================
+let _autoInsightsTimer = null;
+
+async function autoCollectInsights() {
+    const AUTO_INTERVAL_MS = parseInt(localStorage.getItem('insights_auto_interval_ms') || '') || 6 * 60 * 60 * 1000;
+    try {
+        const cached = JSON.parse(localStorage.getItem('ai_insights_cache') || 'null');
+        if (cached && cached.ts && (Date.now() - cached.ts) < AUTO_INTERVAL_MS) return;
+    } catch(e) {}
+
+    try {
+        const [cgRes, dlRes, fgRes, fxRes] = await Promise.allSettled([
+            fetchCoinGeckoGlobal(),
+            fetchDefiLlama(),
+            fetchFearGreedForInsights(),
+            fetchForexFactory()
+        ]);
+        const collected = {
+            coingecko: cgRes.status === 'fulfilled' ? cgRes.value : null,
+            defillama: dlRes.status === 'fulfilled' ? dlRes.value : null,
+            feargreed: fgRes.status === 'fulfilled' ? fgRes.value : null,
+            forex: fxRes.status === 'fulfilled' ? fxRes.value : null,
+            arkham: localStorage.getItem('ark_notes') || '',
+            unlocks: localStorage.getItem('token_unlocks') || ''
+        };
+
+        let result;
+        const apiKey = localStorage.getItem('anthropic_apikey');
+        if (apiKey) {
+            result = await callClaudeAPI(buildInsightsPrompt(collected));
+        } else {
+            result = generateRuleBasedInsights(collected);
+        }
+
+        if (result) {
+            localStorage.setItem('ai_insights_cache', JSON.stringify({ text: result, ts: Date.now(), sources: [] }));
+            const badge = document.getElementById('insights-nav-badge');
+            if (badge && currentPage !== 'insights') badge.style.display = 'block';
+        }
+    } catch(e) { /* silent fail in background */ }
+}
+
+function initAutoInsights() {
+    const AUTO_INTERVAL_MS = parseInt(localStorage.getItem('insights_auto_interval_ms') || '') || 6 * 60 * 60 * 1000;
+    setTimeout(autoCollectInsights, 10 * 1000);
+    if (_autoInsightsTimer) clearInterval(_autoInsightsTimer);
+    _autoInsightsTimer = setInterval(autoCollectInsights, AUTO_INTERVAL_MS);
+}
 
 // ==================== STATS REPORT MODAL ====================
 function showStatsReport() {
