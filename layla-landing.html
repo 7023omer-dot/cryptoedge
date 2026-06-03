@@ -120,11 +120,21 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .stars{position:absolute;inset:0;overflow:hidden;}
 .star{position:absolute;background:#fff;border-radius:50%;opacity:.8;animation:twinkle 3s infinite ease-in-out;}
 .hero-content{position:relative;z-index:2;max-width:760px;}
+.hero-pre{
+  display:block;color:var(--sky);font-size:.95rem;font-weight:300;letter-spacing:1px;
+  margin-bottom:14px;opacity:.85;
+}
 .badge-pill{
   display:inline-block;background:rgba(249,168,37,.15);color:var(--moon);
   border:1px solid rgba(249,168,37,.4);border-radius:50px;padding:8px 18px;
   font-weight:600;font-size:.95rem;margin-bottom:24px;
 }
+.hero-counter{
+  display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);border-radius:50px;padding:8px 18px;
+  color:#E3ECFB;font-size:.95rem;font-weight:600;margin-bottom:28px;
+}
+.hero-counter .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(46,125,50,.25);}
 .hero h1{font-size:clamp(2.6rem,7vw,5rem);color:#fff;margin-bottom:18px;}
 .hero h1 .gold{color:var(--moon);font-style:italic;display:block;}
 .hero-mission{color:#D9E2F2;font-size:clamp(1.05rem,2.4vw,1.3rem);max-width:620px;margin-bottom:32px;font-weight:300;}
@@ -135,7 +145,23 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .fade-up{opacity:0;transform:translateY(28px);animation:fadeInUp .8s ease forwards;}
 .d1{animation-delay:.1s;}.d2{animation-delay:.3s;}.d3{animation-delay:.5s;}.d4{animation-delay:.7s;}.d5{animation-delay:.9s;}
 
+/* ===== PAIN POINTS ===== */
+.pain{background:#FFF8F0;}
+.pain .section-head h2{color:var(--navy);}
+.pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:42px;}
+.pain-card{
+  background:#fff;border-right:4px solid var(--moon);border-radius:14px;
+  padding:32px 26px;box-shadow:0 8px 24px rgba(13,27,62,.06);text-align:center;
+}
+.pain-card .p-ico{font-size:2.8rem;margin-bottom:16px;}
+.pain-card .p-title{font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:1.25rem;color:var(--navy);margin-bottom:14px;line-height:1.4;}
+.pain-card .p-sub{color:var(--muted);font-size:1rem;font-style:italic;}
+.pain-transition{text-align:center;}
+.pain-transition p{font-family:'Frank Ruhl Libre',serif;font-weight:900;font-size:clamp(1.6rem,3.5vw,2.4rem);color:var(--navy);}
+.pain-transition p .gold{color:var(--moon);font-style:italic;}
+
 /* ===== TRUST MARQUEE ===== */
+.trust-intro{text-align:center;color:var(--muted);font-weight:600;font-size:1rem;padding:22px 24px 0;}
 .trust-bar{background:var(--soft);padding:18px 0;overflow:hidden;white-space:nowrap;}
 .marquee{display:inline-flex;animation:marquee 32s linear infinite;}
 .marquee span{padding:0 28px;font-weight:600;color:var(--navy);font-size:1rem;}
@@ -204,6 +230,13 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .step p{color:var(--muted);max-width:240px;margin:0 auto;}
 
 /* Testimonials */
+.featured-quote{
+  background:var(--navy);border-left:6px solid var(--moon);border-radius:18px;
+  padding:46px 40px;margin-bottom:40px;color:#fff;text-align:center;
+  box-shadow:0 16px 44px rgba(13,27,62,.25);
+}
+.featured-quote .fq-text{font-family:'Frank Ruhl Libre',serif;font-style:italic;font-weight:700;font-size:clamp(1.3rem,3vw,2rem);line-height:1.5;margin-bottom:18px;}
+.featured-quote .fq-author{color:var(--moon);font-weight:600;font-size:1.05rem;}
 .reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
 .review-card{background:#fff;border-radius:16px;padding:28px;border:1px solid #EDE7D9;box-shadow:0 6px 18px rgba(13,27,62,.05);}
 .review-card .quote-stars{color:var(--moon);letter-spacing:2px;margin-bottom:12px;}
@@ -259,6 +292,25 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .utm-banner.show{display:flex;}
 .utm-banner button{font-weight:900;font-size:1.2rem;color:var(--navy);padding:0 8px;}
 
+/* Floating WhatsApp */
+.wa-float{
+  position:fixed;bottom:24px;left:24px;z-index:900;
+  width:56px;height:56px;border-radius:50%;background:var(--green);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:1.6rem;
+  box-shadow:0 8px 24px rgba(46,125,50,.45);
+  opacity:0;transform:translateY(28px);
+  animation:fadeInUp .6s ease forwards;animation-delay:3s;
+}
+.wa-float:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(46,125,50,.6);}
+.wa-float .wa-tooltip{
+  position:absolute;left:70px;bottom:50%;transform:translateY(50%);
+  background:#fff;color:var(--navy);font-size:.9rem;font-weight:600;
+  padding:8px 14px;border-radius:10px;white-space:nowrap;
+  box-shadow:0 6px 18px rgba(13,27,62,.18);
+  opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease;
+}
+.wa-float:hover .wa-tooltip{opacity:1;visibility:visible;}
+
 /* Reveal */
 .reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;}
 .reveal.in{opacity:1;transform:none;}
@@ -309,7 +361,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
     <a href="#ביקורות">ביקורות</a>
     <a href="#צור-קשר">צור קשר</a>
   </div>
-  <a href="#מוצרים" class="btn btn-gold nav-cta">לחנות <span aria-hidden="true">→</span></a>
+  <a href="#מוצרים" class="btn btn-gold nav-cta">לקנייה <span aria-hidden="true">→</span></a>
   <button class="hamburger" id="hamburger" aria-label="פתח תפריט" aria-expanded="false">☰</button>
 </nav>
 
@@ -318,37 +370,71 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
   <a href="#למה-לַיְלָה">למה לַיְלָה</a>
   <a href="#ביקורות">ביקורות</a>
   <a href="#צור-קשר">צור קשר</a>
-  <a href="#מוצרים" class="btn btn-gold">לחנות →</a>
+  <a href="#מוצרים" class="btn btn-gold">לקנייה →</a>
 </div>
 
 <!-- HERO -->
 <header class="hero" id="hero">
   <div class="stars" id="stars" aria-hidden="true"></div>
   <div class="container hero-content">
+    <span class="hero-pre fade-up d1">לאמהות שלא ישנות מספיק</span>
     <span class="badge-pill fade-up d1"><span aria-hidden="true">🌙</span> לשינה שמגיעה לכם</span>
     <h1 class="fade-up d2">כשהוא נח, <span class="gold">גם את נחה.</span></h1>
-    <p class="hero-mission fade-up d3">אנחנו יודעים איך זה להיות ערה ב-3 לילה, לשמוע בכי שלא נגמר, ולהרגיש שאין פתרון. יש. ולַיְלָה כאן בשבילך.</p>
+    <p class="hero-mission fade-up d3">את לא לבד בזה. אנחנו מכירים את ה-3 לפנות בוקר, את הבכי שנשבר לך את הלב, את הדמעות בחושך כשנדמה שכלום לא עוזר. עברנו את זה בעצמנו. בנינו את לַיְלָה כדי שהלילה הבא שלך יהיה קצת יותר רגוע — וכדי שתזכרי איך זה להרגיש אנושית שוב.</p>
     <div class="hero-ctas fade-up d4">
       <a href="#מוצרים" class="btn btn-gold">גלי את המוצרים</a>
       <a href="#how" class="btn btn-outline">איך זה עובד? <span aria-hidden="true">←</span></a>
     </div>
+    <div class="fade-up d4"><span class="hero-counter"><span class="dot" aria-hidden="true"></span> כבר 1,200+ משפחות ישראליות נחות טוב יותר</span></div>
     <p class="hero-trust fade-up d5"><span class="stars-txt" aria-hidden="true">★★★★★</span> &nbsp;|&nbsp; מעל 1,200 הורים כבר ישנים טוב יותר</p>
   </div>
 </header>
 
 <!-- TRUST MARQUEE -->
+<p class="trust-intro">הורים ישראלים בדקו, המליצו ואישרו:</p>
 <div class="trust-bar" aria-hidden="true">
   <div class="marquee" id="marquee">
     <span>🏆 הנמכר ביותר</span><span>✅ תקן CE אירופאי</span><span>🚀 משלוח 2–4 ימים</span><span>🔄 30 יום החזרה</span><span>💬 תמיכה 24/7</span><span>👶 בטוח לתינוקות</span><span>💰 מחיר הוגן ישיר</span><span>❤️ נבדק ע"י הורים ישראלים</span>
   </div>
 </div>
 
+<!-- PAIN POINTS -->
+<section class="section pain" id="הלילה-הזה">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>הלילה הזה יכול להיות שונה</h2>
+      <p>אם משהו מהדברים האלה נשמע לך מוכר — את במקום הנכון.</p>
+    </div>
+    <div class="pain-grid">
+      <div class="pain-card reveal">
+        <div class="p-ico" aria-hidden="true">😔</div>
+        <div class="p-title">כבר 6 שבועות שלא ישנת יותר מ-3 שעות ברצף</div>
+        <div class="p-sub">אנחנו מכירים את הרגש הזה.</div>
+      </div>
+      <div class="pain-card reveal">
+        <div class="p-ico" aria-hidden="true">😰</div>
+        <div class="p-title">את קמה כל שעה לבדוק אם הוא נושם</div>
+        <div class="p-sub">אנחנו מכירים את הרגש הזה.</div>
+      </div>
+      <div class="pain-card reveal">
+        <div class="p-ico" aria-hidden="true">😭</div>
+        <div class="p-title">הבכי לא נגמר ואת לא יודעת מה לעשות</div>
+        <div class="p-sub">אנחנו מכירים את הרגש הזה.</div>
+      </div>
+    </div>
+    <div class="pain-transition reveal">
+      <p>לכן בנינו את <span class="gold">לַיְלָה.</span></p>
+    </div>
+  </div>
+</section>
+
 <!-- PRODUCTS -->
 <section class="section" id="מוצרים">
   <div class="container">
     <div class="section-head reveal">
-      <h2>המוצרים שמשנים לילות</h2>
+      <h2>הכלים שיחזירו לך את השקט</h2>
       <p>נבחרו בקפידה, נבדקו ע"י הורים, ובמחיר הוגן ישיר מהיצרן.</p>
+      <p style="margin-top:10px;font-style:italic;">כל מוצר נבחר אחרי שהורים ישראלים ניסו אותו בעצמם בלילות הכי קשים.</p>
     </div>
     <div class="filters" role="tablist" id="filters">
       <button class="filter-tab active" data-cat="הכל">הכל</button>
@@ -402,6 +488,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
       <h2>הורים מספרים</h2>
       <p>סיפורים אמיתיים מאמהות ואבות שכבר ישנים טוב יותר.</p>
     </div>
+    <div class="featured-quote reveal">
+      <p class="fq-text">"הלילה שהזמנתי את מכונת הרעש הלבן, בכיתי מרוב תרחישות. לא ידעתי שמשהו כזה קיים. היום אנחנו ישנים. סוף סוף."</p>
+      <div class="fq-author">— מיכל, אמא לתאומים בני 5 חודשים</div>
+    </div>
     <div class="reviews-grid">
       <div class="review-card reveal"><div class="quote-stars" aria-hidden="true">★★★★★</div><p class="quote">"הזמנתי ב-2 לילה. הוא הפסיק לבכות אחרי 8 דקות. כן, 8 דקות."</p><div class="author">מיכל ר., אמא לבן בן 4 חודשים</div></div>
       <div class="review-card reveal"><div class="quote-stars" aria-hidden="true">★★★★★</div><p class="quote">"קניתי את מקרן הכוכבים בספקנות מלאה. היום הוא חלק מהשגרה של כל ילדיי."</p><div class="author">שירה ב., אמא לשלושה</div></div>
@@ -417,8 +507,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 <section class="section lead" id="צור-קשר">
   <div class="container">
     <div class="section-head reveal">
-      <h2>רוצה לדעת מתי יש מבצע?</h2>
-      <p>השאירי פרטים ונעדכן אותך ראשונה על מבצעים ומוצרים חדשים.</p>
+      <h2>קבלי 10% הנחה על ההזמנה הראשונה</h2>
+      <p>השאירי פרטים ונשלח לך קוד הנחה אישי + עדכונים על מבצעים לפני כולם.</p>
     </div>
     <form class="lead-form reveal" id="lead-form" novalidate>
       <div id="form-fields">
@@ -457,7 +547,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
             <span class="err">יש לאשר את התנאים</span>
           </div>
         </div>
-        <button type="submit" class="btn btn-gold btn-submit" id="submit-btn">שמרי לי מקום במבצע</button>
+        <button type="submit" class="btn btn-gold btn-submit" id="submit-btn">שלחי לי את קוד ההנחה</button>
       </div>
       <div class="form-success" id="form-success" style="display:none;">
         <div class="check" aria-hidden="true">✓</div>
@@ -471,6 +561,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 <!-- FOOTER -->
 <footer class="footer">
   <div class="container">
+    <p style="text-align:center;font-family:'Frank Ruhl Libre',serif;font-weight:700;font-style:italic;font-size:1.3rem;color:#fff;margin-bottom:44px;">נבנה ע״י הורים, בשביל הורים. כי אנחנו יודעים איך זה.</p>
     <div class="footer-grid">
       <div>
         <div class="brand-logo">לַיְלָה <span aria-hidden="true">🌙</span></div>
@@ -517,6 +608,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
   </div>
 </footer>
 
+<!-- FLOATING WHATSAPP -->
+<a href="https://wa.me/972500000000" class="wa-float" aria-label="שאלה? כתבי לנו בוואטסאפ">
+  <span aria-hidden="true">💬</span>
+  <span class="wa-tooltip">שאלה? כתבי לנו!</span>
+</a>
+
 <!-- UTM BANNER -->
 <div class="utm-banner" id="utm-banner">
   <span>🎁 ברוכה הבאה מפייסבוק! קוד הנחה <strong>FB10</strong> ל-10% הנחה על ההזמנה הראשונה.</span>
@@ -552,7 +649,7 @@ var PRODUCTS=[
       '<p class="p-desc">'+p.desc+'</p>'+
       '<p class="p-benefit">✓ '+p.benefit+'</p>'+
       '<div class="p-price"><span class="now">₪'+p.price+'</span><span class="orig">₪'+p.orig+'</span><span class="save">-'+save+'%</span></div>'+
-      '<button class="btn btn-blue add-cart" data-name="'+p.name+'" aria-label="הוסף לעגלה '+p.name+'">הוסיפי לעגלה 🛒</button>';
+      '<button class="btn btn-blue add-cart" data-name="'+p.name+'" aria-label="הוסף לעגלה '+p.name+'">אני רוצה את זה 🛒</button>';
     grid.appendChild(card);
   });
   // AddToCart tracking placeholder
@@ -561,7 +658,7 @@ var PRODUCTS=[
       // fbq('track','AddToCart',{content_name:b.dataset.name});
       console.log('[track] AddToCart:',b.dataset.name);
       b.textContent='נוסף! ✓';
-      setTimeout(function(){b.innerHTML='הוסיפי לעגלה 🛒';},1500);
+      setTimeout(function(){b.innerHTML='אני רוצה את זה 🛒';},1500);
     });
   });
 })();
