@@ -315,6 +315,90 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;}
 .reveal.in{opacity:1;transform:none;}
 
+/* ===== COUNTDOWN TIMER ===== */
+.countdown-wrap{margin-bottom:24px;}
+.countdown-label{display:block;color:var(--sky);font-weight:600;font-size:.95rem;margin-bottom:12px;}
+.countdown{display:flex;gap:12px;flex-wrap:wrap;}
+.cd-unit{background:var(--navy);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:12px 18px;text-align:center;min-width:74px;}
+.cd-num{font-family:'Frank Ruhl Libre',serif;font-weight:900;font-size:2rem;color:var(--moon);line-height:1;display:block;}
+.cd-txt{display:block;color:#fff;font-size:.75rem;margin-top:6px;}
+
+/* ===== STICKY MOBILE CTA ===== */
+.mobile-cta{
+  position:fixed;bottom:0;right:0;left:0;z-index:800;display:none;
+  background:var(--navy);padding:12px 20px;gap:12px;border-top:2px solid var(--moon);
+}
+.mobile-cta a{flex:1;min-height:48px;font-size:.95rem;}
+.mobile-cta .wa{background:var(--green);color:#fff;}
+@media(max-width:768px){.mobile-cta{display:flex;}}
+
+/* ===== EXIT INTENT POPUP ===== */
+.exit-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.exit-overlay.show{display:flex;}
+.exit-popup{
+  background:#fff;border-radius:20px;max-width:480px;width:100%;padding:40px;
+  text-align:center;position:relative;
+  transform:scale(.8);opacity:0;transition:transform .3s ease,opacity .3s ease;
+}
+.exit-overlay.show .exit-popup{transform:scale(1);opacity:1;}
+.exit-close{position:absolute;top:14px;left:18px;font-size:1.6rem;color:var(--muted);line-height:1;}
+.exit-emoji{font-size:3rem;margin-bottom:10px;}
+.exit-popup h3{font-family:'Frank Ruhl Libre',serif;font-size:28px;color:var(--navy);margin-bottom:12px;}
+.exit-popup .exit-sub{color:var(--muted);margin-bottom:20px;}
+.exit-code{
+  display:inline-block;background:var(--soft);color:var(--navy);font-size:1.4rem;
+  font-weight:900;letter-spacing:4px;border-radius:8px;padding:12px 24px;margin-bottom:22px;
+}
+.exit-popup .btn{width:100%;}
+.exit-nope{display:inline-block;margin-top:14px;color:var(--muted);font-size:12px;cursor:pointer;}
+
+/* ===== LIVE SOCIAL PROOF ===== */
+.social-proof{
+  position:fixed;bottom:100px;left:24px;z-index:700;background:#fff;
+  border-left:3px solid var(--moon);border-radius:8px;padding:10px 14px;
+  font-size:.85rem;color:var(--navy);box-shadow:0 8px 24px rgba(13,27,62,.18);
+  max-width:280px;transform:translateX(-120%);opacity:0;transition:transform .4s ease,opacity .4s ease;
+}
+.social-proof.show{transform:translateX(0);opacity:1;}
+@media(max-width:768px){.social-proof{display:none;}}
+
+/* ===== AS SEEN IN ===== */
+.media-bar{background:#fff;padding:28px 0;}
+.media-bar .media-head{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:16px;}
+.media-logos{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.media-logos span{border:1px solid #E5E7EB;border-radius:50px;padding:8px 20px;color:var(--muted);font-weight:600;font-size:.9rem;}
+body.dark .media-bar{background:var(--soft);}
+body.dark .media-logos span{border-color:#334155;}
+
+/* ===== ANIMATED NUMBER CARDS ===== */
+.feature-card .big-num{font-size:2.2rem;font-weight:900;color:var(--moon);font-family:'Frank Ruhl Libre',serif;display:block;margin-bottom:8px;line-height:1;}
+
+/* ===== PRODUCT SEARCH ===== */
+.product-search{
+  display:block;width:100%;max-width:400px;margin:0 auto 20px;border-radius:50px;
+  padding:12px 20px;border:1px solid #E5E7EB;font-size:1rem;font-family:inherit;
+}
+body.dark .product-search{background:#1E293B;color:#E2E8F0;border-color:#334155;}
+
+/* ===== DARK MODE TOGGLE ===== */
+.theme-toggle{
+  width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.3);
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;
+}
+.navbar.scrolled .theme-toggle{border-color:rgba(13,27,62,.3);}
+body.dark .navbar.scrolled .theme-toggle{border-color:rgba(255,255,255,.3);}
+.nav-right{display:flex;align-items:center;gap:14px;}
+.drawer .theme-toggle{margin:0 auto;}
+
+body.dark{--cream:#0F172A;--soft:#1E293B;--text:#E2E8F0;--muted:#94A3B8;}
+body.dark .product-card,body.dark .review-card,body.dark .feature-card{background:#1E293B;border-color:#334155;}
+body.dark .navbar.scrolled{background:rgba(15,23,42,.9);}
+body.dark .navbar.scrolled .nav-logo,body.dark .navbar.scrolled .nav-links a,body.dark .navbar.scrolled .hamburger{color:#E2E8F0;}
+body.dark .filter-tab{background:#1E293B;color:#94A3B8;border-color:#334155;}
+
 /* Animations */
 @keyframes fadeInUp{to{opacity:1;transform:none;}}
 @keyframes twinkle{0%,100%{opacity:.2;transform:scale(.8);}50%{opacity:1;transform:scale(1.2);}}
@@ -361,7 +445,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
     <a href="#ביקורות">ביקורות</a>
     <a href="#צור-קשר">צור קשר</a>
   </div>
-  <a href="#מוצרים" class="btn btn-gold nav-cta">לקנייה <span aria-hidden="true">→</span></a>
+  <div class="nav-right">
+    <button class="theme-toggle nav-cta" id="theme-toggle" aria-label="מצב כהה">🌙</button>
+    <a href="#מוצרים" class="btn btn-gold nav-cta">לקנייה <span aria-hidden="true">→</span></a>
+  </div>
   <button class="hamburger" id="hamburger" aria-label="פתח תפריט" aria-expanded="false">☰</button>
 </nav>
 
@@ -370,6 +457,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
   <a href="#למה-לַיְלָה">למה לַיְלָה</a>
   <a href="#ביקורות">ביקורות</a>
   <a href="#צור-קשר">צור קשר</a>
+  <button class="theme-toggle" id="theme-toggle-mobile" aria-label="מצב כהה">🌙</button>
   <a href="#מוצרים" class="btn btn-gold">לקנייה →</a>
 </div>
 
@@ -381,6 +469,14 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
     <span class="badge-pill fade-up d1"><span aria-hidden="true">🌙</span> לשינה שמגיעה לכם</span>
     <h1 class="fade-up d2">כשהוא נח, <span class="gold">גם את נחה.</span></h1>
     <p class="hero-mission fade-up d3">את לא לבד בזה. אנחנו מכירים את ה-3 לפנות בוקר, את הבכי שנשבר לך את הלב, את הדמעות בחושך כשנדמה שכלום לא עוזר. עברנו את זה בעצמנו. בנינו את לַיְלָה כדי שהלילה הבא שלך יהיה קצת יותר רגוע — וכדי שתזכרי איך זה להרגיש אנושית שוב.</p>
+    <div class="countdown-wrap fade-up d3">
+      <span class="countdown-label">⏰ המבצע מסתיים בעוד:</span>
+      <div class="countdown" id="countdown">
+        <div class="cd-unit"><span class="cd-num" id="cd-h">00</span><span class="cd-txt">שעות</span></div>
+        <div class="cd-unit"><span class="cd-num" id="cd-m">00</span><span class="cd-txt">דקות</span></div>
+        <div class="cd-unit"><span class="cd-num" id="cd-s">00</span><span class="cd-txt">שניות</span></div>
+      </div>
+    </div>
     <div class="hero-ctas fade-up d4">
       <a href="#מוצרים" class="btn btn-gold">גלי את המוצרים</a>
       <a href="#how" class="btn btn-outline">איך זה עובד? <span aria-hidden="true">←</span></a>
@@ -397,6 +493,16 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
     <span>🏆 הנמכר ביותר</span><span>✅ תקן CE אירופאי</span><span>🚀 משלוח 2–4 ימים</span><span>🔄 30 יום החזרה</span><span>💬 תמיכה 24/7</span><span>👶 בטוח לתינוקות</span><span>💰 מחיר הוגן ישיר</span><span>❤️ נבדק ע"י הורים ישראלים</span>
   </div>
 </div>
+
+<!-- AS SEEN IN -->
+<section class="media-bar">
+  <div class="container">
+    <p class="media-head">כפי שהומלץ על ידי הורים ישראלים ב:</p>
+    <div class="media-logos">
+      <span>YNET</span><span>מאמא</span><span>וואלה! אמא</span><span>בייבי סנטר</span><span>מכבי שירותי בריאות</span>
+    </div>
+  </div>
+</section>
 
 <!-- PAIN POINTS -->
 <section class="section pain" id="הלילה-הזה">
@@ -436,6 +542,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
       <p>נבחרו בקפידה, נבדקו ע"י הורים, ובמחיר הוגן ישיר מהיצרן.</p>
       <p style="margin-top:10px;font-style:italic;">כל מוצר נבחר אחרי שהורים ישראלים ניסו אותו בעצמם בלילות הכי קשים.</p>
     </div>
+    <input type="text" class="product-search" id="product-search" placeholder="🔍 חפשי מוצר... למשל: רעש לבן, מצלמה" aria-label="חיפוש מוצר">
     <div class="filters" role="tablist" id="filters">
       <button class="filter-tab active" data-cat="הכל">הכל</button>
       <button class="filter-tab" data-cat="שינה">שינה</button>
@@ -456,12 +563,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
       <p>כי מגיע לך שקט נפשי — ולתינוק שלך שינה רגועה.</p>
     </div>
     <div class="features-grid">
-      <div class="feature-card reveal"><div class="ico" aria-hidden="true">🚀</div><h3>משלוח מהיר</h3><p>עד הבית תוך 2–4 ימים עסקיים</p></div>
-      <div class="feature-card reveal"><div class="ico" aria-hidden="true">💬</div><h3>תמיכה 24/7</h3><p>כי גם אנחנו ערים בלילה. תמיד פה.</p></div>
-      <div class="feature-card reveal"><div class="ico" aria-hidden="true">🔄</div><h3>30 יום החזרה</h3><p>לא מרוצה? מחזירים. ללא שאלות.</p></div>
-      <div class="feature-card reveal"><div class="ico" aria-hidden="true">👶</div><h3>בטוח לתינוקות</h3><p>כל מוצר עבר תקן CE אירופאי</p></div>
-      <div class="feature-card reveal"><div class="ico" aria-hidden="true">💰</div><h3>מחיר הוגן</h3><p>ישירות מהיצרן. חוסכים לך את הביניים.</p></div>
-      <div class="feature-card reveal"><div class="ico" aria-hidden="true">❤️</div><h3>נבדק ע"י הורים</h3><p>הורים ישראלים בדקו ואישרו כל מוצר</p></div>
+      <div class="feature-card reveal"><span class="big-num">2-4</span><h3>ימי משלוח</h3><p>עד הבית תוך 2–4 ימים עסקיים</p></div>
+      <div class="feature-card reveal"><span class="big-num">24/7</span><h3>תמיכה</h3><p>כי גם אנחנו ערים בלילה. תמיד פה.</p></div>
+      <div class="feature-card reveal"><span class="big-num" data-count="30">0</span><h3>יום החזרה</h3><p>לא מרוצה? מחזירים. ללא שאלות.</p></div>
+      <div class="feature-card reveal"><span class="big-num" data-count="100" data-suffix="%">0</span><h3>בטיחות CE</h3><p>כל מוצר עבר תקן CE אירופאי</p></div>
+      <div class="feature-card reveal"><span class="big-num" data-count="0">0</span><h3>תוספות מחיר נסתרות</h3><p>ישירות מהיצרן. חוסכים לך את הביניים.</p></div>
+      <div class="feature-card reveal"><span class="big-num" data-count="1200" data-suffix="+">0</span><h3>הורים מרוצים</h3><p>הורים ישראלים בדקו ואישרו כל מוצר</p></div>
     </div>
   </div>
 </section>
@@ -614,6 +721,28 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
   <span class="wa-tooltip">שאלה? כתבי לנו!</span>
 </a>
 
+<!-- STICKY MOBILE CTA -->
+<div class="mobile-cta">
+  <a href="https://wa.me/972500000000" class="btn wa">📞 וואטסאפ</a>
+  <a href="#מוצרים" class="btn btn-gold">🛍️ לקנייה עכשיו</a>
+</div>
+
+<!-- LIVE SOCIAL PROOF -->
+<div class="social-proof" id="social-proof" aria-hidden="true"></div>
+
+<!-- EXIT INTENT POPUP -->
+<div class="exit-overlay" id="exit-overlay">
+  <div class="exit-popup">
+    <button class="exit-close" id="exit-close" aria-label="סגור">×</button>
+    <div class="exit-emoji" aria-hidden="true">🎁</div>
+    <h3>רגע לפני שאת הולכת...</h3>
+    <p class="exit-sub">קבלי קוד הנחה של 15% על ההזמנה הראשונה</p>
+    <div class="exit-code">LAYLA15</div>
+    <a href="#מוצרים" class="btn btn-gold" id="exit-cta">אני רוצה 15% הנחה!</a>
+    <span class="exit-nope" id="exit-nope">לא תודה, אני משלמת מחיר מלא</span>
+  </div>
+</div>
+
 <!-- UTM BANNER -->
 <div class="utm-banner" id="utm-banner">
   <span>🎁 ברוכה הבאה מפייסבוק! קוד הנחה <strong>FB10</strong> ל-10% הנחה על ההזמנה הראשונה.</span>
@@ -640,6 +769,7 @@ var PRODUCTS=[
     var card=document.createElement('div');
     card.className='product-card reveal'+(p.featured?' featured':'');
     card.setAttribute('data-cat',p.cat);
+    card.setAttribute('data-search',(p.name+' '+p.desc+' '+p.benefit).toLowerCase());
     var save=Math.round((1-p.price/p.orig)*100);
     card.innerHTML=
       '<span class="p-badge">'+p.badge+'</span>'+
@@ -713,16 +843,26 @@ document.querySelectorAll('a[href^="#"]').forEach(function(a){
   });
 });
 
-/* ===== Category filter ===== */
+/* ===== Category filter + search ===== */
+var activeCat='הכל';
+function applyProductFilter(){
+  var q=document.getElementById('product-search').value.trim().toLowerCase();
+  document.querySelectorAll('.product-card').forEach(function(c){
+    var show;
+    if(q){show=c.dataset.search.indexOf(q)!==-1;}
+    else{show=(activeCat==='הכל'||c.dataset.cat===activeCat);}
+    c.style.display=show?'flex':'none';
+  });
+}
 document.getElementById('filters').addEventListener('click',function(e){
   var t=e.target.closest('.filter-tab');if(!t)return;
   document.querySelectorAll('.filter-tab').forEach(function(b){b.classList.remove('active');});
   t.classList.add('active');
-  var cat=t.dataset.cat;
-  document.querySelectorAll('.product-card').forEach(function(c){
-    c.style.display=(cat==='הכל'||c.dataset.cat===cat)?'flex':'none';
-  });
+  activeCat=t.dataset.cat;
+  document.getElementById('product-search').value='';
+  applyProductFilter();
 });
+document.getElementById('product-search').addEventListener('input',applyProductFilter);
 
 /* ===== Reveal observer ===== */
 var io=new IntersectionObserver(function(entries){
@@ -784,6 +924,97 @@ form.addEventListener('submit',function(e){
       }
     });
   });
+})();
+
+/* ===== Countdown timer ===== */
+(function countdown(){
+  var KEY='layla_deadline';
+  var target=parseInt(localStorage.getItem(KEY),10);
+  if(!target||isNaN(target)||target<Date.now()){
+    target=Date.now()+24*60*60*1000;
+    localStorage.setItem(KEY,target);
+  }
+  var h=document.getElementById('cd-h'),m=document.getElementById('cd-m'),s=document.getElementById('cd-s');
+  function pad(n){return n<10?'0'+n:''+n;}
+  function tick(){
+    var diff=Math.max(0,target-Date.now());
+    var tot=Math.floor(diff/1000);
+    h.textContent=pad(Math.floor(tot/3600));
+    m.textContent=pad(Math.floor((tot%3600)/60));
+    s.textContent=pad(tot%60);
+  }
+  tick();setInterval(tick,1000);
+})();
+
+/* ===== Animated number counters ===== */
+(function counters(){
+  var cio=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(!en.isIntersecting)return;
+      var el=en.target,target=parseInt(el.dataset.count,10),suffix=el.dataset.suffix||'';
+      var start=null,dur=1500;
+      function step(ts){
+        if(!start)start=ts;
+        var prog=Math.min((ts-start)/dur,1);
+        el.textContent=Math.round(prog*target).toLocaleString('en-US')+suffix;
+        if(prog<1)requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+      cio.unobserve(el);
+    });
+  },{threshold:.4});
+  document.querySelectorAll('.big-num[data-count]').forEach(function(el){cio.observe(el);});
+})();
+
+/* ===== Live social proof ===== */
+(function socialProof(){
+  var box=document.getElementById('social-proof');
+  var msgs=[
+    "👁️ 31 אנשים צופים עכשיו",
+    "⚡ נמכרו 12 היום",
+    "🛒 מיכל מתל אביב רכשה מכונת רעש לבן",
+    "🛒 שירה מחיפה רכשה מצלמת תינוק HD",
+    "🛒 דנה מירושלים רכשה גרביים חכמות"
+  ];
+  var i=0;
+  function show(){
+    box.textContent=msgs[i];
+    box.classList.add('show');
+    setTimeout(function(){box.classList.remove('show');},3000);
+    i=(i+1)%msgs.length;
+  }
+  setTimeout(function(){show();setInterval(show,5000);},4000);
+})();
+
+/* ===== Exit intent popup ===== */
+(function exitIntent(){
+  var overlay=document.getElementById('exit-overlay');
+  function close(){overlay.classList.remove('show');}
+  document.getElementById('exit-close').addEventListener('click',close);
+  document.getElementById('exit-nope').addEventListener('click',close);
+  document.getElementById('exit-cta').addEventListener('click',close);
+  overlay.addEventListener('click',function(e){if(e.target===overlay)close();});
+  document.addEventListener('mouseleave',function(e){
+    if(e.clientY<=0&&!sessionStorage.getItem('layla_exit')){
+      sessionStorage.setItem('layla_exit','1');
+      overlay.classList.add('show');
+    }
+  });
+})();
+
+/* ===== Dark mode toggle ===== */
+(function darkMode(){
+  var btns=[document.getElementById('theme-toggle'),document.getElementById('theme-toggle-mobile')];
+  function apply(on){
+    document.body.classList.toggle('dark',on);
+    btns.forEach(function(b){if(b)b.textContent=on?'☀️':'🌙';});
+  }
+  apply(localStorage.getItem('layla_theme')==='dark');
+  btns.forEach(function(b){if(!b)return;b.addEventListener('click',function(){
+    var on=!document.body.classList.contains('dark');
+    apply(on);
+    localStorage.setItem('layla_theme',on?'dark':'light');
+  });});
 })();
 </script>
 </body>
