@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="לַיְלָה — מוצרי שינה ובטיחות לתינוקות. כשהוא נח, גם את נחה. מעל 1,200 הורים כבר ישנים טוב יותר.">
+<title>לַיְלָה 🌙 | מוצרי שינה ובטיחות לתינוקות</title>
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="לַיְלָה 🌙 | כשהוא נח, גם את נחה.">
+<meta property="og:description" content="מוצרי שינה ובטיחות לתינוקות. כי שינה זו לא מותרות — זו זכות.">
+<meta property="og:image" content="https://example.com/layla-og.jpg">
+<meta property="og:locale" content="he_IL">
+
+<!-- Facebook Pixel Code -->
+<!--
+<script>
+  !function(f,b,e,v,n,t,s){...} // fbq('init', 'YOUR_PIXEL_ID'); fbq('track', 'PageView');
+</script>
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@700;900&family=Heebo:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --navy:#0D1B3E;
+  --blue:#1565C0;
+  --sky:#7EB8F7;
+  --moon:#F9A825;
+  --cream:#FFFDF7;
+  --soft:#F0F4FF;
+  --green:#2E7D32;
+  --text:#1A1A2E;
+  --muted:#6B7280;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Heebo',sans-serif;
+  font-weight:400;
+  color:var(--text);
+  background:var(--cream);
+  line-height:1.65;
+  overflow-x:hidden;
+}
+h1,h2,h3,h4{font-family:'Frank Ruhl Libre',serif;font-weight:900;line-height:1.2;}
+a{color:inherit;text-decoration:none;}
+img{max-width:100%;display:block;}
+ul{list-style:none;}
+
+/* Skip link */
+.skip-link{
+  position:absolute;right:-9999px;top:0;background:var(--moon);color:var(--navy);
+  padding:12px 20px;border-radius:0 0 8px 0;z-index:2000;font-weight:600;
+}
+.skip-link:focus{right:0;}
+
+/* Focus visible */
+:focus-visible{outline:3px solid var(--moon);outline-offset:2px;border-radius:4px;}
+
+button{font-family:inherit;cursor:pointer;border:none;background:none;}
+
+.container{max-width:1200px;margin:0 auto;padding:0 24px;}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:44px;padding:14px 28px;border-radius:50px;font-weight:600;
+  font-size:1rem;transition:transform .2s ease,box-shadow .2s ease,background .2s ease;
+}
+.btn-gold{background:var(--moon);color:var(--navy);box-shadow:0 6px 20px rgba(249,168,37,.35);}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(249,168,37,.5);}
+.btn-outline{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.6);}
+.btn-outline:hover{background:rgba(255,255,255,.12);border-color:#fff;}
+.btn-blue{background:var(--blue);color:#fff;}
+.btn-blue:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(21,101,192,.4);}
+
+/* ===== NAVBAR ===== */
+.navbar{
+  position:fixed;top:0;right:0;left:0;z-index:1000;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 24px;transition:background .3s ease,backdrop-filter .3s ease,box-shadow .3s ease;
+}
+.navbar.scrolled{
+  background:rgba(255,253,247,.82);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  box-shadow:0 2px 18px rgba(13,27,62,.08);
+}
+.nav-logo{font-family:'Frank Ruhl Libre',serif;font-weight:900;font-size:1.6rem;color:#fff;display:flex;align-items:center;gap:6px;}
+.navbar.scrolled .nav-logo{color:var(--navy);}
+.nav-links{display:flex;gap:28px;align-items:center;}
+.nav-links a{color:#fff;font-weight:600;font-size:.98rem;position:relative;}
+.navbar.scrolled .nav-links a{color:var(--navy);}
+.nav-links a::after{content:'';position:absolute;bottom:-6px;right:0;width:0;height:2px;background:var(--moon);transition:width .25s;}
+.nav-links a:hover::after{width:100%;}
+.nav-cta{}
+.hamburger{display:none;font-size:1.6rem;color:#fff;}
+.navbar.scrolled .hamburger{color:var(--navy);}
+
+/* Mobile drawer */
+.drawer{
+  position:fixed;top:0;right:0;left:0;z-index:999;
+  background:var(--navy);padding:80px 24px 28px;
+  transform:translateY(-110%);transition:transform .35s ease;
+  display:flex;flex-direction:column;gap:18px;text-align:center;
+}
+.drawer.open{transform:translateY(0);}
+.drawer a{color:#fff;font-weight:600;font-size:1.15rem;padding:8px;}
+.drawer .btn{margin-top:8px;}
+
+/* ===== HERO ===== */
+.hero{
+  position:relative;min-height:100vh;display:flex;align-items:center;
+  background:linear-gradient(160deg,#0D1B3E 0%,#1A3A6B 55%,#0E2A50 100%);
+  overflow:hidden;padding:120px 0 60px;
+}
+.stars{position:absolute;inset:0;overflow:hidden;}
+.star{position:absolute;background:#fff;border-radius:50%;opacity:.8;animation:twinkle 3s infinite ease-in-out;}
+.hero-content{position:relative;z-index:2;max-width:760px;}
+.badge-pill{
+  display:inline-block;background:rgba(249,168,37,.15);color:var(--moon);
+  border:1px solid rgba(249,168,37,.4);border-radius:50px;padding:8px 18px;
+  font-weight:600;font-size:.95rem;margin-bottom:24px;
+}
+.hero h1{font-size:clamp(2.6rem,7vw,5rem);color:#fff;margin-bottom:18px;}
+.hero h1 .gold{color:var(--moon);font-style:italic;display:block;}
+.hero-mission{color:#D9E2F2;font-size:clamp(1.05rem,2.4vw,1.3rem);max-width:620px;margin-bottom:32px;font-weight:300;}
+.hero-ctas{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px;}
+.hero-trust{color:#B9C6E0;font-size:1rem;}
+.hero-trust .stars-txt{color:var(--moon);letter-spacing:2px;}
+
+.fade-up{opacity:0;transform:translateY(28px);animation:fadeInUp .8s ease forwards;}
+.d1{animation-delay:.1s;}.d2{animation-delay:.3s;}.d3{animation-delay:.5s;}.d4{animation-delay:.7s;}.d5{animation-delay:.9s;}
+
+/* ===== TRUST MARQUEE ===== */
+.trust-bar{background:var(--soft);padding:18px 0;overflow:hidden;white-space:nowrap;}
+.marquee{display:inline-flex;animation:marquee 32s linear infinite;}
+.marquee span{padding:0 28px;font-weight:600;color:var(--navy);font-size:1rem;}
+
+/* ===== SECTIONS ===== */
+.section{padding:90px 0;}
+.section-head{text-align:center;max-width:680px;margin:0 auto 54px;}
+.section-head h2{font-size:clamp(2rem,4.5vw,3rem);color:var(--navy);margin-bottom:14px;}
+.section-head p{color:var(--muted);font-size:1.1rem;}
+
+/* Filter tabs */
+.filters{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:40px;}
+.filter-tab{
+  padding:10px 22px;border-radius:50px;border:1px solid #E5E7EB;background:#fff;
+  font-weight:600;color:var(--muted);min-height:44px;transition:all .2s;
+}
+.filter-tab.active,.filter-tab:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+/* Products grid */
+.products-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+.product-card{
+  background:#fff;border-radius:16px;border:1px solid #E5E7EB;padding:22px;
+  display:flex;flex-direction:column;transition:transform .25s ease,box-shadow .25s ease;
+  position:relative;
+}
+.product-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(13,27,62,.12);}
+.product-card.featured{border:2px solid var(--moon);box-shadow:0 10px 30px rgba(249,168,37,.18);}
+.p-badge{
+  position:absolute;top:16px;right:16px;background:var(--soft);color:var(--navy);
+  font-size:.78rem;font-weight:600;padding:5px 12px;border-radius:50px;
+}
+.product-card.featured .p-badge{background:var(--moon);}
+.p-emoji{font-size:3rem;text-align:center;margin:18px 0 14px;}
+.p-name{font-size:1.2rem;color:var(--navy);margin-bottom:8px;}
+.p-rating{font-size:.88rem;color:var(--muted);margin-bottom:10px;}
+.p-rating .star{color:var(--moon);}
+.p-desc{font-size:.92rem;color:var(--text);margin-bottom:12px;flex-grow:1;}
+.p-benefit{font-size:.88rem;color:var(--green);font-weight:600;margin-bottom:14px;}
+.p-price{display:flex;align-items:baseline;gap:8px;margin-bottom:16px;}
+.p-price .now{font-size:1.5rem;font-weight:900;color:var(--navy);font-family:'Frank Ruhl Libre',serif;}
+.p-price .orig{font-size:1rem;color:var(--muted);text-decoration:line-through;}
+.p-price .save{font-size:.78rem;background:#FDECEA;color:#C0392B;padding:3px 8px;border-radius:6px;font-weight:600;}
+
+/* Why features */
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.feature-card{background:#fff;border-radius:16px;padding:30px;text-align:center;border:1px solid #E5E7EB;}
+.feature-card .ico{font-size:2.6rem;margin-bottom:14px;}
+.feature-card h3{font-size:1.25rem;color:var(--navy);margin-bottom:10px;}
+.feature-card p{color:var(--muted);}
+
+/* How it works */
+.steps{display:flex;justify-content:space-between;gap:24px;position:relative;}
+.steps::before{
+  content:'';position:absolute;top:34px;right:12%;left:12%;height:2px;
+  background-image:linear-gradient(to left,var(--sky) 50%,transparent 50%);
+  background-size:14px 2px;z-index:0;
+}
+.step{flex:1;text-align:center;position:relative;z-index:1;}
+.step .circle{
+  width:68px;height:68px;border-radius:50%;background:var(--navy);color:#fff;
+  font-size:1.6rem;font-weight:900;display:flex;align-items:center;justify-content:center;
+  margin:0 auto 18px;font-family:'Frank Ruhl Libre',serif;border:4px solid var(--cream);
+}
+.step .s-emoji{font-size:2rem;margin-bottom:8px;}
+.step h3{font-size:1.3rem;color:var(--navy);margin-bottom:8px;}
+.step p{color:var(--muted);max-width:240px;margin:0 auto;}
+
+/* Testimonials */
+.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.review-card{background:#fff;border-radius:16px;padding:28px;border:1px solid #EDE7D9;box-shadow:0 6px 18px rgba(13,27,62,.05);}
+.review-card .quote-stars{color:var(--moon);letter-spacing:2px;margin-bottom:12px;}
+.review-card .quote{font-size:1.05rem;font-style:italic;margin-bottom:16px;}
+.review-card .author{font-weight:600;color:var(--navy);font-size:.95rem;}
+
+/* Lead form */
+.lead{background:linear-gradient(160deg,#0D1B3E 0%,#1A3A6B 55%,#0E2A50 100%);}
+.lead .section-head h2{color:#fff;}
+.lead .section-head p{color:#D9E2F2;}
+.lead-form{max-width:680px;margin:0 auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:36px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field.full{grid-column:1 / -1;}
+.field label{color:#D9E2F2;font-weight:600;font-size:.92rem;}
+.field input,.field select{
+  padding:13px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.95);font-family:inherit;font-size:1rem;min-height:44px;color:var(--text);
+}
+.field .err{color:#FFB4A2;font-size:.82rem;display:none;}
+.field.invalid input,.field.invalid select{border-color:#FFB4A2;}
+.field.invalid .err{display:block;}
+.checkbox-row{display:flex;gap:10px;align-items:flex-start;color:#D9E2F2;font-size:.9rem;}
+.checkbox-row input{min-height:auto;width:20px;height:20px;margin-top:3px;}
+.form-success{text-align:center;color:#fff;padding:30px 0;}
+.form-success .check{
+  width:70px;height:70px;border-radius:50%;background:var(--green);color:#fff;
+  font-size:2.2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;
+}
+.btn-submit{width:100%;margin-top:8px;}
+.btn-submit.loading{opacity:.7;pointer-events:none;}
+
+/* Footer */
+.footer{background:var(--navy);color:#C7D2E8;padding:64px 0 0;}
+.footer-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;}
+.footer h4{color:#fff;font-size:1.15rem;margin-bottom:16px;}
+.footer .brand-logo{font-family:'Frank Ruhl Libre',serif;font-weight:900;font-size:1.5rem;color:#fff;margin-bottom:12px;}
+.footer ul li{margin-bottom:10px;}
+.footer ul li a:hover{color:var(--moon);}
+.socials{display:flex;gap:14px;margin-top:14px;}
+.socials a{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:background .2s;}
+.socials a:hover{background:var(--moon);}
+.wa-btn{margin-top:14px;}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:48px;padding:22px 0;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:.88rem;}
+.pay{display:flex;gap:10px;font-size:1.4rem;}
+
+/* UTM banner */
+.utm-banner{
+  position:fixed;bottom:0;right:0;left:0;z-index:1500;background:var(--moon);color:var(--navy);
+  padding:14px 24px;display:none;align-items:center;justify-content:center;gap:16px;font-weight:600;
+  box-shadow:0 -4px 18px rgba(0,0,0,.15);
+}
+.utm-banner.show{display:flex;}
+.utm-banner button{font-weight:900;font-size:1.2rem;color:var(--navy);padding:0 8px;}
+
+/* Reveal */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.in{opacity:1;transform:none;}
+
+/* Animations */
+@keyframes fadeInUp{to{opacity:1;transform:none;}}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(.8);}50%{opacity:1;transform:scale(1.2);}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* Responsive */
+@media(max-width:1024px){
+  .products-grid{grid-template-columns:repeat(2,1fr);}
+  .features-grid{grid-template-columns:repeat(2,1fr);}
+  .reviews-grid{grid-template-columns:repeat(2,1fr);}
+  .footer-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:768px){
+  .nav-links,.nav-cta{display:none;}
+  .hamburger{display:block;}
+  .steps{flex-direction:column;gap:36px;}
+  .steps::before{display:none;}
+}
+@media(max-width:480px){
+  .products-grid,.features-grid,.reviews-grid,.footer-grid,.form-grid{grid-template-columns:1fr;}
+  .hero-ctas{flex-direction:column;}
+  .hero-ctas .btn{width:100%;}
+  .section{padding:60px 0;}
+  .lead-form{padding:24px;}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important;scroll-behavior:auto !important;}
+  .fade-up,.reveal{opacity:1;transform:none;}
+}
+</style>
+</head>
+<body>
+
+<a href="#מוצרים" class="skip-link">דלג לתוכן הראשי</a>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <a href="#hero" class="nav-logo">לַיְלָה <span aria-hidden="true">🌙</span></a>
+  <div class="nav-links">
+    <a href="#מוצרים">מוצרים</a>
+    <a href="#למה-לַיְלָה">למה לַיְלָה</a>
+    <a href="#ביקורות">ביקורות</a>
+    <a href="#צור-קשר">צור קשר</a>
+  </div>
+  <a href="#מוצרים" class="btn btn-gold nav-cta">לחנות <span aria-hidden="true">→</span></a>
+  <button class="hamburger" id="hamburger" aria-label="פתח תפריט" aria-expanded="false">☰</button>
+</nav>
+
+<div class="drawer" id="drawer">
+  <a href="#מוצרים">מוצרים</a>
+  <a href="#למה-לַיְלָה">למה לַיְלָה</a>
+  <a href="#ביקורות">ביקורות</a>
+  <a href="#צור-קשר">צור קשר</a>
+  <a href="#מוצרים" class="btn btn-gold">לחנות →</a>
+</div>
+
+<!-- HERO -->
+<header class="hero" id="hero">
+  <div class="stars" id="stars" aria-hidden="true"></div>
+  <div class="container hero-content">
+    <span class="badge-pill fade-up d1"><span aria-hidden="true">🌙</span> לשינה שמגיעה לכם</span>
+    <h1 class="fade-up d2">כשהוא נח, <span class="gold">גם את נחה.</span></h1>
+    <p class="hero-mission fade-up d3">אנחנו יודעים איך זה להיות ערה ב-3 לילה, לשמוע בכי שלא נגמר, ולהרגיש שאין פתרון. יש. ולַיְלָה כאן בשבילך.</p>
+    <div class="hero-ctas fade-up d4">
+      <a href="#מוצרים" class="btn btn-gold">גלי את המוצרים</a>
+      <a href="#how" class="btn btn-outline">איך זה עובד? <span aria-hidden="true">←</span></a>
+    </div>
+    <p class="hero-trust fade-up d5"><span class="stars-txt" aria-hidden="true">★★★★★</span> &nbsp;|&nbsp; מעל 1,200 הורים כבר ישנים טוב יותר</p>
+  </div>
+</header>
+
+<!-- TRUST MARQUEE -->
+<div class="trust-bar" aria-hidden="true">
+  <div class="marquee" id="marquee">
+    <span>🏆 הנמכר ביותר</span><span>✅ תקן CE אירופאי</span><span>🚀 משלוח 2–4 ימים</span><span>🔄 30 יום החזרה</span><span>💬 תמיכה 24/7</span><span>👶 בטוח לתינוקות</span><span>💰 מחיר הוגן ישיר</span><span>❤️ נבדק ע"י הורים ישראלים</span>
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<section class="section" id="מוצרים">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>המוצרים שמשנים לילות</h2>
+      <p>נבחרו בקפידה, נבדקו ע"י הורים, ובמחיר הוגן ישיר מהיצרן.</p>
+    </div>
+    <div class="filters" role="tablist" id="filters">
+      <button class="filter-tab active" data-cat="הכל">הכל</button>
+      <button class="filter-tab" data-cat="שינה">שינה</button>
+      <button class="filter-tab" data-cat="ניטור">ניטור</button>
+      <button class="filter-tab" data-cat="האכלה">האכלה</button>
+      <button class="filter-tab" data-cat="ארגון">ארגון</button>
+      <button class="filter-tab" data-cat="רכב">רכב</button>
+    </div>
+    <div class="products-grid" id="products-grid"></div>
+  </div>
+</section>
+
+<!-- WHY LAYLA -->
+<section class="section" id="למה-לַיְלָה" style="background:var(--soft);">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>למה לַיְלָה?</h2>
+      <p>כי מגיע לך שקט נפשי — ולתינוק שלך שינה רגועה.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal"><div class="ico" aria-hidden="true">🚀</div><h3>משלוח מהיר</h3><p>עד הבית תוך 2–4 ימים עסקיים</p></div>
+      <div class="feature-card reveal"><div class="ico" aria-hidden="true">💬</div><h3>תמיכה 24/7</h3><p>כי גם אנחנו ערים בלילה. תמיד פה.</p></div>
+      <div class="feature-card reveal"><div class="ico" aria-hidden="true">🔄</div><h3>30 יום החזרה</h3><p>לא מרוצה? מחזירים. ללא שאלות.</p></div>
+      <div class="feature-card reveal"><div class="ico" aria-hidden="true">👶</div><h3>בטוח לתינוקות</h3><p>כל מוצר עבר תקן CE אירופאי</p></div>
+      <div class="feature-card reveal"><div class="ico" aria-hidden="true">💰</div><h3>מחיר הוגן</h3><p>ישירות מהיצרן. חוסכים לך את הביניים.</p></div>
+      <div class="feature-card reveal"><div class="ico" aria-hidden="true">❤️</div><h3>נבדק ע"י הורים</h3><p>הורים ישראלים בדקו ואישרו כל מוצר</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how" style="background:#fff;">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>איך זה עובד?</h2>
+      <p>שלושה צעדים פשוטים ללילות רגועים יותר.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="circle">1</div><div class="s-emoji" aria-hidden="true">🛍️</div><h3>בוחרים מוצר</h3><p>גלגלי את הקטלוג ובחרי מה שמתאים</p></div>
+      <div class="step reveal"><div class="circle">2</div><div class="s-emoji" aria-hidden="true">🚚</div><h3>מקבלים הביתה</h3><p>משלוח מהיר לכל הארץ תוך 2–4 ימים</p></div>
+      <div class="step reveal"><div class="circle">3</div><div class="s-emoji" aria-hidden="true">😴</div><h3>ישנים טוב יותר</h3><p>8,000+ משפחות כבר גילו את ההבדל</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section" id="ביקורות" style="background:var(--cream);">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>הורים מספרים</h2>
+      <p>סיפורים אמיתיים מאמהות ואבות שכבר ישנים טוב יותר.</p>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card reveal"><div class="quote-stars" aria-hidden="true">★★★★★</div><p class="quote">"הזמנתי ב-2 לילה. הוא הפסיק לבכות אחרי 8 דקות. כן, 8 דקות."</p><div class="author">מיכל ר., אמא לבן בן 4 חודשים</div></div>
+      <div class="review-card reveal"><div class="quote-stars" aria-hidden="true">★★★★★</div><p class="quote">"קניתי את מקרן הכוכבים בספקנות מלאה. היום הוא חלק מהשגרה של כל ילדיי."</p><div class="author">שירה ב., אמא לשלושה</div></div>
+      <div class="review-card reveal"><div class="quote-stars" aria-hidden="true">★★★★★</div><p class="quote">"ישנה 5 שעות ישר. בפעם הראשונה מאז הלידה. בכיתי מאושר."</p><div class="author">דנה מ., ראשון לציון</div></div>
+      <div class="review-card reveal"><div class="quote-stars" aria-hidden="true">★★★★★</div><p class="quote">"בעלי לא האמין שמכשיר קטן כזה יעשה הבדל. עכשיו הוא זה שמזמין שוב."</p><div class="author">ליאת כ., חיפה</div></div>
+      <div class="review-card reveal"><div class="quote-stars" aria-hidden="true">★★★★★</div><p class="quote">"קיבלתי את הארגונית ובאותו יום כבר השתמשתי בה. שינוי חיים ממש."</p><div class="author">נועה ש., תל אביב</div></div>
+      <div class="review-card reveal"><div class="quote-stars" aria-hidden="true">★★★★★</div><p class="quote">"המצלמה עם האפליקציה — הדבר הכי שקל נפשי שקניתי בשנה הראשונה."</p><div class="author">רותם א., ירושלים</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- LEAD FORM -->
+<section class="section lead" id="צור-קשר">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>רוצה לדעת מתי יש מבצע?</h2>
+      <p>השאירי פרטים ונעדכן אותך ראשונה על מבצעים ומוצרים חדשים.</p>
+    </div>
+    <form class="lead-form reveal" id="lead-form" novalidate>
+      <div id="form-fields">
+        <div class="form-grid">
+          <div class="field">
+            <label for="f-name">שם פרטי *</label>
+            <input type="text" id="f-name" name="name" required autocomplete="given-name">
+            <span class="err">נא להזין שם</span>
+          </div>
+          <div class="field">
+            <label for="f-phone">טלפון *</label>
+            <input type="tel" id="f-phone" name="phone" required pattern="^05[0-9]-?[0-9]{7}$" placeholder="050-1234567" autocomplete="tel">
+            <span class="err">מספר טלפון לא תקין</span>
+          </div>
+          <div class="field">
+            <label for="f-email">אימייל</label>
+            <input type="email" id="f-email" name="email" autocomplete="email" placeholder="you@example.com">
+            <span class="err">כתובת אימייל לא תקינה</span>
+          </div>
+          <div class="field">
+            <label for="f-stage">שלב הילד</label>
+            <select id="f-stage" name="stage">
+              <option value="">בחרי שלב</option>
+              <option value="הריון">בהריון</option>
+              <option value="0-3">0–3 חודשים</option>
+              <option value="3-6">3–6 חודשים</option>
+              <option value="6-12">6–12 חודשים</option>
+              <option value="12+">מעל שנה</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label class="checkbox-row">
+              <input type="checkbox" id="f-consent" name="consent" required>
+              <span>אני מאשרת קבלת עדכונים ומבצעים מלַיְלָה לפי מדיניות הפרטיות. *</span>
+            </label>
+            <span class="err">יש לאשר את התנאים</span>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-gold btn-submit" id="submit-btn">שמרי לי מקום במבצע</button>
+      </div>
+      <div class="form-success" id="form-success" style="display:none;">
+        <div class="check" aria-hidden="true">✓</div>
+        <h3 style="color:#fff;">תודה! נרשמת בהצלחה</h3>
+        <p>נעדכן אותך ראשונה על המבצע הקרוב. לילה טוב 🌙</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="brand-logo">לַיְלָה <span aria-hidden="true">🌙</span></div>
+        <p>כשהוא נח, גם את נחה. כי שינה זו לא מותרות — זו זכות.</p>
+        <div class="socials">
+          <a href="#" aria-label="Instagram">📷</a>
+          <a href="#" aria-label="Facebook">📘</a>
+          <a href="#" aria-label="TikTok">🎵</a>
+        </div>
+      </div>
+      <div>
+        <h4>מוצרים</h4>
+        <ul>
+          <li><a href="#מוצרים">מכונת רעש לבן</a></li>
+          <li><a href="#מוצרים">מקרן כוכבים</a></li>
+          <li><a href="#מוצרים">מצלמת תינוק HD</a></li>
+          <li><a href="#מוצרים">גרביים חכמות</a></li>
+          <li><a href="#מוצרים">כל המוצרים</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>מידע</h4>
+        <ul>
+          <li><a href="#">מדיניות החזרות</a></li>
+          <li><a href="#">תנאי שימוש</a></li>
+          <li><a href="#">מדיניות פרטיות</a></li>
+          <li><a href="#">משלוחים</a></li>
+          <li><a href="#">שאלות נפוצות</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>צור קשר</h4>
+        <ul>
+          <li>📱 WhatsApp: 050-000-0000</li>
+          <li>✉️ hello@layla.co.il</li>
+        </ul>
+        <a href="https://wa.me/972500000000" class="btn btn-blue wa-btn" style="background:var(--green);">💬 כתבי לנו בוואטסאפ</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 לַיְלָה. כל הזכויות שמורות.</span>
+      <span class="pay" aria-label="אמצעי תשלום">💳 🅿️ 🍎 🟦</span>
+    </div>
+  </div>
+</footer>
+
+<!-- UTM BANNER -->
+<div class="utm-banner" id="utm-banner">
+  <span>🎁 ברוכה הבאה מפייסבוק! קוד הנחה <strong>FB10</strong> ל-10% הנחה על ההזמנה הראשונה.</span>
+  <button id="utm-close" aria-label="סגור הודעה">✕</button>
+</div>
+
+<script>
+/* ===== Product data ===== */
+var PRODUCTS=[
+ {emoji:"🔊",name:"מכונת רעש לבן",cat:"שינה",price:129,orig:189,badge:"🏆 הנמכר ביותר",stars:4.9,reviews:847,desc:"58,000+ ביקורות עולמיות. תוצאות תוך 8 דקות.",benefit:"שעות שינה נוספות לכולם",featured:true},
+ {emoji:"⭐",name:"מקרן כוכבים מנורת לילה",cat:"שינה",price:99,orig:149,badge:"📸 ויראלי ב-TikTok",stars:4.8,reviews:623,desc:"אור עדין, מוסיקה מרגיעה, 360° כוכבים על התקרה.",benefit:"הרגעה ויזואלית תוך דקות",featured:false},
+ {emoji:"🤫",name:"Baby Shusher מרגיע",cat:"שינה",price:149,orig:199,badge:"⚡ קנייה מהירה",stars:4.9,reviews:412,desc:"קול שוש! ריתמי שמחקה רחם אמא. עובד כשכל השאר נכשל.",benefit:"הפסקת בכי אוטומטית",featured:false},
+ {emoji:"📷",name:"מצלמת תינוק HD",cat:"ניטור",price:449,orig:599,badge:"🔒 שקט נפשי מלא",stars:4.7,reviews:334,desc:"HD 1080p, ראיית לילה, שמע דו-כיווני, אפליקציה.",benefit:"ניטור מרחוק 24/7",featured:false},
+ {emoji:"💓",name:"גרביים חכמות ניטור",cat:"ניטור",price:649,orig:849,badge:"🛡️ בטיחות מקסימלית",stars:4.8,reviews:289,desc:"חיישן נשימה + דופק בזמן אמת. התראה מיידית לנייד.",benefit:"שינה בלי פחד",featured:false},
+ {emoji:"🍼",name:"מחמם בקבוקים נייד USB",cat:"האכלה",price:119,orig:159,badge:"🌙 לאכלות לילה",stars:4.7,reviews:521,desc:"חם תוך 3 דקות. נסיעות, לילה, בכל מקום.",benefit:"האכלה בלי בלגן",featured:false},
+ {emoji:"🎒",name:"ארגונית רב-תכליתית",cat:"ארגון",price:79,orig:119,badge:"🔥 12,000+ נמכרו",stars:4.8,reviews:1243,desc:"3 כיסים, ווי הוק, מתאים לכל עגלה. הכי ויראלי.",benefit:"סדר מושלם בכל יציאה",featured:false},
+ {emoji:"🪞",name:"מראת בטיחות לרכב",cat:"רכב",price:69,orig:99,badge:"🚗 חובה ברכב",stars:4.6,reviews:678,desc:"180° wide-angle. רואה את הילד בלי להסיר עיניים.",benefit:"נסיעה בטוחה ורגועה",featured:false}
+];
+
+/* ===== Render products ===== */
+(function renderProducts(){
+  var grid=document.getElementById('products-grid');
+  PRODUCTS.forEach(function(p){
+    var card=document.createElement('div');
+    card.className='product-card reveal'+(p.featured?' featured':'');
+    card.setAttribute('data-cat',p.cat);
+    var save=Math.round((1-p.price/p.orig)*100);
+    card.innerHTML=
+      '<span class="p-badge">'+p.badge+'</span>'+
+      '<div class="p-emoji" aria-hidden="true">'+p.emoji+'</div>'+
+      '<h3 class="p-name">'+p.name+'</h3>'+
+      '<div class="p-rating"><span class="star" aria-hidden="true">★</span> '+p.stars+' · '+p.reviews+' ביקורות</div>'+
+      '<p class="p-desc">'+p.desc+'</p>'+
+      '<p class="p-benefit">✓ '+p.benefit+'</p>'+
+      '<div class="p-price"><span class="now">₪'+p.price+'</span><span class="orig">₪'+p.orig+'</span><span class="save">-'+save+'%</span></div>'+
+      '<button class="btn btn-blue add-cart" data-name="'+p.name+'" aria-label="הוסף לעגלה '+p.name+'">הוסיפי לעגלה 🛒</button>';
+    grid.appendChild(card);
+  });
+  // AddToCart tracking placeholder
+  document.querySelectorAll('.add-cart').forEach(function(b){
+    b.addEventListener('click',function(){
+      // fbq('track','AddToCart',{content_name:b.dataset.name});
+      console.log('[track] AddToCart:',b.dataset.name);
+      b.textContent='נוסף! ✓';
+      setTimeout(function(){b.innerHTML='הוסיפי לעגלה 🛒';},1500);
+    });
+  });
+})();
+
+/* ===== Stars ===== */
+(function makeStars(){
+  var c=document.getElementById('stars');
+  for(var i=0;i<50;i++){
+    var s=document.createElement('div');
+    s.className='star';
+    var size=Math.random()*2.5+1;
+    s.style.width=size+'px';s.style.height=size+'px';
+    s.style.left=Math.random()*100+'%';
+    s.style.top=Math.random()*100+'%';
+    s.style.animationDelay=(Math.random()*3)+'s';
+    s.style.animationDuration=(2+Math.random()*3)+'s';
+    c.appendChild(s);
+  }
+})();
+
+/* ===== Marquee duplicate ===== */
+(function dupMarquee(){
+  var m=document.getElementById('marquee');
+  m.innerHTML+=m.innerHTML;
+})();
+
+/* ===== Navbar scroll ===== */
+var navbar=document.getElementById('navbar');
+window.addEventListener('scroll',function(){
+  if(window.scrollY>40)navbar.classList.add('scrolled');
+  else navbar.classList.remove('scrolled');
+});
+
+/* ===== Hamburger ===== */
+var ham=document.getElementById('hamburger'),drawer=document.getElementById('drawer');
+ham.addEventListener('click',function(){
+  var open=drawer.classList.toggle('open');
+  ham.setAttribute('aria-expanded',open);
+  ham.textContent=open?'✕':'☰';
+});
+drawer.querySelectorAll('a').forEach(function(a){
+  a.addEventListener('click',function(){drawer.classList.remove('open');ham.textContent='☰';ham.setAttribute('aria-expanded',false);});
+});
+
+/* ===== Smooth scroll ===== */
+document.querySelectorAll('a[href^="#"]').forEach(function(a){
+  a.addEventListener('click',function(e){
+    var id=a.getAttribute('href');
+    if(id.length<2)return;
+    var t=document.querySelector(id);
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}
+  });
+});
+
+/* ===== Category filter ===== */
+document.getElementById('filters').addEventListener('click',function(e){
+  var t=e.target.closest('.filter-tab');if(!t)return;
+  document.querySelectorAll('.filter-tab').forEach(function(b){b.classList.remove('active');});
+  t.classList.add('active');
+  var cat=t.dataset.cat;
+  document.querySelectorAll('.product-card').forEach(function(c){
+    c.style.display=(cat==='הכל'||c.dataset.cat===cat)?'flex':'none';
+  });
+});
+
+/* ===== Reveal observer ===== */
+var io=new IntersectionObserver(function(entries){
+  entries.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});
+},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+
+/* ===== Form validation ===== */
+var form=document.getElementById('lead-form');
+function validateField(f){
+  var input=f.querySelector('input,select');
+  if(!input)return true;
+  var ok=true;
+  if(input.id==='f-name')ok=input.value.trim().length>0;
+  else if(input.id==='f-phone')ok=/^05[0-9]-?[0-9]{7}$/.test(input.value.trim());
+  else if(input.id==='f-email')ok=input.value.trim()===''||/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(input.value.trim());
+  else if(input.id==='f-consent')ok=input.checked;
+  f.classList.toggle('invalid',!ok);
+  return ok;
+}
+document.querySelectorAll('.field input,.field select').forEach(function(inp){
+  inp.addEventListener('blur',function(){validateField(inp.closest('.field'));});
+});
+form.addEventListener('submit',function(e){
+  e.preventDefault();
+  var fields=[document.getElementById('f-name'),document.getElementById('f-phone'),document.getElementById('f-email'),document.getElementById('f-consent')];
+  var allOk=true;
+  fields.forEach(function(inp){if(!validateField(inp.closest('.field')))allOk=false;});
+  if(!allOk)return;
+  var btn=document.getElementById('submit-btn');
+  btn.classList.add('loading');btn.textContent='שולח...';
+  // fbq('track','Lead');
+  setTimeout(function(){
+    document.getElementById('form-fields').style.display='none';
+    document.getElementById('form-success').style.display='block';
+  },1200);
+});
+
+/* ===== UTM banner ===== */
+(function utm(){
+  var p=new URLSearchParams(window.location.search);
+  if(p.get('utm_source')==='facebook'){
+    var b=document.getElementById('utm-banner');
+    b.classList.add('show');
+    document.getElementById('utm-close').addEventListener('click',function(){b.classList.remove('show');});
+  }
+})();
+
+/* ===== Scroll depth tracking placeholders ===== */
+(function scrollDepth(){
+  var marks={25:false,50:false,75:false,100:false};
+  window.addEventListener('scroll',function(){
+    var h=document.documentElement;
+    var pct=(h.scrollTop)/(h.scrollHeight-h.clientHeight)*100;
+    [25,50,75,100].forEach(function(m){
+      if(!marks[m]&&pct>=m){marks[m]=true;
+        // fbq('trackCustom','ScrollDepth',{depth:m});
+        console.log('[track] ScrollDepth '+m+'%');
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
