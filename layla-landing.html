@@ -63,6 +63,21 @@ ul{list-style:none;}
 
 button{font-family:inherit;cursor:pointer;border:none;background:none;}
 
+::selection{background:var(--moon);color:var(--navy);}
+
+/* Scroll progress bar */
+.scroll-progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:9999;background:linear-gradient(to left,var(--moon),var(--blue));width:0%;}
+
+/* Back to top */
+.back-to-top{
+  position:fixed;bottom:24px;left:24px;z-index:600;width:48px;height:48px;
+  border-radius:50%;background:var(--navy);color:#fff;font-size:1.3rem;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .3s ease,transform .2s ease;
+}
+.back-to-top.show{opacity:1;pointer-events:auto;}
+.back-to-top:hover{transform:translateY(-3px);}
+
 .container{max-width:1200px;margin:0 auto;padding:0 24px;}
 
 .btn{
@@ -74,6 +89,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .btn-gold:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(249,168,37,.5);}
 .btn-outline{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.6);}
 .btn-outline:hover{background:rgba(255,255,255,.12);border-color:#fff;}
+.btn{letter-spacing:0.3px;}
 .btn-blue{background:var(--blue);color:#fff;}
 .btn-blue:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(21,101,192,.4);}
 
@@ -170,6 +186,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .section{padding:90px 0;}
 .section-head{text-align:center;max-width:680px;margin:0 auto 54px;}
 .section-head h2{font-size:clamp(2rem,4.5vw,3rem);color:var(--navy);margin-bottom:14px;}
+.section-head h2::after{content:'';display:block;width:60px;height:3px;background:var(--moon);margin:12px auto 0;border-radius:2px;}
 .section-head p{color:var(--muted);font-size:1.1rem;}
 
 /* Filter tabs */
@@ -185,10 +202,13 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .product-card{
   background:#fff;border-radius:16px;border:1px solid #E5E7EB;padding:22px;
   display:flex;flex-direction:column;transition:transform .25s ease,box-shadow .25s ease;
-  position:relative;
+  position:relative;cursor:pointer;
 }
 .product-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(13,27,62,.12);}
-.product-card.featured{border:2px solid var(--moon);box-shadow:0 10px 30px rgba(249,168,37,.18);}
+.product-card.featured{border:2px solid var(--moon);box-shadow:0 10px 30px rgba(249,168,37,.18);overflow:hidden;}
+.product-card.featured::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(to left,var(--moon),var(--blue));border-radius:16px 16px 0 0;}
+.p-tag{display:inline-block;align-self:flex-start;font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:50px;margin-bottom:10px;}
+.p-scarcity{font-size:0.8rem;font-weight:700;margin-bottom:8px;}
 .p-badge{
   position:absolute;top:16px;right:16px;background:var(--soft);color:var(--navy);
   font-size:.78rem;font-weight:600;padding:5px 12px;border-radius:50px;
@@ -207,7 +227,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 
 /* Why features */
 .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
-.feature-card{background:#fff;border-radius:16px;padding:30px;text-align:center;border:1px solid #E5E7EB;}
+.feature-card{background:#fff;border-radius:16px;padding:30px;text-align:center;border:1px solid #E5E7EB;transition:border-color .25s ease,transform .25s ease;}
+.feature-card:hover{border-color:var(--moon);transform:translateY(-3px);}
 .feature-card .ico{font-size:2.6rem;margin-bottom:14px;}
 .feature-card h3{font-size:1.25rem;color:var(--navy);margin-bottom:10px;}
 .feature-card p{color:var(--muted);}
@@ -238,7 +259,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .featured-quote .fq-text{font-family:'Frank Ruhl Libre',serif;font-style:italic;font-weight:700;font-size:clamp(1.3rem,3vw,2rem);line-height:1.5;margin-bottom:18px;}
 .featured-quote .fq-author{color:var(--moon);font-weight:600;font-size:1.05rem;}
 .reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
-.review-card{background:#fff;border-radius:16px;padding:28px;border:1px solid #EDE7D9;box-shadow:0 6px 18px rgba(13,27,62,.05);}
+.review-card{background:#fff;border-radius:16px;padding:28px;border:1px solid #EDE7D9;border-left:3px solid var(--moon);box-shadow:0 6px 18px rgba(13,27,62,.05);}
 .review-card .quote-stars{color:var(--moon);letter-spacing:2px;margin-bottom:12px;}
 .review-card .quote{font-size:1.05rem;font-style:italic;margin-bottom:16px;}
 .review-card .author{font-weight:600;color:var(--navy);font-size:.95rem;}
@@ -399,6 +420,27 @@ body.dark .navbar.scrolled{background:rgba(15,23,42,.9);}
 body.dark .navbar.scrolled .nav-logo,body.dark .navbar.scrolled .nav-links a,body.dark .navbar.scrolled .hamburger{color:#E2E8F0;}
 body.dark .filter-tab{background:#1E293B;color:#94A3B8;border-color:#334155;}
 
+/* ===== STATISTICS COUNTER ===== */
+.stats-section{background:linear-gradient(135deg,var(--navy) 0%,#1A3A6B 100%);padding:60px 0;}
+.stats-row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.stat-item{flex:1;min-width:140px;text-align:center;}
+.stat-item .stat-emoji{font-size:1.8rem;margin-bottom:8px;}
+.stat-item .stat-num{font-family:'Frank Ruhl Libre',serif;font-weight:900;font-size:2.8rem;color:var(--moon);line-height:1;}
+.stat-item .stat-label{color:rgba(255,255,255,.7);font-size:1rem;margin-top:8px;}
+@media(max-width:600px){.stat-item{flex:0 0 calc(50% - 10px);}}
+
+/* ===== FAQ ===== */
+.faq-section{background:#fff;}
+.faq-list{max-width:760px;margin:0 auto;}
+.faq-item{border-bottom:1px solid #E5E7EB;padding:18px 0;}
+.faq-q{display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-weight:600;font-size:1.05rem;color:var(--navy);gap:14px;}
+.faq-arrow{transition:transform .3s ease;flex-shrink:0;}
+.faq-item.open .faq-arrow{transform:rotate(180deg);}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;color:var(--muted);}
+.faq-item.open .faq-a{max-height:200px;padding-top:10px;}
+body.dark .faq-section{background:var(--soft);}
+body.dark .faq-item{border-color:#334155;}
+
 /* Animations */
 @keyframes fadeInUp{to{opacity:1;transform:none;}}
 @keyframes twinkle{0%,100%{opacity:.2;transform:scale(.8);}50%{opacity:1;transform:scale(1.2);}}
@@ -417,6 +459,10 @@ body.dark .filter-tab{background:#1E293B;color:#94A3B8;border-color:#334155;}
   .hamburger{display:block;}
   .steps{flex-direction:column;gap:36px;}
   .steps::before{display:none;}
+  .hero{padding-bottom:100px;}
+  .hero-content{text-align:center;}
+  .hero .badge-pill{margin:0 auto 24px;}
+  .hero-trust{text-align:center;}
 }
 @media(max-width:480px){
   .products-grid,.features-grid,.reviews-grid,.footer-grid,.form-grid{grid-template-columns:1fr;}
@@ -433,6 +479,8 @@ body.dark .filter-tab{background:#1E293B;color:#94A3B8;border-color:#334155;}
 </style>
 </head>
 <body>
+
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
 
 <a href="#מוצרים" class="skip-link">דלג לתוכן הראשי</a>
 
@@ -500,6 +548,18 @@ body.dark .filter-tab{background:#1E293B;color:#94A3B8;border-color:#334155;}
     <p class="media-head">כפי שהומלץ על ידי הורים ישראלים ב:</p>
     <div class="media-logos">
       <span>YNET</span><span>מאמא</span><span>וואלה! אמא</span><span>בייבי סנטר</span><span>מכבי שירותי בריאות</span>
+    </div>
+  </div>
+</section>
+
+<!-- STATISTICS -->
+<section class="stats-section">
+  <div class="container">
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-emoji" aria-hidden="true">🏆</div><div class="stat-num" data-stat="1200" data-suffix="+">0</div><div class="stat-label">הורים מרוצים</div></div>
+      <div class="stat-item"><div class="stat-emoji" aria-hidden="true">⭐</div><div class="stat-num" data-stat="4.8" data-decimals="1">0</div><div class="stat-label">דירוג ממוצע</div></div>
+      <div class="stat-item"><div class="stat-emoji" aria-hidden="true">🚀</div><div class="stat-num" data-stat="48" data-suffix=" שעות">0</div><div class="stat-label">זמן משלוח ממוצע</div></div>
+      <div class="stat-item"><div class="stat-emoji" aria-hidden="true">💬</div><div class="stat-num" data-stat="97" data-suffix="%">0</div><div class="stat-label">ממליצים לחברות</div></div>
     </div>
   </div>
 </section>
@@ -606,6 +666,42 @@ body.dark .filter-tab{background:#1E293B;color:#94A3B8;border-color:#334155;}
       <div class="review-card reveal"><div class="quote-stars" aria-hidden="true">★★★★★</div><p class="quote">"בעלי לא האמין שמכשיר קטן כזה יעשה הבדל. עכשיו הוא זה שמזמין שוב."</p><div class="author">ליאת כ., חיפה</div></div>
       <div class="review-card reveal"><div class="quote-stars" aria-hidden="true">★★★★★</div><p class="quote">"קיבלתי את הארגונית ובאותו יום כבר השתמשתי בה. שינוי חיים ממש."</p><div class="author">נועה ש., תל אביב</div></div>
       <div class="review-card reveal"><div class="quote-stars" aria-hidden="true">★★★★★</div><p class="quote">"המצלמה עם האפליקציה — הדבר הכי שקל נפשי שקניתי בשנה הראשונה."</p><div class="author">רותם א., ירושלים</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section faq-section" id="faq">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>שאלות שכולם שואלים</h2>
+      <p>כי הורים טובים שואלים לפני שקונים</p>
+    </div>
+    <div class="faq-list" id="faq-list">
+      <div class="faq-item reveal">
+        <div class="faq-q">כמה זמן לוקח המשלוח?<span class="faq-arrow" aria-hidden="true">▼</span></div>
+        <div class="faq-a"><p>משלוח מהיר לכל הארץ תוך 2–4 ימים עסקיים. הזמנות שנשלחות לפני 14:00 יוצאות באותו יום.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <div class="faq-q">מה מדיניות ההחזרות?<span class="faq-arrow" aria-hidden="true">▼</span></div>
+        <div class="faq-a"><p>30 יום החזרה מלאה ללא שאלות. אם לא מרוצים — מחזירים ומקבלים החזר כספי מלא.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <div class="faq-q">האם המוצרים בטוחים לתינוקות?<span class="faq-arrow" aria-hidden="true">▼</span></div>
+        <div class="faq-a"><p>כן! כל המוצרים עברו תקן CE אירופאי ונבדקו ע"י הורים ישראלים לפני שנכנסו לקטלוג.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <div class="faq-q">האם יש אחריות?<span class="faq-arrow" aria-hidden="true">▼</span></div>
+        <div class="faq-a"><p>כל המוצרים מגיעים עם אחריות יצרן של 12 חודשים. תמיכה מלאה בעברית.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <div class="faq-q">איך אני יודעת מה מתאים לתינוק שלי?<span class="faq-arrow" aria-hidden="true">▼</span></div>
+        <div class="faq-a"><p>צוות התמיכה שלנו זמין 24/7 בוואטסאפ ויעזור לכם לבחור את המוצר המתאים לגיל ולצרכים.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <div class="faq-q">האם אפשר להזמין כמה מוצרים יחד?<span class="faq-arrow" aria-hidden="true">▼</span></div>
+        <div class="faq-a"><p>בהחלט! ואפילו חוסכים — משלוח חינם בהזמנה מעל ₪200.</p></div>
+      </div>
     </div>
   </div>
 </section>
@@ -721,6 +817,9 @@ body.dark .filter-tab{background:#1E293B;color:#94A3B8;border-color:#334155;}
   <span class="wa-tooltip">שאלה? כתבי לנו!</span>
 </a>
 
+<!-- BACK TO TOP -->
+<button class="back-to-top" id="back-to-top" aria-label="חזרה למעלה"><span aria-hidden="true">↑</span></button>
+
 <!-- STICKY MOBILE CTA -->
 <div class="mobile-cta">
   <a href="https://wa.me/972500000000" class="btn wa">📞 וואטסאפ</a>
@@ -771,13 +870,38 @@ var PRODUCTS=[
     card.setAttribute('data-cat',p.cat);
     card.setAttribute('data-search',(p.name+' '+p.desc+' '+p.benefit).toLowerCase());
     var save=Math.round((1-p.price/p.orig)*100);
+    // Scarcity messages for specific products
+    var scarcityMap={
+      "מכונת רעש לבן":{txt:"🔴 נותרו 4 במלאי בלבד!",color:"#C62828"},
+      "גרביים חכמות ניטור":{txt:"🔴 נותרו 2 במלאי!",color:"#C62828"},
+      "מקרן כוכבים מנורת לילה":{txt:"🟡 נותרו 7 במלאי",color:"#E65100"}
+    };
+    var sc=scarcityMap[p.name];
+    var scarcityHtml=sc?'<div class="p-scarcity" style="color:'+sc.color+';">'+sc.txt+'</div>':'';
+    // Category-based tag
+    var tagHtml;
+    if(p.featured){
+      tagHtml='<div class="p-tag" style="background:var(--moon);color:var(--navy);">⭐ הנמכר ביותר</div>';
+    }else{
+      var tagStyles={
+        "שינה":{bg:"#FFF3E0",color:"#E65100",txt:"😴 לשינה רגועה"},
+        "ניטור":{bg:"#E3F2FD",color:"#1565C0",txt:"🛡️ ניטור ובטיחות"},
+        "האכלה":{bg:"#F3E5F5",color:"#6A1B9A",txt:"🍼 האכלה"},
+        "ארגון":{bg:"#F3E5F5",color:"#6A1B9A",txt:"🎒 ארגון"},
+        "רכב":{bg:"#F3E5F5",color:"#6A1B9A",txt:"🚗 לרכב"}
+      };
+      var ts=tagStyles[p.cat]||{bg:"#F3E5F5",color:"#6A1B9A",txt:p.cat};
+      tagHtml='<div class="p-tag" style="background:'+ts.bg+';color:'+ts.color+';">'+ts.txt+'</div>';
+    }
     card.innerHTML=
       '<span class="p-badge">'+p.badge+'</span>'+
       '<div class="p-emoji" aria-hidden="true">'+p.emoji+'</div>'+
+      tagHtml+
       '<h3 class="p-name">'+p.name+'</h3>'+
       '<div class="p-rating"><span class="star" aria-hidden="true">★</span> '+p.stars+' · '+p.reviews+' ביקורות</div>'+
       '<p class="p-desc">'+p.desc+'</p>'+
       '<p class="p-benefit">✓ '+p.benefit+'</p>'+
+      scarcityHtml+
       '<div class="p-price"><span class="now">₪'+p.price+'</span><span class="orig">₪'+p.orig+'</span><span class="save">-'+save+'%</span></div>'+
       '<button class="btn btn-blue add-cart" data-name="'+p.name+'" aria-label="הוסף לעגלה '+p.name+'">אני רוצה את זה 🛒</button>';
     grid.appendChild(card);
@@ -1000,6 +1124,51 @@ form.addEventListener('submit',function(e){
       overlay.classList.add('show');
     }
   });
+})();
+
+/* ===== Scroll progress bar + back to top ===== */
+(function scrollUI(){
+  var bar=document.getElementById('scroll-progress');
+  var btt=document.getElementById('back-to-top');
+  window.addEventListener('scroll',function(){
+    var h=document.documentElement;
+    var pct=(window.scrollY)/(h.scrollHeight-h.clientHeight)*100;
+    bar.style.width=pct+'%';
+    if(window.scrollY>400)btt.classList.add('show');
+    else btt.classList.remove('show');
+  });
+  btt.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
+})();
+
+/* ===== FAQ accordion ===== */
+(function faqAccordion(){
+  document.querySelectorAll('#faq-list .faq-item').forEach(function(item){
+    item.querySelector('.faq-q').addEventListener('click',function(){
+      item.classList.toggle('open');
+    });
+  });
+})();
+
+/* ===== Stats count-up ===== */
+(function statsCounter(){
+  var sio=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(!en.isIntersecting)return;
+      var el=en.target,target=parseFloat(el.dataset.stat),suffix=el.dataset.suffix||'';
+      var dec=parseInt(el.dataset.decimals,10)||0,start=null,dur=1500;
+      function step(ts){
+        if(!start)start=ts;
+        var prog=Math.min((ts-start)/dur,1);
+        var val=prog*target;
+        var txt=dec>0?val.toFixed(dec):Math.round(val).toLocaleString('en-US');
+        el.textContent=txt+suffix;
+        if(prog<1)requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+      sio.unobserve(el);
+    });
+  },{threshold:.4});
+  document.querySelectorAll('.stat-num[data-stat]').forEach(function(el){sio.observe(el);});
 })();
 
 /* ===== Dark mode toggle ===== */
