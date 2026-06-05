@@ -1614,6 +1614,14 @@ html, body {
         </header>
 
         <!-- Pages Container -->
+        <!-- Backup Reminder Banner -->
+        <div id="backup-reminder-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;padding:10px 16px;align-items:center;justify-content:space-between;gap:10px;font-size:13px;">
+            <span>💾 לא גיבית את הנתונים שלך מעל שבוע — מומלץ לגבות עכשיו</span>
+            <div style="display:flex;gap:8px;flex-shrink:0">
+                <button onclick="exportJSON();dismissBackupReminder()" style="background:white;color:#4f46e5;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;">💾 גבה עכשיו</button>
+                <button onclick="dismissBackupReminder()" style="background:rgba(255,255,255,0.2);color:white;border:none;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;">✕</button>
+            </div>
+        </div>
         <main class="pages-container">
 
             <!-- ==================== DASHBOARD ==================== -->
@@ -3590,6 +3598,7 @@ function initApp() {
     setInterval(fetchCryptoNews, 10 * 60 * 1000);      // every 10 min
     initAutoInsights();
     initMarketDatabase();
+    setTimeout(checkBackupReminder, 2000);
 }
 
 // ==================== FEAR & GREED INDEX ====================
@@ -9787,16 +9796,40 @@ function applyPartialClose(pct) {
 
 // ==================== EXPORT / IMPORT ====================
 function exportJSON() {
-    if (trades.length === 0) { showToast('⚠️ אין עסקאות לייצוא'); return; }
-    const data = { version: 1, exported: new Date().toISOString(), trades };
+    // Full backup: trades + insights journal + settings + market DB
+    const allKeys = {};
+    for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        try { allKeys[k] = JSON.parse(localStorage.getItem(k)); }
+        catch { allKeys[k] = localStorage.getItem(k); }
+    }
+    const data = {
+        version: 2,
+        exported: new Date().toISOString(),
+        app: 'CryptoEdge',
+        trades: trades,
+        insightJournal: JSON.parse(localStorage.getItem('ij_entries') || '[]'),
+        settings: {
+            hasAnthropicKey: !!localStorage.getItem('anthropic_apikey'),
+            theme: localStorage.getItem('theme'),
+            myStrategy: localStorage.getItem('my_strategy_json'),
+        },
+        marketDB: {
+            prices: JSON.parse(localStorage.getItem('mdb_prices') || '[]').slice(-50),
+            market: JSON.parse(localStorage.getItem('mdb_market') || '[]').slice(-20),
+            sentiment: JSON.parse(localStorage.getItem('mdb_sentiment') || '[]').slice(-20),
+        }
+    };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href = url;
-    a.download = 'cryptoedge-backup-' + new Date().toISOString().slice(0,10) + '.json';
+    a.download = 'cryptoedge-fullbackup-' + new Date().toISOString().slice(0,10) + '.json';
     a.click();
     URL.revokeObjectURL(url);
-    showToast('✅ קובץ JSON הורד!');
+    localStorage.setItem('last_backup_ts', Date.now().toString());
+    updateLastBackupDisplay();
+    showToast('✅ גיבוי מלא הורד! (' + trades.length + ' עסקאות)');
 }
 
 function exportCSV() {
@@ -9829,21 +9862,39 @@ function importJSON(event) {
     reader.onload = (e) => {
         try {
             const data = JSON.parse(e.target.result);
+            let msg = [];
+
+            // Restore trades
             const imported = Array.isArray(data) ? data : (data.trades || []);
-            if (!imported.length) { showToast('⚠️ לא נמצאו עסקאות'); return; }
-            const existing = new Set(trades.map(t => t.id));
-            let added = 0;
-            imported.forEach(t => {
-                if (!existing.has(t.id)) { trades.push(t); added++; }
-            });
-            setData('trades', trades);
-            renderTradesList();
-            renderDetailedStats();
-            renderAnalytics();
-            renderNotesAnalysis();
-            updateDashboardStats();
-            showToast('✅ יובאו ' + added + ' עסקאות!');
-        } catch(e) { showToast('❌ קובץ לא תקין'); }
+            if (imported.length) {
+                const existing = new Set(trades.map(t => t.id));
+                let added = 0;
+                imported.forEach(t => { if (!existing.has(t.id)) { trades.push(t); added++; } });
+                setData('trades', trades);
+                if (added > 0) msg.push('✅ ' + added + ' עסקאות');
+            }
+
+            // Restore insights journal (v2 backup)
+            if (data.insightJournal && data.insightJournal.length) {
+                const existIJ = new Set(JSON.parse(localStorage.getItem('ij_entries')||'[]').map(e=>e.id));
+                const newIJ = JSON.parse(localStorage.getItem('ij_entries')||'[]');
+                let addedIJ = 0;
+                data.insightJournal.forEach(e => { if (!existIJ.has(e.id)) { newIJ.push(e); addedIJ++; } });
+                localStorage.setItem('ij_entries', JSON.stringify(newIJ));
+                if (addedIJ > 0) msg.push('✅ ' + addedIJ + ' תובנות');
+            }
+
+            // Restore settings
+            if (data.settings) {
+                if (data.settings.theme) localStorage.setItem('theme', data.settings.theme);
+                if (data.settings.myStrategy) localStorage.setItem('my_strategy_json', data.settings.myStrategy);
+            }
+
+            if (!msg.length) { showToast('⚠️ לא נמצאו נתונים חדשים בגיבוי'); return; }
+            renderTradesList(); renderDetailedStats(); renderAnalytics();
+            renderNotesAnalysis(); updateDashboardStats();
+            showToast('✅ שוחזר: ' + msg.join(' | '));
+        } catch(err) { showToast('❌ קובץ לא תקין: ' + err.message); }
     };
     reader.readAsText(file);
     event.target.value = '';
@@ -11326,6 +11377,20 @@ async function collectNow(btn) {
     if (btn) { btn.textContent = '🔄 אסוף עכשיו'; btn.disabled = false; }
     renderDatabasePage();
     alert(results.join('\n'));
+}
+
+
+function checkBackupReminder() {
+    const last = parseInt(localStorage.getItem('last_backup_ts') || '0');
+    const weekMs = 7 * 24 * 60 * 60 * 1000;
+    if (Date.now() - last > weekMs) {
+        const banner = document.getElementById('backup-reminder-banner');
+        if (banner) banner.style.display = 'flex';
+    }
+}
+function dismissBackupReminder() {
+    const banner = document.getElementById('backup-reminder-banner');
+    if (banner) banner.style.display = 'none';
 }
 
 // ==================== END ADDITIONS ====================
