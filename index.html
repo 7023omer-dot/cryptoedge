@@ -1887,10 +1887,10 @@ html, body {
                     </div>
                     <!-- Strategy Knowledge Tabs -->
                     <div class="strategy-knowledge-tabs">
-                        <button class="sk-tab" onclick="showStrategyKnowledge('wyckoff')">
+                        <button class="sk-tab" onclick="showStrategyKnowledge('wyckoff', this)">
                             <span>📊 שיטת וויקוף</span>
                         </button>
-                        <button class="sk-tab" onclick="showStrategyKnowledge('leverage')">
+                        <button class="sk-tab" onclick="showStrategyKnowledge('leverage', this)">
                             <span>⚡ מינוף חכם</span>
                         </button>
                     </div>
@@ -2059,11 +2059,11 @@ html, body {
 
                     <!-- Filter bar -->
                     <div class="ij-filters">
-                        <button class="ij-filter-btn active" onclick="filterInsights('all')">הכל</button>
-                        <button class="ij-filter-btn" onclick="filterInsights('bullish')">🟢 שורי</button>
-                        <button class="ij-filter-btn" onclick="filterInsights('bearish')">🔴 דובי</button>
-                        <button class="ij-filter-btn" onclick="filterInsights('traded')">✅ בוצע</button>
-                        <button class="ij-filter-btn" onclick="filterInsights('week')">שבוע זה</button>
+                        <button class="ij-filter-btn active" onclick="filterInsights('all', this)">הכל</button>
+                        <button class="ij-filter-btn" onclick="filterInsights('bullish', this)">🟢 שורי</button>
+                        <button class="ij-filter-btn" onclick="filterInsights('bearish', this)">🔴 דובי</button>
+                        <button class="ij-filter-btn" onclick="filterInsights('traded', this)">✅ בוצע</button>
+                        <button class="ij-filter-btn" onclick="filterInsights('week', this)">שבוע זה</button>
                     </div>
 
                     <!-- Entries list -->
@@ -10993,13 +10993,12 @@ setTimeout(connectBinanceWs, 2000);
 })();
 
 // ==================== STRATEGY KNOWLEDGE TABS ====================
-function showStrategyKnowledge(type) {
+function showStrategyKnowledge(type, btn) {
     document.querySelectorAll('.sk-panel').forEach(p => p.style.display = 'none');
     document.querySelectorAll('.sk-tab').forEach(b => b.classList.remove('active'));
     const panel = document.getElementById('sk-' + type);
     if (panel) panel.style.display = 'block';
-    event.currentTarget.classList.add('active');
-    // scroll to panel
+    if (btn) btn.classList.add('active');
     setTimeout(() => panel && panel.scrollIntoView({behavior:'smooth', block:'start'}), 100);
 }
 
@@ -11064,10 +11063,10 @@ function deleteInsightEntry(id) {
 }
 
 let _ijFilter = 'all';
-function filterInsights(f) {
+function filterInsights(f, btn) {
     _ijFilter = f;
     document.querySelectorAll('.ij-filter-btn').forEach(b => b.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    if (btn) btn.classList.add('active');
     renderInsightEntries(f);
 }
 
