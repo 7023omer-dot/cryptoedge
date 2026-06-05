@@ -2044,6 +2044,7 @@ html, body {
                             <label>ביצעת עסקה בפועל?</label>
                             <select id="ij-traded">
                                 <option value="no">לא — רק תובנה</option>
+                                <option value="limit">📋 שמתי לימיט — ממתין למחיר</option>
                                 <option value="yes">כן — ביצעתי עסקה</option>
                                 <option value="partial">חלקית — ביצעתי חלק</option>
                             </select>
@@ -4490,8 +4491,8 @@ function showProfile(type) {
 <div class="lev-section">
 <div class="lev-section-title">📊 אזורי קיצון — הכי מוצדק למינוף</div>
 <div class="lev-zones">
-<div class="lz-card bullish"><div class="lz-title">🟢 קיצון שורי</div><div class="lz-items"><span>RSI &lt; 30 (Oversold)</span><span>Fear &amp; Greed &lt; 20</span><span>הכל מדבר על קריסה</span><span class="lz-action">➜ לונג מדוד (DCA)</span></div></div>
-<div class="lz-card bearish"><div class="lz-title">🔴 קיצון דובי</div><div class="lz-items"><span>RSI &gt; 70 (Overbought)</span><span>Fear &amp; Greed &gt; 80</span><span>הכל מדבר על ATH</span><span class="lz-action">➜ שורט מדוד (DCA)</span></div></div>
+<div class="lz-card bullish"><div class="lz-title">🟢 מכירת יתר — Oversold</div><div class="lz-items"><span>RSI &lt; 30</span><span>Fear &amp; Greed &lt; 20</span><span>הכל מדבר על קריסה</span><span class="lz-action">➜ חפש לונג מדוד (DCA)</span></div></div>
+<div class="lz-card bearish"><div class="lz-title">🔴 קניית יתר — Overbought</div><div class="lz-items"><span>RSI &gt; 70</span><span>Fear &amp; Greed &gt; 80</span><span>הכל מדבר על ATH חדש</span><span class="lz-action">➜ חפש שורט מדוד (DCA)</span></div></div>
 </div>
 </div>
 <div class="lev-section">
@@ -8205,7 +8206,9 @@ const MY_STRATEGY = {
         { icon: '⏳', text: 'להשתדל לא להיכנס במרקט — תמיד בלימיט. תמיד לחפש טריגר לפני עסקה.' },
         { icon: '😤', text: 'לא להיות בפומו — להתנהל לפי תהליך ובקור רוח.' },
         { icon: '🛡️', text: 'לנהל סיכונים ברמה גבוהה — לקדם סטופ לקנייה תמיד אחרי שנכנסת לרווח שווה לסיכון. אם סיכנת 2% ואתה ב+2% — קדם סטופ.' },
-        { icon: '🎯', text: 'לא לצאת לפני Take Profit. אם זיהית היפוך — קח 50% לכיס ושים סטופ בקנייה. לא לפספס רווחים — זה חלק מניהול סיכונים.' }
+        { icon: '🎯', text: 'לא לצאת לפני Take Profit. אם זיהית היפוך — קח 50% לכיס ושים סטופ בקנייה. לא לפספס רווחים — זה חלק מניהול סיכונים.' },
+        { icon: '💵', text: 'טייק פרופיט בלונג — תמיד לקחת רווחים בדולרים (USDT/USDC). כשהמחיר עולה — מוכרים נכסים ומגדילים את הדולרים.' },
+        { icon: '🪙', text: 'טייק פרופיט בשורט — תמיד לקחת רווחים בנכסים (ביטקוין/אלט). כשהמחיר יורד — קונים חזרה נכסים בזול ומגדילים את הכמות.' }
     ],
     investing: [
         { icon: '₿', text: 'המטרה העיקרית: לצבור כמה שיותר ביטקוין.' },
@@ -11282,7 +11285,7 @@ function renderInsightEntries(filter) {
             </div>
             <div class="ij-entry-text">${e.text.replace(/\n/g, '<br>')}</div>
             <div class="ij-entry-footer">
-                ${e.traded !== 'no' ? `<span class="ij-badge executed">${e.traded === 'partial' ? '⚡ חלקית' : '✅ בוצע'}</span>` : '<span class="ij-badge">💭 תובנה בלבד</span>'}
+                ${e.traded === 'limit' ? '<span class="ij-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b">📋 לימיט פעיל</span>' : e.traded !== 'no' ? `<span class="ij-badge executed">${e.traded === 'partial' ? '⚡ חלקית' : '✅ בוצע'}</span>` : '<span class="ij-badge">💭 תובנה בלבד</span>'}
                 ${e.outcome === 'win' ? '<span class="ij-badge win">✅ רווח</span>' : e.outcome === 'loss' ? '<span class="ij-badge loss">❌ הפסד</span>' : e.outcome === 'be' ? '<span class="ij-badge be">➡️ BE</span>' : ''}
                 <button class="ij-delete-btn" onclick="deleteInsightEntry(${e.id})">🗑️</button>
             </div>
