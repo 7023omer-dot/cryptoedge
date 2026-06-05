@@ -2965,12 +2965,14 @@ html, body {
             <div class="page-scroll" style="height:100%;overflow-y:scroll !important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:80px;">
                 <div style="padding:14px 14px 0;">
                     <!-- Header -->
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-                        <h2 style="font-size:1.1rem;font-weight:800;">🗄️ מסד נתונים שוק</h2>
-                        <div style="display:flex;gap:8px;">
+                    <div style="margin-bottom:14px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                            <h2 style="font-size:1.1rem;font-weight:800;">🗄️ מסד נתונים שוק</h2>
                             <span id="db-size-badge" style="font-size:0.72rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--text-muted);">0 KB</span>
-                            <button onclick="collectNow(this)" style="background:rgba(16,185,129,0.2);border:1px solid #10b981;color:#10b981;border-radius:8px;padding:5px 12px;font-size:0.78rem;font-family:inherit;cursor:pointer;font-weight:700;">🔄 אסוף עכשיו</button>
-                            <button onclick="exportDatabase()" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);color:var(--accent-light);border-radius:8px;padding:5px 12px;font-size:0.78rem;font-family:inherit;cursor:pointer;font-weight:700;">📤 ייצוא</button>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <button onclick="collectNow(this)" style="flex:1;background:rgba(16,185,129,0.15);border:1px solid #10b981;color:#10b981;border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">🔄 אסוף נתונים עכשיו</button>
+                            <button onclick="exportDatabase()" style="flex:1;background:rgba(99,102,241,0.15);border:1px solid var(--accent);color:var(--accent-light);border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">📤 ייצוא DB</button>
                         </div>
                     </div>
 
@@ -6157,16 +6159,28 @@ function dbSize() {
 }
 
 async function collectPrices() {
-  const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=%5B%22BTCUSDT%22%2C%22ETHUSDT%22%2C%22SOLUSDT%22%2C%22BNBUSDT%22%5D');
-  const data = await res.json();
-  const row = { ts: Date.now() };
-  data.forEach(d => {
-    if (d.symbol==='BTCUSDT') row.btc = parseFloat(d.price);
-    if (d.symbol==='ETHUSDT') row.eth = parseFloat(d.price);
-    if (d.symbol==='SOLUSDT') row.sol = parseFloat(d.price);
-    if (d.symbol==='BNBUSDT') row.bnb = parseFloat(d.price);
-  });
-  dbPush('mdb_prices', row, 2016);
+  // Try Binance first, fallback to CoinGecko
+  try {
+    const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=%5B%22BTCUSDT%22%2C%22ETHUSDT%22%2C%22SOLUSDT%22%2C%22BNBUSDT%22%5D');
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error('bad response');
+    const row = { ts: Date.now(), src: 'binance' };
+    data.forEach(d => {
+      if (d.symbol==='BTCUSDT') row.btc = parseFloat(d.price);
+      if (d.symbol==='ETHUSDT') row.eth = parseFloat(d.price);
+      if (d.symbol==='SOLUSDT') row.sol = parseFloat(d.price);
+      if (d.symbol==='BNBUSDT') row.bnb = parseFloat(d.price);
+    });
+    dbPush('mdb_prices', row, 2016);
+  } catch(e) {
+    // Fallback: CoinGecko
+    const res2 = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd');
+    const d = await res2.json();
+    const row = { ts: Date.now(), src: 'coingecko',
+      btc: d.bitcoin?.usd, eth: d.ethereum?.usd,
+      sol: d.solana?.usd, bnb: d.binancecoin?.usd };
+    dbPush('mdb_prices', row, 2016);
+  }
 }
 
 async function collectMarket() {
@@ -11366,20 +11380,33 @@ function updateLevScore() {
 
 
 async function collectNow(btn) {
-    if (btn) { btn.textContent = '⏳ אוסף...'; btn.disabled = true; }
+    if (btn) { btn.textContent = '⏳ אוסף נתונים...'; btn.disabled = true; }
     const results = [];
     const run = async (name, fn) => {
-        try { await fn(); results.push('✅ ' + name); }
-        catch(e) { results.push('❌ ' + name + ': ' + e.message); }
+        try { await fn(); results.push({ name, ok: true }); }
+        catch(e) { results.push({ name, ok: false, err: e.message }); }
     };
-    await run('מחירים (Binance)', collectPrices);
-    await run('שוק (CoinGecko)', collectMarket);
-    await run('סנטימנט (Fear&Greed)', collectSentiment);
-    await run('On-chain (Binance Futures)', collectOnchain);
-    await run('DeFi TVL (DefiLlama)', collectDefi);
-    if (btn) { btn.textContent = '🔄 אסוף עכשיו'; btn.disabled = false; }
+    await run('מחירים Binance', collectPrices);
+    await run('שוק CoinGecko', collectMarket);
+    await run('Fear & Greed', collectSentiment);
+    await run('On-chain Futures', collectOnchain);
+    await run('DeFi TVL', collectDefi);
+    if (btn) { btn.textContent = '🔄 אסוף נתונים עכשיו'; btn.disabled = false; }
     renderDatabasePage();
-    alert(results.join('\n'));
+    const ok = results.filter(r => r.ok).length;
+    const fail = results.filter(r => !r.ok);
+    showToast('✅ ' + ok + '/5 מקורות אספו נתונים' + (fail.length ? ' | ❌ ' + fail.map(r=>r.name).join(', ') : ''));
+    if (fail.length) {
+        console.warn('Failed sources:', fail.map(r => r.name + ': ' + r.err).join(' | '));
+    }
+    // Show price in UI immediately
+    const prices = dbGet('mdb_prices');
+    const last = prices[prices.length-1];
+    if (last) {
+        const btcEl = document.getElementById('db-btc-price');
+        if (btcEl) btcEl.textContent = '$' + Math.round(last.btc).toLocaleString();
+        showToast('💰 BTC: $' + Math.round(last.btc).toLocaleString() + ' | ETH: $' + Math.round(last.eth).toLocaleString());
+    }
 }
 
 
