@@ -382,6 +382,187 @@ html, body {
     padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;
 }
 
+/* Strategy Knowledge Tabs */
+.strategy-knowledge-tabs {
+    display: flex; gap: 8px; margin-bottom: 16px; margin-top: -8px;
+}
+.sk-tab {
+    flex: 1; padding: 10px 8px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--bg-elevated);
+    color: var(--text); font-family: inherit; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; text-align: center;
+}
+.sk-tab:hover, .sk-tab.active {
+    background: rgba(99,102,241,0.15); border-color: var(--accent); color: var(--accent-light);
+}
+.sk-panel { margin-top: 8px; }
+
+/* Wyckoff styles */
+.wyckoff-section {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px; margin-bottom: 12px;
+}
+.wyckoff-section-title {
+    font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--accent-light);
+}
+.wyckoff-phases { display: flex; flex-direction: column; gap: 10px; }
+.wyckoff-phase {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--bg-elevated); border-radius: 10px; padding: 12px;
+}
+.wp-letter {
+    min-width: 32px; height: 32px; border-radius: 50%;
+    background: var(--accent); color: white; display: flex; align-items: center;
+    justify-content: center; font-weight: 800; font-size: 15px; flex-shrink: 0;
+}
+.wp-body { display: flex; flex-direction: column; gap: 4px; }
+.wp-body strong { font-size: 13px; color: var(--text); }
+.wp-body span { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.wyckoff-law {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px; border-radius: 10px; background: var(--bg-elevated); margin-bottom: 8px;
+}
+.wl-num {
+    min-width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white; display: flex; align-items: center;
+    justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0;
+}
+.wl-text { display: flex; flex-direction: column; gap: 4px; }
+.wl-text strong { font-size: 13px; }
+.wl-text span { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.wyckoff-glossary { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.wg-item {
+    background: var(--bg-elevated); border-radius: 8px; padding: 8px 10px;
+    display: flex; flex-direction: column; gap: 2px;
+}
+.wg-term { font-weight: 700; font-size: 12px; color: var(--accent-light); }
+.wg-def { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+
+/* Leverage styles */
+.lev-section {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px; margin-bottom: 12px;
+}
+.lev-section-title {
+    font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--accent-light);
+}
+.lev-checklist { display: flex; flex-direction: column; gap: 6px; }
+.lc-item {
+    padding: 10px 12px; border-radius: 10px; font-size: 13px;
+    border-right: 3px solid;
+}
+.lc-item.good { background: rgba(16,185,129,0.08); border-color: #10b981; color: var(--text); }
+.lc-item.bad { background: rgba(239,68,68,0.08); border-color: #ef4444; color: var(--text); }
+.lev-zones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.lz-card {
+    border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 6px;
+}
+.lz-card.bullish { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); }
+.lz-card.bearish { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); }
+.lz-title { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+.lz-items { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-muted); }
+.lz-action { font-weight: 700; color: var(--text); margin-top: 4px; }
+.lev-rules { display: flex; flex-direction: column; gap: 10px; }
+.lev-rule {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--bg-elevated); border-radius: 10px; padding: 12px;
+}
+.lr-num {
+    min-width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white; display: flex; align-items: center;
+    justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0;
+}
+.lr-body { display: flex; flex-direction: column; gap: 4px; }
+.lr-body strong { font-size: 13px; }
+.lr-body span { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.margin-health-table { border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+.mh-row {
+    display: grid; grid-template-columns: 1fr 1.5fr 1.5fr;
+    padding: 10px 12px; font-size: 12px; gap: 6px;
+}
+.mh-row.header { background: var(--bg-elevated); font-weight: 700; color: var(--text-muted); }
+.mh-row.good { background: rgba(16,185,129,0.08); color: var(--text); }
+.mh-row.warn { background: rgba(245,158,11,0.08); color: var(--text); }
+.mh-row.bad { background: rgba(239,68,68,0.08); color: var(--text); }
+.lci-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px; background: var(--bg-elevated); border-radius: 8px; margin-bottom: 6px;
+}
+.lci-item input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; }
+.lci-item label { font-size: 13px; cursor: pointer; }
+.lci-item input:checked + label { color: #10b981; text-decoration: line-through; }
+
+/* Insights Journal */
+.ij-add-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 16px; margin-bottom: 16px;
+}
+.ij-add-header { font-weight: 700; font-size: 15px; margin-bottom: 12px; }
+.ij-field { margin-bottom: 10px; }
+.ij-field label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
+.ij-field input, .ij-field textarea, .ij-field select {
+    width: 100%; padding: 10px 12px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--bg-elevated);
+    color: var(--text); font-family: inherit; font-size: 14px;
+    box-sizing: border-box; resize: vertical;
+}
+.ij-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px;
+}
+.ij-stat {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 8px; text-align: center;
+}
+.ij-stat-num { font-size: 20px; font-weight: 800; color: var(--accent-light); }
+.ij-stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.ij-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.ij-filter-btn {
+    padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--bg-card); color: var(--text-muted); font-family: inherit;
+    font-size: 12px; cursor: pointer; transition: all 0.2s;
+}
+.ij-filter-btn.active {
+    background: rgba(99,102,241,0.15); border-color: var(--accent); color: var(--accent-light);
+}
+.ij-entry {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 14px; margin-bottom: 10px;
+}
+.ij-entry-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+}
+.ij-entry-date { font-size: 12px; color: var(--text-muted); }
+.ij-entry-pair { font-weight: 700; font-size: 14px; }
+.ij-entry-dir {
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+}
+.ij-entry-dir.bullish { background: rgba(16,185,129,0.15); color: #10b981; }
+.ij-entry-dir.bearish { background: rgba(239,68,68,0.15); color: #ef4444; }
+.ij-entry-dir.neutral { background: rgba(156,163,175,0.15); color: #9ca3af; }
+.ij-entry-dir.exit { background: rgba(99,102,241,0.15); color: var(--accent-light); }
+.ij-entry-text { font-size: 13px; line-height: 1.6; color: var(--text); margin-bottom: 8px; }
+.ij-entry-footer {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+}
+.ij-badge {
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    background: var(--bg-elevated); color: var(--text-muted);
+}
+.ij-badge.executed { background: rgba(16,185,129,0.1); color: #10b981; }
+.ij-badge.win { background: rgba(16,185,129,0.15); color: #10b981; }
+.ij-badge.loss { background: rgba(239,68,68,0.15); color: #ef4444; }
+.ij-badge.be { background: rgba(245,158,11,0.15); color: #f59e0b; }
+.ij-delete-btn {
+    margin-right: auto; background: none; border: none; color: var(--text-muted);
+    cursor: pointer; font-size: 16px; padding: 0;
+}
+.ij-report-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 16px; margin-top: 16px;
+}
+
 .strategy-block {
     background: var(--bg-card); border: 1px solid var(--border);
     border-radius: 14px; padding: 16px; margin-bottom: 10px;
@@ -1687,21 +1868,30 @@ html, body {
 
                     <!-- Profile Selector -->
                     <div class="profile-tabs">
-                        <button class="profile-tab active" onclick="showProfile(&#39;day&#39;)" fdprocessedid="590t9j">
+                        <button class="profile-tab active" onclick="showProfile('day')">
                             <div class="pt-icon">⚡</div>
                             <div class="pt-label">סוחר יומי</div>
                         </button>
-                        <button class="profile-tab" onclick="showProfile(&#39;swing&#39;)" fdprocessedid="f1y5fp">
+                        <button class="profile-tab" onclick="showProfile('swing')">
                             <div class="pt-icon">📈</div>
                             <div class="pt-label">סווינג</div>
                         </button>
-                        <button class="profile-tab" onclick="showProfile(&#39;investor&#39;)" fdprocessedid="analw">
+                        <button class="profile-tab" onclick="showProfile('investor')">
                             <div class="pt-icon">💎</div>
                             <div class="pt-label">משקיע</div>
                         </button>
-                        <button class="profile-tab" onclick="showProfile(&#39;mine&#39;)" fdprocessedid="2vrqtj">
+                        <button class="profile-tab" onclick="showProfile('mine')">
                             <div class="pt-icon">🎯</div>
                             <div class="pt-label">שלי</div>
+                        </button>
+                    </div>
+                    <!-- Strategy Knowledge Tabs -->
+                    <div class="strategy-knowledge-tabs">
+                        <button class="sk-tab" onclick="showStrategyKnowledge('wyckoff')">
+                            <span>📊 שיטת וויקוף</span>
+                        </button>
+                        <button class="sk-tab" onclick="showStrategyKnowledge('leverage')">
+                            <span>⚡ מינוף חכם</span>
                         </button>
                     </div>
 
@@ -1807,6 +1997,87 @@ html, body {
                     <span>זיהוי מלכודות Bull/Bear ו-Stop Hunt zones</span>
                 </div>
             </div></div></div></div>
+
+<!-- INSIGHTS JOURNAL PAGE -->
+            <section id="page-insights-journal" class="page">
+                <div class="page-scroll">
+                    <div class="section-title">📝 יומן תובנות מסחר</div>
+                    <p class="section-subtitle">מחשבות מילוליות לעומת עסקאות בפועל</p>
+
+                    <!-- Add entry form -->
+                    <div class="ij-add-card">
+                        <div class="ij-add-header">✍️ תובנה חדשה</div>
+                        <div class="ij-field">
+                            <label>תאריך</label>
+                            <input type="date" id="ij-date">
+                        </div>
+                        <div class="ij-field">
+                            <label>מטבע / זוג</label>
+                            <input type="text" id="ij-pair" placeholder="BTC/USDT, ETH, שוק כללי...">
+                        </div>
+                        <div class="ij-field">
+                            <label>כיוון / עמדה</label>
+                            <select id="ij-direction">
+                                <option value="">בחר...</option>
+                                <option value="bullish">🟢 שורי — מצפה לעלייה</option>
+                                <option value="bearish">🔴 דובי — מצפה לירידה</option>
+                                <option value="neutral">⚪ נייטרל — ממתין לאות</option>
+                                <option value="exit">🔵 יציאה — סגירת פוזיציה</option>
+                            </select>
+                        </div>
+                        <div class="ij-field">
+                            <label>תובנה / ניתוח</label>
+                            <textarea id="ij-text" rows="4" placeholder="מה אתה רואה? מה האסטרטגיה? מה הסיבה לכניסה/יציאה?"></textarea>
+                        </div>
+                        <div class="ij-field">
+                            <label>ביצעת עסקה בפועל?</label>
+                            <select id="ij-traded">
+                                <option value="no">לא — רק תובנה</option>
+                                <option value="yes">כן — ביצעתי עסקה</option>
+                                <option value="partial">חלקית — ביצעתי חלק</option>
+                            </select>
+                        </div>
+                        <div class="ij-field" id="ij-outcome-field" style="display:none">
+                            <label>תוצאה (אם ידוע)</label>
+                            <select id="ij-outcome">
+                                <option value="">טרם ידוע</option>
+                                <option value="win">✅ רווח</option>
+                                <option value="loss">❌ הפסד</option>
+                                <option value="be">➡️ Break Even</option>
+                            </select>
+                        </div>
+                        <button class="btn-primary" onclick="saveInsightEntry()" style="width:100%;margin-top:8px">💾 שמור תובנה</button>
+                    </div>
+
+                    <!-- Stats bar -->
+                    <div class="ij-stats" id="ij-stats">
+                        <div class="ij-stat"><div class="ij-stat-num" id="ijs-total">0</div><div class="ij-stat-label">תובנות</div></div>
+                        <div class="ij-stat"><div class="ij-stat-num" id="ijs-traded">0</div><div class="ij-stat-label">עסקאות בוצעו</div></div>
+                        <div class="ij-stat"><div class="ij-stat-num" id="ijs-align">—</div><div class="ij-stat-label">סנכרון</div></div>
+                        <div class="ij-stat"><div class="ij-stat-num" id="ijs-win">—</div><div class="ij-stat-label">הצלחה</div></div>
+                    </div>
+
+                    <!-- Filter bar -->
+                    <div class="ij-filters">
+                        <button class="ij-filter-btn active" onclick="filterInsights('all')">הכל</button>
+                        <button class="ij-filter-btn" onclick="filterInsights('bullish')">🟢 שורי</button>
+                        <button class="ij-filter-btn" onclick="filterInsights('bearish')">🔴 דובי</button>
+                        <button class="ij-filter-btn" onclick="filterInsights('traded')">✅ בוצע</button>
+                        <button class="ij-filter-btn" onclick="filterInsights('week')">שבוע זה</button>
+                    </div>
+
+                    <!-- Entries list -->
+                    <div id="ij-entries"></div>
+
+                    <!-- Weekly email report -->
+                    <div class="ij-report-card">
+                        <div class="ij-add-header">📧 דוח שבועי למייל</div>
+                        <p style="color:var(--text-muted);font-size:13px;margin-bottom:12px">סיכום תובנות השבוע מול העסקאות בפועל</p>
+                        <input type="email" id="ij-email" placeholder="האימייל שלך" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-primary);font-size:14px;margin-bottom:8px;box-sizing:border-box">
+                        <button class="btn-primary" onclick="sendWeeklyInsightReport()" style="width:100%">📤 שלח דוח שבועי</button>
+                    </div>
+                </div>
+            </section>
 
                 </div>
             </section>
@@ -2935,6 +3206,9 @@ html, body {
             </div>
             <div class="nav-item" data-page="journal" onclick="switchPage('journal')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
                 <span style="font-size:1.1rem;line-height:1;">📓</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">יומן</span>
+            </div>
+            <div class="nav-item" data-page="insights-journal" onclick="switchPage('insights-journal')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
+                <span style="font-size:1.1rem;line-height:1;">📝</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">תובנות</span>
             </div>
             <div class="nav-item nav-item--macro" data-page="analysis" onclick="switchPage('analysis')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;background:rgba(99,102,241,0.15);border-top:2px solid rgba(99,102,241,0.7);">
                 <span style="font-size:1.1rem;line-height:1;">📊</span><span style="font-size:0.42rem;color:#a5b4fc;font-weight:700;white-space:nowrap;">מאקרו</span>
@@ -10716,6 +10990,176 @@ setTimeout(connectBinanceWs, 2000);
     if (origSwitch) {
         window.switchPage = function(p) { origSwitch(p); if (p==='analysis') setTimeout(fixAnalysisScroll, 100); };
     }
+})();
+
+// ==================== STRATEGY KNOWLEDGE TABS ====================
+function showStrategyKnowledge(type) {
+    document.querySelectorAll('.sk-panel').forEach(p => p.style.display = 'none');
+    document.querySelectorAll('.sk-tab').forEach(b => b.classList.remove('active'));
+    const panel = document.getElementById('sk-' + type);
+    if (panel) panel.style.display = 'block';
+    event.currentTarget.classList.add('active');
+    // scroll to panel
+    setTimeout(() => panel && panel.scrollIntoView({behavior:'smooth', block:'start'}), 100);
+}
+
+// Leverage checklist score
+document.addEventListener('change', function(e) {
+    if (e.target && e.target.closest && e.target.closest('#lev-checklist-interactive')) {
+        const all = document.querySelectorAll('#lev-checklist-interactive input[type=checkbox]');
+        const checked = Array.from(all).filter(c => c.checked).length;
+        const score = document.getElementById('lci-score');
+        if (score) {
+            const pct = Math.round(checked / all.length * 100);
+            const color = pct >= 90 ? '#10b981' : pct >= 60 ? '#f59e0b' : '#ef4444';
+            const msg = pct >= 90 ? '✅ מוכן לכניסה' : pct >= 60 ? '⚠️ חסרים פריטים חשובים' : '❌ אל תיכנס עוד';
+            score.innerHTML = `<span style="color:${color};font-weight:700;font-size:16px">${checked}/${all.length} — ${pct}% — ${msg}</span>`;
+        }
+    }
+});
+
+// show/hide outcome field based on traded
+document.addEventListener('change', function(e) {
+    if (e.target && e.target.id === 'ij-traded') {
+        const of = document.getElementById('ij-outcome-field');
+        if (of) of.style.display = e.target.value !== 'no' ? 'block' : 'none';
+    }
+});
+
+// ==================== INSIGHTS JOURNAL ====================
+function getInsightEntries() {
+    return JSON.parse(localStorage.getItem('ij_entries') || '[]');
+}
+function saveInsightEntries(arr) {
+    localStorage.setItem('ij_entries', JSON.stringify(arr));
+}
+
+function saveInsightEntry() {
+    const date = document.getElementById('ij-date').value;
+    const pair = document.getElementById('ij-pair').value.trim();
+    const direction = document.getElementById('ij-direction').value;
+    const text = document.getElementById('ij-text').value.trim();
+    const traded = document.getElementById('ij-traded').value;
+    const outcome = document.getElementById('ij-outcome').value;
+    if (!date || !text) { alert('נא למלא תאריך ותובנה'); return; }
+    const entries = getInsightEntries();
+    entries.unshift({ id: Date.now(), date, pair, direction, text, traded, outcome });
+    saveInsightEntries(entries);
+    // reset form
+    document.getElementById('ij-pair').value = '';
+    document.getElementById('ij-direction').value = '';
+    document.getElementById('ij-text').value = '';
+    document.getElementById('ij-traded').value = 'no';
+    document.getElementById('ij-outcome').value = '';
+    if (document.getElementById('ij-outcome-field')) document.getElementById('ij-outcome-field').style.display = 'none';
+    renderInsightEntries('all');
+    updateInsightStats();
+}
+
+function deleteInsightEntry(id) {
+    const entries = getInsightEntries().filter(e => e.id !== id);
+    saveInsightEntries(entries);
+    renderInsightEntries('all');
+    updateInsightStats();
+}
+
+let _ijFilter = 'all';
+function filterInsights(f) {
+    _ijFilter = f;
+    document.querySelectorAll('.ij-filter-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    renderInsightEntries(f);
+}
+
+function renderInsightEntries(filter) {
+    const container = document.getElementById('ij-entries');
+    if (!container) return;
+    let entries = getInsightEntries();
+    if (filter === 'bullish') entries = entries.filter(e => e.direction === 'bullish');
+    else if (filter === 'bearish') entries = entries.filter(e => e.direction === 'bearish');
+    else if (filter === 'traded') entries = entries.filter(e => e.traded !== 'no');
+    else if (filter === 'week') {
+        const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+        entries = entries.filter(e => new Date(e.date) >= weekAgo);
+    }
+    if (!entries.length) { container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:30px;font-size:14px">אין תובנות להצגה</div>'; return; }
+    const dirLabels = { bullish:'🟢 שורי', bearish:'🔴 דובי', neutral:'⚪ נייטרל', exit:'🔵 יציאה', '':'—' };
+    container.innerHTML = entries.map(e => `
+        <div class="ij-entry">
+            <div class="ij-entry-header">
+                <div>
+                    <div class="ij-entry-pair">${e.pair || 'כללי'}</div>
+                    <div class="ij-entry-date">${e.date}</div>
+                </div>
+                <span class="ij-entry-dir ${e.direction}">${dirLabels[e.direction] || '—'}</span>
+            </div>
+            <div class="ij-entry-text">${e.text.replace(/\n/g, '<br>')}</div>
+            <div class="ij-entry-footer">
+                ${e.traded !== 'no' ? `<span class="ij-badge executed">${e.traded === 'partial' ? '⚡ חלקית' : '✅ בוצע'}</span>` : '<span class="ij-badge">💭 תובנה בלבד</span>'}
+                ${e.outcome === 'win' ? '<span class="ij-badge win">✅ רווח</span>' : e.outcome === 'loss' ? '<span class="ij-badge loss">❌ הפסד</span>' : e.outcome === 'be' ? '<span class="ij-badge be">➡️ BE</span>' : ''}
+                <button class="ij-delete-btn" onclick="deleteInsightEntry(${e.id})">🗑️</button>
+            </div>
+        </div>`).join('');
+}
+
+function updateInsightStats() {
+    const entries = getInsightEntries();
+    const traded = entries.filter(e => e.traded !== 'no');
+    const withOutcome = traded.filter(e => e.outcome);
+    const wins = traded.filter(e => e.outcome === 'win');
+    const el = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    el('ijs-total', entries.length);
+    el('ijs-traded', traded.length);
+    const alignPct = entries.length ? Math.round(traded.length / entries.length * 100) + '%' : '—';
+    el('ijs-align', alignPct);
+    const winPct = withOutcome.length ? Math.round(wins.length / withOutcome.length * 100) + '%' : '—';
+    el('ijs-win', winPct);
+}
+
+function sendWeeklyInsightReport() {
+    const email = document.getElementById('ij-email').value.trim();
+    if (!email) { alert('נא להזין כתובת מייל'); return; }
+    const entries = getInsightEntries();
+    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+    const weekEntries = entries.filter(e => new Date(e.date) >= weekAgo);
+    if (!weekEntries.length) { alert('אין תובנות מהשבוע האחרון'); return; }
+    const traded = weekEntries.filter(e => e.traded !== 'no');
+    const wins = traded.filter(e => e.outcome === 'win');
+    const losses = traded.filter(e => e.outcome === 'loss');
+    let body = `דוח תובנות שבועי — CryptoEdge\n`;
+    body += `=============================\n`;
+    body += `שבוע: ${weekAgo.toLocaleDateString('he-IL')} — ${new Date().toLocaleDateString('he-IL')}\n\n`;
+    body += `סיכום:\n`;
+    body += `• סה"כ תובנות: ${weekEntries.length}\n`;
+    body += `• עסקאות שבוצעו: ${traded.length}\n`;
+    body += `• סנכרון: ${weekEntries.length ? Math.round(traded.length/weekEntries.length*100) : 0}%\n`;
+    body += `• ניצחונות: ${wins.length} | הפסדים: ${losses.length}\n\n`;
+    body += `תובנות השבוע:\n${'─'.repeat(30)}\n`;
+    weekEntries.forEach(e => {
+        body += `\n📅 ${e.date} | ${e.pair || 'כללי'} | ${e.direction || '—'}\n`;
+        body += `${e.text}\n`;
+        if (e.traded !== 'no') body += `→ בוצע: ${e.traded} | תוצאה: ${e.outcome || 'טרם ידוע'}\n`;
+    });
+    const subject = encodeURIComponent('CryptoEdge — דוח תובנות שבועי');
+    const bodyEncoded = encodeURIComponent(body);
+    window.location.href = `mailto:${email}?subject=${subject}&body=${bodyEncoded}`;
+}
+
+// Initialize insights journal when page opens
+(function() {
+    const origSwitch2 = window.switchPage;
+    window.switchPage = function(p) {
+        if (origSwitch2) origSwitch2(p);
+        if (p === 'insights-journal') {
+            setTimeout(() => {
+                // set today's date as default
+                const dateInput = document.getElementById('ij-date');
+                if (dateInput && !dateInput.value) dateInput.value = new Date().toISOString().split('T')[0];
+                renderInsightEntries(_ijFilter);
+                updateInsightStats();
+            }, 50);
+        }
+    };
 })();
 
 // ==================== END ADDITIONS ====================
