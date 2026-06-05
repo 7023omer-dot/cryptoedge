@@ -2960,7 +2960,7 @@ html, body {
                         <h2 style="font-size:1.1rem;font-weight:800;">🗄️ מסד נתונים שוק</h2>
                         <div style="display:flex;gap:8px;">
                             <span id="db-size-badge" style="font-size:0.72rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--text-muted);">0 KB</span>
-                            <button onclick="collectNow()" style="background:rgba(16,185,129,0.2);border:1px solid #10b981;color:#10b981;border-radius:8px;padding:5px 12px;font-size:0.78rem;font-family:inherit;cursor:pointer;font-weight:700;">🔄 אסוף עכשיו</button>
+                            <button onclick="collectNow(this)" style="background:rgba(16,185,129,0.2);border:1px solid #10b981;color:#10b981;border-radius:8px;padding:5px 12px;font-size:0.78rem;font-family:inherit;cursor:pointer;font-weight:700;">🔄 אסוף עכשיו</button>
                             <button onclick="exportDatabase()" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);color:var(--accent-light);border-radius:8px;padding:5px 12px;font-size:0.78rem;font-family:inherit;cursor:pointer;font-weight:700;">📤 ייצוא</button>
                         </div>
                     </div>
@@ -10451,6 +10451,14 @@ function generateRuleBasedInsights(data) {
 }
 
 async function runInsightsPipeline() {
+    const anthropicKey = localStorage.getItem('anthropic_apikey');
+    if (!anthropicKey) {
+        showToast('⚠️ נא להזין מפתח API של Claude בהגדרות AI');
+        // Show the API settings section
+        const settingsEl = document.getElementById('ai-api-settings') || document.querySelector('.api-settings-card');
+        if (settingsEl) settingsEl.scrollIntoView({behavior:'smooth'});
+        return;
+    }
     const apiKey = localStorage.getItem('anthropic_apikey');
 
     const btn = document.getElementById('insights-update-btn');
@@ -11303,8 +11311,7 @@ function updateLevScore() {
 }
 
 
-async function collectNow() {
-    const btn = event.currentTarget;
+async function collectNow(btn) {
     if (btn) { btn.textContent = '⏳ אוסף...'; btn.disabled = true; }
     const results = [];
     const run = async (name, fn) => {
