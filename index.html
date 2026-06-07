@@ -11089,7 +11089,11 @@ function fixAnalysisScroll() {
         ps.style.cssText = 'height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 100px;display:block;';
     }
 }
-document.addEventListener('DOMContentLoaded', function() { setTimeout(fixAnalysisScroll, 500); setTimeout(fixAnalysisScroll, 1500); });
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(fixAnalysisScroll, 500);
+    setTimeout(fixAnalysisScroll, 1500);
+    setTimeout(seedInsightJournalIfEmpty, 300);
+});
 
 // ==================== STRATEGY KNOWLEDGE TABS ====================
 function showStrategyKnowledge(type, btn) {
@@ -11202,8 +11206,7 @@ function renderInsightEntries(filter) {
 
 function seedInsightJournalIfEmpty() {
     const existing = getInsightEntries();
-    const DATE = '2026-06-08';
-    if (existing.some(e => e.date === DATE)) return;
+    if (existing.some(e => e.id === 1749340001000)) return;
     const seed = [
         {
             id: 1749340001000,
