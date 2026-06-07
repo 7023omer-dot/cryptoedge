@@ -7286,7 +7286,7 @@ async function runOverboughtCheck() {
             var coinAlerts = [];
             var check = function(rsi, tf) {
                 if (rsi === null) return;
-                if (rsi >= 70) coinAlerts.push({ tf: tf, rsi: rsi.toFixed(0), type: 'מכירת יתר', color: '#ef4444', emoji: '🔴' });
+                if (rsi >= 70) coinAlerts.push({ tf: tf, rsi: rsi.toFixed(0), type: 'קניית יתר', color: '#ef4444', emoji: '🔴' });
                 else if (rsi <= 30) coinAlerts.push({ tf: tf, rsi: rsi.toFixed(0), type: 'קנייה יתר', color: '#22c55e', emoji: '🟢' });
             };
             check(rsi12h, '12ש');
