@@ -1535,7 +1535,7 @@ html, body {
 /* ==================== ANALYSIS PAGE ==================== */
 .analysis-page { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
 .analysis-header { font-size: 1.2rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-.nav-item--macro { background: rgba(99,102,241,0.22) !important; border: 1.5px solid rgba(99,102,241,0.6) !important; border-radius: 12px !important; }
+.nav-item--macro { border-top: 2px solid rgba(99,102,241,0.5) !important; }
 .nav-item--macro .nav-icon { font-size: 1.1rem !important; }
 .nav-item--macro .nav-label { color: #a5b4fc !important; font-weight: 700 !important; }
 .analysis-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
@@ -2974,6 +2974,7 @@ html, body {
                             <button onclick="collectNow(this)" style="flex:1;background:rgba(16,185,129,0.15);border:1px solid #10b981;color:#10b981;border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">🔄 אסוף נתונים עכשיו</button>
                             <button onclick="exportDatabase()" style="flex:1;background:rgba(99,102,241,0.15);border:1px solid var(--accent);color:var(--accent-light);border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">📤 ייצוא DB</button>
                         </div>
+                        <div id="db-collect-status" style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center;">לחץ "אסוף עכשיו" לקבלת נתונים חיים</div>
                     </div>
 
                     <!-- Live Stats Row -->
@@ -3750,6 +3751,7 @@ function switchPage(pageName) {
     const titles = {
         dashboard: 'דשבורד',
         journal: 'יומן מסחר',
+        'insights-journal': 'יומן תובנות',
         strategies: 'אסטרטגיות',
         risk: 'ניהול סיכונים',
         whales: 'מעקב לווייתנים',
@@ -7609,6 +7611,7 @@ function switchPage(pageName) {
     const titles = {
         dashboard: 'דשבורד',
         journal: 'יומן מסחר',
+        'insights-journal': 'יומן תובנות',
         strategies: 'אסטרטגיות',
         risk: 'ניהול סיכונים',
         whales: 'מעקב לווייתנים',
@@ -11380,32 +11383,31 @@ function updateLevScore() {
 
 
 async function collectNow(btn) {
-    if (btn) { btn.textContent = '⏳ אוסף נתונים...'; btn.disabled = true; }
+    const statusEl = document.getElementById('db-collect-status');
+    if (btn) { btn.textContent = '⏳ אוסף...'; btn.disabled = true; }
+    if (statusEl) statusEl.textContent = '⏳ מתחבר למקורות נתונים...';
     const results = [];
     const run = async (name, fn) => {
         try { await fn(); results.push({ name, ok: true }); }
         catch(e) { results.push({ name, ok: false, err: e.message }); }
     };
-    await run('מחירים Binance', collectPrices);
-    await run('שוק CoinGecko', collectMarket);
-    await run('Fear & Greed', collectSentiment);
-    await run('On-chain Futures', collectOnchain);
-    await run('DeFi TVL', collectDefi);
+    await run('מחירים', collectPrices);
+    await run('שוק', collectMarket);
+    await run('Fear&Greed', collectSentiment);
+    await run('On-chain', collectOnchain);
+    await run('DeFi', collectDefi);
     if (btn) { btn.textContent = '🔄 אסוף נתונים עכשיו'; btn.disabled = false; }
     renderDatabasePage();
-    const ok = results.filter(r => r.ok).length;
-    const fail = results.filter(r => !r.ok);
-    showToast('✅ ' + ok + '/5 מקורות אספו נתונים' + (fail.length ? ' | ❌ ' + fail.map(r=>r.name).join(', ') : ''));
-    if (fail.length) {
-        console.warn('Failed sources:', fail.map(r => r.name + ': ' + r.err).join(' | '));
-    }
-    // Show price in UI immediately
+    const okList = results.filter(r => r.ok).map(r => '✅ ' + r.name);
+    const failList = results.filter(r => !r.ok).map(r => '❌ ' + r.name + ': ' + r.err.slice(0,40));
+    const allLines = [...okList, ...failList];
+    if (statusEl) statusEl.innerHTML = allLines.join(' | ');
     const prices = dbGet('mdb_prices');
     const last = prices[prices.length-1];
     if (last) {
-        const btcEl = document.getElementById('db-btc-price');
-        if (btcEl) btcEl.textContent = '$' + Math.round(last.btc).toLocaleString();
         showToast('💰 BTC: $' + Math.round(last.btc).toLocaleString() + ' | ETH: $' + Math.round(last.eth).toLocaleString());
+    } else {
+        showToast('⚠️ לא הצלחנו לקבל נתונים — בדוק חיבור');
     }
 }
 
