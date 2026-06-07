@@ -3223,7 +3223,7 @@ html, body {
             <div class="nav-item" data-page="insights-journal" onclick="switchPage('insights-journal')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
                 <span style="font-size:1.1rem;line-height:1;">📝</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">תובנות</span>
             </div>
-            <div class="nav-item nav-item--macro" data-page="analysis" onclick="switchPage('analysis')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;background:rgba(99,102,241,0.15);border-top:2px solid rgba(99,102,241,0.7);">
+            <div class="nav-item nav-item--macro" data-page="analysis" onclick="switchPage('analysis')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
                 <span style="font-size:1.1rem;line-height:1;">📊</span><span style="font-size:0.42rem;color:#a5b4fc;font-weight:700;white-space:nowrap;">מאקרו</span>
             </div>
             <div class="nav-item" data-page="strategies" onclick="switchPage('strategies')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
@@ -3740,33 +3740,48 @@ function drawFearGreedGauge(value) {
 // ==================== PAGE NAVIGATION ====================
 function switchPage(pageName) {
     currentPage = pageName;
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(`page-${pageName}`)?.classList.add('active');
 
+    // Show correct page
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const targetPage = document.getElementById('page-' + pageName);
+    if (targetPage) targetPage.classList.add('active');
+
+    // Update nav highlight — clear all, set active
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
-        if (item.dataset.page === pageName) item.classList.add('active');
+        item.style.background = '';
+        item.style.borderTop = '';
     });
+    const activeNav = document.querySelector('.nav-item[data-page="' + pageName + '"]');
+    if (activeNav) {
+        activeNav.classList.add('active');
+        activeNav.style.background = 'rgba(99,102,241,0.18)';
+        activeNav.style.borderTop = '2px solid var(--accent)';
+    }
 
+    // Page title
     const titles = {
-        dashboard: 'דשבורד',
-        journal: 'יומן מסחר',
-        'insights-journal': 'יומן תובנות',
-        strategies: 'אסטרטגיות',
-        risk: 'ניהול סיכונים',
-        whales: 'מעקב לווייתנים',
-        charts: 'גרפים היסטוריים',
-        portfolio: 'תיק השקעות',
-        history: 'היסטוריית עסקאות',
-        insights: 'תובנות AI',
-        analysis: 'ניתוח שוק',
-        database: 'מסד נתונים שוק'
+        dashboard: 'דשבורד', journal: 'יומן מסחר', 'insights-journal': 'יומן תובנות',
+        strategies: 'אסטרטגיות', risk: 'ניהול סיכונים', whales: 'מעקב לווייתנים',
+        charts: 'גרפים היסטוריים', portfolio: 'תיק השקעות', history: 'היסטוריית עסקאות',
+        insights: 'תובנות AI', analysis: 'ניתוח שוק', database: 'מסד נתונים שוק'
     };
-    document.getElementById('page-title').textContent = titles[pageName] || 'CryptoEdge';
+    const titleEl = document.getElementById('page-title');
+    if (titleEl) titleEl.textContent = titles[pageName] || 'CryptoEdge';
+
+    // Page-specific init
     if (pageName === 'history') renderHistory();
     if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; }
-    if (pageName === 'analysis') initAnalysisPage();
+    if (pageName === 'analysis') { initAnalysisPage(); setTimeout(fixAnalysisScroll, 100); }
     if (pageName === 'database') renderDatabasePage();
+    if (pageName === 'insights-journal') {
+        setTimeout(() => {
+            const d = document.getElementById('ij-date');
+            if (d && !d.value) d.value = new Date().toISOString().split('T')[0];
+            renderInsightEntries(_ijFilter || 'all');
+            updateInsightStats();
+        }, 50);
+    }
 }
 
 // ==================== DASHBOARD STATS ====================
@@ -7600,33 +7615,48 @@ function drawFearGreedGauge(value) {
 // ==================== PAGE NAVIGATION ====================
 function switchPage(pageName) {
     currentPage = pageName;
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(`page-${pageName}`)?.classList.add('active');
 
+    // Show correct page
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const targetPage = document.getElementById('page-' + pageName);
+    if (targetPage) targetPage.classList.add('active');
+
+    // Update nav highlight — clear all, set active
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
-        if (item.dataset.page === pageName) item.classList.add('active');
+        item.style.background = '';
+        item.style.borderTop = '';
     });
+    const activeNav = document.querySelector('.nav-item[data-page="' + pageName + '"]');
+    if (activeNav) {
+        activeNav.classList.add('active');
+        activeNav.style.background = 'rgba(99,102,241,0.18)';
+        activeNav.style.borderTop = '2px solid var(--accent)';
+    }
 
+    // Page title
     const titles = {
-        dashboard: 'דשבורד',
-        journal: 'יומן מסחר',
-        'insights-journal': 'יומן תובנות',
-        strategies: 'אסטרטגיות',
-        risk: 'ניהול סיכונים',
-        whales: 'מעקב לווייתנים',
-        charts: 'גרפים היסטוריים',
-        portfolio: 'תיק השקעות',
-        history: 'היסטוריית עסקאות',
-        insights: 'תובנות AI',
-        analysis: 'ניתוח שוק',
-        database: 'מסד נתונים שוק'
+        dashboard: 'דשבורד', journal: 'יומן מסחר', 'insights-journal': 'יומן תובנות',
+        strategies: 'אסטרטגיות', risk: 'ניהול סיכונים', whales: 'מעקב לווייתנים',
+        charts: 'גרפים היסטוריים', portfolio: 'תיק השקעות', history: 'היסטוריית עסקאות',
+        insights: 'תובנות AI', analysis: 'ניתוח שוק', database: 'מסד נתונים שוק'
     };
-    document.getElementById('page-title').textContent = titles[pageName] || 'CryptoEdge';
+    const titleEl = document.getElementById('page-title');
+    if (titleEl) titleEl.textContent = titles[pageName] || 'CryptoEdge';
+
+    // Page-specific init
     if (pageName === 'history') renderHistory();
     if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; }
-    if (pageName === 'analysis') initAnalysisPage();
+    if (pageName === 'analysis') { initAnalysisPage(); setTimeout(fixAnalysisScroll, 100); }
     if (pageName === 'database') renderDatabasePage();
+    if (pageName === 'insights-journal') {
+        setTimeout(() => {
+            const d = document.getElementById('ij-date');
+            if (d && !d.value) d.value = new Date().toISOString().split('T')[0];
+            renderInsightEntries(_ijFilter || 'all');
+            updateInsightStats();
+        }, 50);
+    }
 }
 
 // ==================== DASHBOARD STATS ====================
@@ -11182,23 +11212,15 @@ setTimeout(connectBinanceWs, 2000);
 // ==================== END DAILY DATA COLLECTION ====================
 
 
-// Fix analysis page scroll
-(function() {
-    function fixAnalysisScroll() {
-        var pg = document.getElementById('page-analysis');
-        var ps = pg && pg.querySelector('.page-scroll');
-        if (ps) {
-            ps.style.cssText = 'height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 100px;display:block;';
-        }
+// Fix analysis page scroll (called from switchPage directly)
+function fixAnalysisScroll() {
+    var pg = document.getElementById('page-analysis');
+    var ps = pg && pg.querySelector('.page-scroll');
+    if (ps) {
+        ps.style.cssText = 'height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 100px;display:block;';
     }
-    document.addEventListener('DOMContentLoaded', fixAnalysisScroll);
-    setTimeout(fixAnalysisScroll, 500);
-    setTimeout(fixAnalysisScroll, 1500);
-    var origSwitch = window.switchPage;
-    if (origSwitch) {
-        window.switchPage = function(p) { origSwitch(p); if (p==='analysis') setTimeout(fixAnalysisScroll, 100); };
-    }
-})();
+}
+document.addEventListener('DOMContentLoaded', function() { setTimeout(fixAnalysisScroll, 500); setTimeout(fixAnalysisScroll, 1500); });
 
 // ==================== STRATEGY KNOWLEDGE TABS ====================
 function showStrategyKnowledge(type, btn) {
@@ -11352,22 +11374,7 @@ function sendWeeklyInsightReport() {
     window.location.href = `mailto:${email}?subject=${subject}&body=${bodyEncoded}`;
 }
 
-// Initialize insights journal when page opens
-(function() {
-    const origSwitch2 = window.switchPage;
-    window.switchPage = function(p) {
-        if (origSwitch2) origSwitch2(p);
-        if (p === 'insights-journal') {
-            setTimeout(() => {
-                // set today's date as default
-                const dateInput = document.getElementById('ij-date');
-                if (dateInput && !dateInput.value) dateInput.value = new Date().toISOString().split('T')[0];
-                renderInsightEntries(_ijFilter);
-                updateInsightStats();
-            }, 50);
-        }
-    };
-})();
+// insights-journal init now handled directly in switchPage
 
 
 function updateLevScore() {
