@@ -4657,63 +4657,6 @@ function getSymbolFromPair(pair) {
     return pair.split('/')[0].toUpperCase();
 }
 
-async function fetchLivePrices() {
-    // Collect all unique base symbols from open/limit trades + our 5 portfolio coins
-    const neededSymbols = new Set(['BTC', 'ETH', 'SOL', 'SUI', 'ALGO', 'WIF']);
-    trades.forEach(t => {
-        if (t.status === 'limit' || t.status === 'open' || t.status === 'active') {
-            const sym = getSymbolFromPair(t.pair);
-            if (sym) neededSymbols.add(sym);
-        }
-    });
-
-    const ids = [...neededSymbols]
-        .map(s => COIN_GECKO_IDS[s])
-        .filter(Boolean)
-        .join(',');
-
-    try {
-        const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&precision=0`);
-        const data = await res.json();
-        const now = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-
-        // Reverse map: geckoId → symbol
-        const idToSym = {};
-        Object.entries(COIN_GECKO_IDS).forEach(([sym, id]) => { idToSym[id] = sym; });
-
-        // Store all prices
-        Object.entries(data).forEach(([geckoId, info]) => {
-            const sym = idToSym[geckoId];
-            if (sym) livePrices[sym] = info.usd;
-        });
-
-        // Update dashboard BTC/ETH display elements (existing UI)
-        if (data.bitcoin) {
-            const p = data.bitcoin.usd;
-            const ch = data.bitcoin.usd_24h_change || 0;
-            const el = document.getElementById('btc-price');
-            if (el) el.textContent = '$' + Number(p).toLocaleString('en-US');
-            const cel = document.getElementById('btc-change');
-            if (cel) { cel.textContent = (ch >= 0 ? '+' : '') + ch.toFixed(2) + '%'; cel.className = 'price-change ' + (ch >= 0 ? 'up' : 'down'); }
-            const uel = document.getElementById('btc-updated');
-            if (uel) uel.textContent = 'עודכן ' + now;
-        }
-        if (data.ethereum) {
-            const p = data.ethereum.usd;
-            const ch = data.ethereum.usd_24h_change || 0;
-            const el = document.getElementById('eth-price');
-            if (el) el.textContent = '$' + Number(p).toLocaleString('en-US');
-            const cel = document.getElementById('eth-change');
-            if (cel) { cel.textContent = (ch >= 0 ? '+' : '') + ch.toFixed(2) + '%'; cel.className = 'price-change ' + (ch >= 0 ? 'up' : 'down'); }
-            const uel = document.getElementById('eth-updated');
-            if (uel) uel.textContent = 'עודכן ' + now;
-        }
-
-        // After prices updated — check all triggers
-        checkTradeTriggers();
-
-    } catch (e) { /* silent fail */ }
-}
 
 // ==================== AUTO TRADE TRIGGERS ====================
 function checkTradeTriggers() {
@@ -4793,32 +4736,6 @@ function checkTradeTriggers() {
 }
 
 // ==================== CRYPTO NEWS ====================
-async function fetchCryptoNews() {
-    try {
-        const rssUrl = encodeURIComponent('https://cointelegraph.com/rss');
-        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + rssUrl + '&count=6');
-        const data = await res.json();
-        if (data.status === 'ok' && data.items && data.items.length > 0) {
-            renderNewsItems(data.items);
-            const now = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-            const el = document.getElementById('news-time');
-            if (el) el.textContent = '• עודכן ' + now;
-        } else { throw new Error('no items'); }
-    } catch (e) {
-        try {
-            // fallback: CoinDesk RSS
-            const rssUrl2 = encodeURIComponent('https://www.coindesk.com/arc/outboundfeeds/rss/');
-            const res2 = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + rssUrl2 + '&count=6');
-            const data2 = await res2.json();
-            if (data2.status === 'ok' && data2.items) {
-                renderNewsItems(data2.items);
-            } else { throw new Error('fallback failed'); }
-        } catch (e2) {
-            document.getElementById('crypto-news-list').innerHTML =
-                '<div class="news-loading">⚠️ לא ניתן לטעון חדשות כרגע</div>';
-        }
-    }
-}
 
 function renderNewsItems(items, source) {
     const container = document.getElementById('crypto-news-list');
@@ -5397,15 +5314,6 @@ async function fetchNewsForTab(tab) {
     }
 }
 
-async function fetchCryptoNews() {
-    const now = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-    document.getElementById('news-time').textContent = '• ' + now;
-    // Reset cache and fetch all tabs
-    newsCache = { crypto: null, macro: null, markets: null };
-    fetchNewsForTab('crypto');
-    fetchNewsForTab('macro');
-    fetchNewsForTab('markets');
-}
 
 // ==================== FORM HELPERS ====================
 function updateClosePctVisibility() {
@@ -7481,21 +7389,6 @@ function initApp() {
 }
 
 // ==================== FEAR & GREED INDEX ====================
-async function fetchFearGreed() {
-    try {
-        const res = await fetch('https://api.alternative.me/fng/?limit=1&format=json');
-        const data = await res.json();
-        if (data && data.data && data.data[0]) {
-            const fng = data.data[0];
-            updateFearGreedUI(parseInt(fng.value), fng.value_classification);
-        }
-    } catch (e) {
-        // Fallback: show cached or static
-        document.getElementById('fng-value').textContent = '--';
-        document.getElementById('fng-label').textContent = 'לא ניתן לטעון';
-        document.getElementById('fng-update').textContent = 'בדוק חיבור לאינטרנט';
-    }
-}
 
 function updateFearGreedUI(value, classification) {
     const card = document.getElementById('fng-card');
