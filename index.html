@@ -11136,27 +11136,30 @@ function saveInsightEntries(arr) {
     localStorage.setItem('ij_entries', JSON.stringify(arr));
 }
 
-function saveInsightEntry() {
-    const date = document.getElementById('ij-date').value;
-    const pair = document.getElementById('ij-pair').value.trim();
-    const direction = document.getElementById('ij-direction').value;
-    const text = document.getElementById('ij-text').value.trim();
-    const traded = document.getElementById('ij-traded').value;
-    const outcome = document.getElementById('ij-outcome').value;
-    if (!date || !text) { alert('נא למלא תאריך ותובנה'); return; }
-    const entries = getInsightEntries();
-    entries.unshift({ id: Date.now(), date, pair, direction, text, traded, outcome });
-    saveInsightEntries(entries);
-    // reset form
-    document.getElementById('ij-pair').value = '';
-    document.getElementById('ij-direction').value = '';
-    document.getElementById('ij-text').value = '';
-    document.getElementById('ij-traded').value = 'no';
-    document.getElementById('ij-outcome').value = '';
-    if (document.getElementById('ij-outcome-field')) document.getElementById('ij-outcome-field').style.display = 'none';
-    renderInsightEntries('all');
-    updateInsightStats();
-}
+window.saveInsightEntry = function saveInsightEntry() {
+    try {
+        const date = document.getElementById('ij-date').value;
+        const pair = document.getElementById('ij-pair').value.trim();
+        const direction = document.getElementById('ij-direction').value;
+        const text = document.getElementById('ij-text').value.trim();
+        const traded = document.getElementById('ij-traded').value;
+        const outcome = document.getElementById('ij-outcome').value;
+        if (!date || !text) { alert('נא למלא תאריך ותובנה'); return; }
+        const entries = getInsightEntries();
+        entries.unshift({ id: Date.now(), date, pair, direction, text, traded, outcome });
+        saveInsightEntries(entries);
+        document.getElementById('ij-pair').value = '';
+        document.getElementById('ij-direction').value = '';
+        document.getElementById('ij-text').value = '';
+        document.getElementById('ij-traded').value = 'no';
+        document.getElementById('ij-outcome').value = '';
+        if (document.getElementById('ij-outcome-field')) document.getElementById('ij-outcome-field').style.display = 'none';
+        renderInsightEntries('all');
+        updateInsightStats();
+        const btn = document.querySelector('[onclick="saveInsightEntry()"]');
+        if (btn) { const orig = btn.textContent; btn.textContent = '✅ נשמר!'; btn.style.background = '#10b981'; setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1500); }
+    } catch(e) { alert('שגיאה בשמירה: ' + e.message); }
+};
 
 function deleteInsightEntry(id) {
     const entries = getInsightEntries().filter(e => e.id !== id);
