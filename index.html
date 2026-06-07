@@ -2971,7 +2971,7 @@ html, body {
                             <span id="db-size-badge" style="font-size:0.72rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--text-muted);">0 KB</span>
                         </div>
                         <div style="display:flex;gap:8px;">
-                            <button onclick="collectNow(this)" style="flex:1;background:rgba(16,185,129,0.15);border:1px solid #10b981;color:#10b981;border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">🔄 אסוף נתונים עכשיו</button>
+                            <button onclick="if(typeof collectNow==='function'){collectNow(this)}else{this.textContent='❌ שגיאה JS';}" style="flex:1;background:rgba(16,185,129,0.15);border:1px solid #10b981;color:#10b981;border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">🔄 אסוף נתונים עכשיו</button>
                             <button onclick="exportDatabase()" style="flex:1;background:rgba(99,102,241,0.15);border:1px solid var(--accent);color:var(--accent-light);border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">📤 ייצוא DB</button>
                         </div>
                         <div id="db-collect-status" style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center;">לחץ "אסוף עכשיו" לקבלת נתונים חיים</div>
@@ -11389,7 +11389,7 @@ function updateLevScore() {
 }
 
 
-async function collectNow(btn) {
+window.collectNow = async function collectNow(btn) {
     const statusEl = document.getElementById('db-collect-status');
     if (btn) { btn.textContent = '⏳ אוסף...'; btn.disabled = true; }
     if (statusEl) statusEl.textContent = '⏳ מתחבר למקורות נתונים...';
@@ -11414,9 +11414,9 @@ async function collectNow(btn) {
     if (last) {
         showToast('💰 BTC: $' + Math.round(last.btc).toLocaleString() + ' | ETH: $' + Math.round(last.eth).toLocaleString());
     } else {
-        showToast('⚠️ לא הצלחנו לקבל נתונים — בדוק חיבור');
+        showToast('⚠️ לא הצלחנו לקבל נתונים — בדוק חיבור אינטרנט');
     }
-}
+};
 
 
 function checkBackupReminder() {
