@@ -8542,32 +8542,6 @@ function checkTradeTriggers() {
 }
 
 // ==================== CRYPTO NEWS ====================
-async function fetchCryptoNews() {
-    try {
-        const rssUrl = encodeURIComponent('https://cointelegraph.com/rss');
-        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + rssUrl + '&count=6');
-        const data = await res.json();
-        if (data.status === 'ok' && data.items && data.items.length > 0) {
-            renderNewsItems(data.items);
-            const now = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-            const el = document.getElementById('news-time');
-            if (el) el.textContent = '• עודכן ' + now;
-        } else { throw new Error('no items'); }
-    } catch (e) {
-        try {
-            // fallback: CoinDesk RSS
-            const rssUrl2 = encodeURIComponent('https://www.coindesk.com/arc/outboundfeeds/rss/');
-            const res2 = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + rssUrl2 + '&count=6');
-            const data2 = await res2.json();
-            if (data2.status === 'ok' && data2.items) {
-                renderNewsItems(data2.items);
-            } else { throw new Error('fallback failed'); }
-        } catch (e2) {
-            document.getElementById('crypto-news-list').innerHTML =
-                '<div class="news-loading">⚠️ לא ניתן לטעון חדשות כרגע</div>';
-        }
-    }
-}
 
 function renderNewsItems(items, source) {
     const container = document.getElementById('crypto-news-list');
