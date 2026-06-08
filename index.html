@@ -11138,26 +11138,37 @@ function saveInsightEntries(arr) {
 
 window.saveInsightEntry = function saveInsightEntry() {
     try {
-        const date = document.getElementById('ij-date').value;
-        const pair = document.getElementById('ij-pair').value.trim();
-        const direction = document.getElementById('ij-direction').value;
-        const text = document.getElementById('ij-text').value.trim();
-        const traded = document.getElementById('ij-traded').value;
-        const outcome = document.getElementById('ij-outcome').value;
-        if (!date || !text) { alert('נא למלא תאריך ותובנה'); return; }
+        const dateEl = document.getElementById('ij-date');
+        const textEl = document.getElementById('ij-text');
+        if (!dateEl || !textEl) { alert('שגיאה: לא נמצאו שדות הטופס'); return; }
+        // Auto-fill date if empty
+        if (!dateEl.value) dateEl.value = new Date().toISOString().split('T')[0];
+        const date = dateEl.value;
+        const pair = (document.getElementById('ij-pair') || {}).value || '';
+        const direction = (document.getElementById('ij-direction') || {}).value || '';
+        const text = textEl.value.trim();
+        const traded = (document.getElementById('ij-traded') || {}).value || 'no';
+        const outcome = (document.getElementById('ij-outcome') || {}).value || '';
+        if (!text) { alert('נא למלא תובנה'); return; }
+        const entry = { id: Date.now(), date, pair: pair.trim(), direction, text, traded, outcome };
         const entries = getInsightEntries();
-        entries.unshift({ id: Date.now(), date, pair, direction, text, traded, outcome });
+        entries.unshift(entry);
         saveInsightEntries(entries);
-        document.getElementById('ij-pair').value = '';
-        document.getElementById('ij-direction').value = '';
-        document.getElementById('ij-text').value = '';
-        document.getElementById('ij-traded').value = 'no';
-        document.getElementById('ij-outcome').value = '';
+        // Verify save
+        const saved = getInsightEntries();
+        if (!saved.some(e => e.id === entry.id)) { alert('שגיאה: הנתונים לא נשמרו ל-localStorage'); return; }
+        // Reset form
+        dateEl.value = new Date().toISOString().split('T')[0];
+        if (document.getElementById('ij-pair')) document.getElementById('ij-pair').value = '';
+        if (document.getElementById('ij-direction')) document.getElementById('ij-direction').value = '';
+        textEl.value = '';
+        if (document.getElementById('ij-traded')) document.getElementById('ij-traded').value = 'no';
+        if (document.getElementById('ij-outcome')) document.getElementById('ij-outcome').value = '';
         if (document.getElementById('ij-outcome-field')) document.getElementById('ij-outcome-field').style.display = 'none';
         renderInsightEntries('all');
         updateInsightStats();
         const btn = document.querySelector('[onclick="saveInsightEntry()"]');
-        if (btn) { const orig = btn.textContent; btn.textContent = '✅ נשמר!'; btn.style.background = '#10b981'; setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1500); }
+        if (btn) { const orig = btn.textContent; btn.textContent = '✅ נשמר! (' + saved.length + ' תובנות)'; btn.style.background = '#10b981'; setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2000); }
     } catch(e) { alert('שגיאה בשמירה: ' + e.message); }
 };
 
