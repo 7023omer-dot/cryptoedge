@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a0000">
+<title>תהילים יומי</title>
+<style>
+:root {
+    --bg:        #0d0000;
+    --bg-card:   #1a0505;
+    --bg-elev:   #220808;
+    --border:    #4a1a1a;
+    --burgundy:  #8b1a1a;
+    --burgundy2: #a52020;
+    --gold:      #c9963a;
+    --gold-light:#e8b84b;
+    --gold-pale: rgba(201,150,58,0.15);
+    --text:      #f0e6d3;
+    --text-sec:  #b89070;
+    --text-mut:  #6b4a3a;
+    --shadow:    rgba(0,0,0,0.6);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html, body {
+    height:100%; background:var(--bg); color:var(--text);
+    font-family: 'David Libre', 'Frank Ruhl Libre', 'Times New Roman', serif;
+    direction:rtl;
+}
+
+/* ── HEADER ── */
+.header {
+    position:sticky; top:0; z-index:100;
+    background:linear-gradient(135deg,#1a0505,#2a0808);
+    border-bottom:2px solid var(--gold);
+    padding:14px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    box-shadow:0 4px 20px rgba(0,0,0,0.5);
+}
+.header-title { font-size:1.5rem; font-weight:700; color:var(--gold-light); letter-spacing:2px; }
+.header-sub { font-size:0.75rem; color:var(--text-sec); margin-top:2px; }
+.today-btn {
+    background:linear-gradient(135deg,var(--burgundy),var(--burgundy2));
+    border:1px solid var(--gold); border-radius:20px;
+    color:var(--gold-light); font-size:0.8rem; font-weight:700;
+    padding:6px 14px; cursor:pointer; font-family:inherit;
+}
+.today-btn:active { opacity:0.8; }
+
+/* ── DAY TABS ── */
+.days-wrapper {
+    background:var(--bg-card);
+    border-bottom:1px solid var(--border);
+    overflow-x:auto; white-space:nowrap;
+    padding:10px 12px;
+    scrollbar-width:none;
+}
+.days-wrapper::-webkit-scrollbar { display:none; }
+.day-tab {
+    display:inline-block; margin-left:6px;
+    padding:6px 14px; border-radius:20px;
+    border:1px solid var(--border);
+    color:var(--text-sec); font-size:0.82rem;
+    cursor:pointer; font-family:inherit;
+    background:transparent; transition:all 0.2s;
+}
+.day-tab:last-child { margin-left:0; }
+.day-tab.active {
+    background:linear-gradient(135deg,var(--burgundy),var(--burgundy2));
+    border-color:var(--gold);
+    color:var(--gold-light); font-weight:700;
+    box-shadow:0 0 12px rgba(139,26,26,0.5);
+}
+
+/* ── CONTENT ── */
+.content { padding:16px; max-width:680px; margin:0 auto; }
+
+.day-title {
+    text-align:center; margin-bottom:20px;
+    padding:14px;
+    background:linear-gradient(135deg,rgba(139,26,26,0.3),rgba(201,150,58,0.1));
+    border:1px solid var(--gold);
+    border-radius:12px;
+}
+.day-title h2 { font-size:1.3rem; color:var(--gold-light); }
+.day-title p { font-size:0.8rem; color:var(--text-sec); margin-top:4px; }
+
+/* ── CHAPTER CARD ── */
+.chapter-card {
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    margin-bottom:20px;
+    overflow:hidden;
+    box-shadow:0 4px 16px var(--shadow);
+}
+.chapter-header {
+    background:linear-gradient(135deg,var(--burgundy),#6b1010);
+    padding:12px 16px;
+    display:flex; align-items:center; gap:12px;
+    border-bottom:1px solid var(--gold);
+}
+.chapter-letter {
+    width:44px; height:44px; border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),var(--gold-light));
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.3rem; font-weight:700; color:#1a0000;
+    flex-shrink:0; box-shadow:0 2px 8px rgba(0,0,0,0.4);
+}
+.chapter-info h3 { font-size:1rem; color:var(--gold-light); }
+.chapter-info p { font-size:0.75rem; color:rgba(240,230,211,0.6); margin-top:2px; }
+
+.chapter-body { padding:16px; }
+.chapter-body.loading {
+    text-align:center; padding:30px;
+    color:var(--text-mut); font-size:0.9rem;
+}
+.chapter-body.error {
+    text-align:center; padding:20px;
+    color:#e06060; font-size:0.85rem;
+}
+
+.verse {
+    display:flex; gap:10px; margin-bottom:10px;
+    align-items:flex-start; line-height:1.8;
+}
+.verse-num {
+    font-size:0.7rem; color:var(--gold);
+    min-width:22px; text-align:center;
+    padding-top:4px; flex-shrink:0;
+    font-weight:700;
+}
+.verse-text {
+    font-size:1.05rem; color:var(--text);
+    line-height:1.85; flex:1;
+}
+
+/* ── ORNAMENT ── */
+.ornament {
+    text-align:center; color:var(--gold);
+    font-size:1.2rem; margin:8px 0 0;
+    opacity:0.6;
+}
+.section-divider {
+    text-align:center; margin:24px 0 20px;
+    color:var(--text-mut); font-size:0.75rem; letter-spacing:2px;
+}
+.section-divider::before, .section-divider::after {
+    content:''; display:inline-block;
+    width:60px; height:1px;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    vertical-align:middle; margin:0 10px;
+}
+
+/* ── SPINNER ── */
+@keyframes spin { to { transform:rotate(360deg); } }
+.spinner {
+    display:inline-block; width:20px; height:20px;
+    border:2px solid var(--border);
+    border-top-color:var(--gold);
+    border-radius:50%;
+    animation:spin 0.8s linear infinite;
+    vertical-align:middle; margin-left:8px;
+}
+
+/* ── PROGRESS ── */
+.progress-bar-wrap {
+    height:3px; background:var(--border);
+    position:fixed; top:0; left:0; right:0; z-index:200;
+}
+.progress-bar { height:100%; width:0; background:var(--gold); transition:width 0.3s; }
+
+</style>
+</head>
+<body>
+
+<div class="progress-bar-wrap"><div class="progress-bar" id="prog"></div></div>
+
+<div class="header">
+    <div>
+        <div class="header-title">ספר תהילים</div>
+        <div class="header-sub">קריאה יומית — ל׳ יום</div>
+    </div>
+    <button class="today-btn" onclick="goToday()">יום של היום</button>
+</div>
+
+<div class="days-wrapper" id="days-tabs"></div>
+
+<div class="content" id="main-content">
+    <div style="text-align:center;padding:60px 0;color:var(--text-sec)">
+        <div class="spinner"></div>
+        <div style="margin-top:16px;font-size:0.9rem">טוען תהילים...</div>
+    </div>
+</div>
+
+<script>
+// ── Hebrew numerals ──
+const HEB_LETTERS = ['','א','ב','ג','ד','ה','ו','ז','ח','ט','י','יא','יב','יג','יד','טו','טז','יז','יח','יט','כ','כא','כב','כג','כד','כה','כו','כז','כח','כט','ל','לא','לב','לג','לד','לה','לו','לז','לח','לט','מ','מא','מב','מג','מד','מה','מו','מז','מח','מט','נ','נא','נב','נג','נד','נה','נו','נז','נח','נט','ס','סא','סב','סג','סד','סה','סו','סז','סח','סט','ע','עא','עב','עג','עד','עה','עו','עז','עח','עט','פ','פא','פב','פג','פד','פה','פו','פז','פח','פט','צ','צא','צב','צג','צד','צה','צו','צז','צח','צט','ק','קא','קב','קג','קד','קה','קו','קז','קח','קט','קי','קיא','קיב','קיג','קיד','קטו','קטז','קיז','קיח','קיט','קכ','קכא','קכב','קכג','קכד','קכה','קכו','קכז','קכח','קכט','קל','קלא','קלב','קלג','קלד','קלה','קלו','קלז','קלח','קלט','קמ','קמא','קמב','קמג','קמד','קמה','קמו','קמז','קמח','קמט','קן'];
+
+function numToHeb(n) { return HEB_LETTERS[n] || String(n); }
+
+// ── Daily division (30 days) ──
+const DAYS = [
+    [1,9],[10,17],[18,22],[23,28],[29,34],
+    [35,38],[39,43],[44,48],[49,54],[55,59],
+    [60,65],[66,68],[69,71],[72,76],[77,78],
+    [79,82],[83,87],[88,89],[90,96],[97,103],
+    [104,105],[106,107],[108,112],[113,118],[119,119],
+    [120,134],[135,139],[140,144],[145,150]
+];
+
+const DAY_NAMES = ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','יא','יב','יג','יד','טו','טז','יז','יח','יט','כ','כא','כב','כג','כד','כה','כו','כז','כח','כט','ל'];
+
+let currentDay = 0;
+const chapterCache = {};
+
+// ── Get today's day (1-30 cycle based on Hebrew month day) ──
+function getTodayDay() {
+    const d = new Date();
+    return ((d.getDate() - 1) % 30);
+}
+
+// ── Build day tabs ──
+function buildTabs() {
+    const wrap = document.getElementById('days-tabs');
+    wrap.innerHTML = DAYS.map((r, i) => {
+        const label = r[0] === r[1] ? `תהילים ${numToHeb(r[0])}` : `${numToHeb(r[0])}–${numToHeb(r[1])}`;
+        return `<button class="day-tab${i===currentDay?' active':''}" onclick="loadDay(${i})" id="tab-${i}">יום ${DAY_NAMES[i]}</button>`;
+    }).join('');
+}
+
+function scrollTabIntoView(i) {
+    const tab = document.getElementById('tab-' + i);
+    if (tab) tab.scrollIntoView({ inline:'center', behavior:'smooth', block:'nearest' });
+}
+
+// ── Fetch one chapter from Sefaria ──
+async function fetchChapter(n) {
+    if (chapterCache[n]) return chapterCache[n];
+    const url = `https://www.sefaria.org/api/texts/Psalms.${n}?lang=he&context=0`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    const verses = Array.isArray(data.he) ? data.he : (data.text || []);
+    chapterCache[n] = verses;
+    return verses;
+}
+
+// ── Render a chapter card (placeholder then fill) ──
+function renderChapterPlaceholder(n) {
+    const letter = numToHeb(n);
+    return `
+    <div class="chapter-card" id="chapter-${n}">
+        <div class="chapter-header">
+            <div class="chapter-letter">${letter}</div>
+            <div class="chapter-info">
+                <h3>מזמור ${letter}</h3>
+                <p>פרק ${n} מתוך תהילים</p>
+            </div>
+        </div>
+        <div class="chapter-body loading" id="body-${n}">
+            <div class="spinner"></div> טוען...
+        </div>
+    </div>`;
+}
+
+async function fillChapter(n) {
+    const bodyEl = document.getElementById('body-' + n);
+    if (!bodyEl) return;
+    try {
+        const verses = await fetchChapter(n);
+        if (!verses || !verses.length) throw new Error('אין נתונים');
+        const html = verses.map((v, i) => `
+            <div class="verse">
+                <span class="verse-num">${numToHeb(i+1)}</span>
+                <span class="verse-text">${v}</span>
+            </div>`).join('');
+        bodyEl.className = 'chapter-body';
+        bodyEl.innerHTML = html + '<div class="ornament">✦</div>';
+    } catch(e) {
+        bodyEl.className = 'chapter-body error';
+        bodyEl.innerHTML = `⚠️ לא ניתן לטעון פרק ${numToHeb(n)}<br><small>${e.message}</small>
+            <br><button onclick="fillChapter(${n})" style="margin-top:10px;padding:6px 16px;background:var(--burgundy);border:1px solid var(--gold);border-radius:16px;color:var(--gold-light);cursor:pointer;font-family:inherit">נסה שוב</button>`;
+    }
+}
+
+// ── Load a full day ──
+async function loadDay(dayIndex) {
+    currentDay = dayIndex;
+    buildTabs();
+    scrollTabIntoView(dayIndex);
+
+    const [from, to] = DAYS[dayIndex];
+    const chapters = [];
+    for (let c = from; c <= to; c++) chapters.push(c);
+    const chapRange = from === to ? `מזמור ${numToHeb(from)}` : `מזמורים ${numToHeb(from)}–${numToHeb(to)}`;
+
+    const content = document.getElementById('main-content');
+    content.innerHTML = `
+        <div class="day-title">
+            <h2>יום ${DAY_NAMES[dayIndex]}</h2>
+            <p>${chapRange}</p>
+        </div>
+        ${chapters.map(n => renderChapterPlaceholder(n)).join('<div class="section-divider">— ✦ —</div>')}
+    `;
+
+    // Load chapters progressively
+    const prog = document.getElementById('prog');
+    for (let idx = 0; idx < chapters.length; idx++) {
+        await fillChapter(chapters[idx]);
+        prog.style.width = ((idx+1) / chapters.length * 100) + '%';
+    }
+    setTimeout(() => { prog.style.width = '0'; }, 800);
+}
+
+function goToday() {
+    loadDay(getTodayDay());
+}
+
+// ── Init ──
+currentDay = getTodayDay();
+buildTabs();
+loadDay(currentDay);
+</script>
+</body>
+</html>
