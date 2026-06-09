@@ -10041,8 +10041,8 @@ window.saveAIKey = function() {
     const banner = document.getElementById('ai-key-banner');
     if (!inp) return;
     const val = inp.value.trim();
-    if (!val || !val.startsWith('sk-ant-')) {
-        if (msg) { msg.textContent = '❌ מפתח לא תקין — חייב להתחיל ב-sk-ant-'; msg.style.color = '#ef4444'; }
+    if (!val) {
+        if (msg) { msg.textContent = '⚠️ נא להזין מפתח'; msg.style.color = '#f59e0b'; }
         return;
     }
     localStorage.setItem('anthropic_apikey', val);
