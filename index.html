@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- saved from url=(0130)https://htmlpreview.github.io/?https://raw.githubusercontent.com/7023omer-dot/Fitness-up-/claude/hebrew-greeting-ScA3c/crypto.html -->
-<html lang="he" dir="rtl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><!--<base href="https://raw.githubusercontent.com/7023omer-dot/Fitness-up-/claude/hebrew-greeting-ScA3c/crypto.html">--><base href=".">
+<html lang="he" dir="rtl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><!--<base href="https://raw.githubusercontent.com/7023omer-dot/Fitness-up-/claude/hebrew-greeting-ScA3c/crypto.html">--><base href=".">
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1212,14 +1212,10 @@ html, body {
 /* ==================== AI INSIGHTS PAGE ==================== */
 .insights-page {
     padding: 16px;
-    padding-bottom: 80px;
     display: flex;
     flex-direction: column;
     gap: 16px;
     max-width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
 }
 .insights-header {
     background: var(--bg-card);
@@ -1611,27 +1607,11 @@ html, body {
             </div>
             <div class="header-left" style="display:flex;align-items:center;gap:8px;">
                 <div class="header-badge extreme-fear" id="fng-header-badge">12 - פחד קיצוני</div>
-                <button onclick="openApiKeyModal()" id="api-key-header-btn" style="background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.5);color:#818cf8;border-radius:20px;padding:5px 11px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;">🔑 API</button>
                 <button id="pwa-install-btn" onclick="installPWA()" style="display:none;align-items:center;gap:6px;background:var(--accent);border:none;color:#fff;padding:6px 12px;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;">
                     ⬇️ התקן אפליקציה
                 </button>
             </div>
         </header>
-
-        <!-- API Key Modal -->
-        <div id="api-key-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;padding:20px;">
-            <div style="background:#0d0d1f;border:1px solid #6366f1;border-radius:20px;padding:24px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.8);">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
-                    <div style="font-size:1.1rem;font-weight:800;color:#e8e8ff;">🔑 מפתח Claude API</div>
-                    <button onclick="closeApiKeyModal()" style="background:rgba(255,255,255,0.1);border:none;color:#e8e8ff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;">✕</button>
-                </div>
-                <div style="font-size:0.82rem;color:#7878a0;margin-bottom:14px;line-height:1.6;">נדרש לתובנות AI. קבל מפתח בחינם ב-<a href="https://console.anthropic.com/" target="_blank" style="color:#818cf8;">console.anthropic.com</a> ← API Keys</div>
-                <input type="password" id="modal-api-key-input" placeholder="sk-ant-api03-..." autocomplete="off"
-                    style="width:100%;background:#1a1a30;border:1px solid #252540;border-radius:10px;padding:12px 14px;color:#e8e8ff;font-size:0.9rem;outline:none;font-family:inherit;margin-bottom:12px;box-sizing:border-box;">
-                <div id="modal-api-key-status" style="font-size:0.8rem;min-height:20px;margin-bottom:12px;color:#7878a0;"></div>
-                <button onclick="saveApiKeyModal()" style="width:100%;background:linear-gradient(135deg,#6366f1,#818cf8);border:none;color:#fff;border-radius:12px;padding:13px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:inherit;">💾 שמור מפתח</button>
-            </div>
-        </div>
 
         <!-- Pages Container -->
         <!-- Backup Reminder Banner -->
@@ -2790,18 +2770,6 @@ html, body {
                     <button class="insights-update-btn" id="insights-update-btn" onclick="runInsightsPipeline()">🔄 עדכן תובנות</button>
                 </div>
 
-                <!-- API Key Banner — always visible when key missing -->
-                <div id="ai-key-banner" style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.4);border-radius:14px;padding:14px;display:none;">
-                    <div style="font-size:0.85rem;font-weight:700;color:var(--accent-light);margin-bottom:10px;">🔑 חבר מפתח Claude API</div>
-                    <div style="display:flex;gap:8px;">
-                        <input type="password" id="ai-key-input" placeholder="sk-ant-api03-..." autocomplete="off"
-                            style="flex:1;background:var(--bg-input,#1a1a30);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:0.85rem;outline:none;font-family:inherit;">
-                        <button onclick="(function(btn){try{var v=document.getElementById('ai-key-input').value.trim();if(!v){document.getElementById('ai-key-msg').textContent='⚠️ הכנס מפתח';return;}localStorage.setItem('anthropic_apikey',v);document.getElementById('ai-key-msg').textContent='✅ נשמר!';document.getElementById('ai-key-msg').style.color='#10b981';document.getElementById('ai-key-input').value='';btn.textContent='✅';setTimeout(function(){btn.textContent='💾 שמור';},1500);}catch(e){alert('שגיאה: '+e.message);}})(this)" style="background:linear-gradient(135deg,#6366f1,#818cf8);border:none;color:#fff;border-radius:8px;padding:10px 16px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;white-space:nowrap;">💾 שמור</button>
-                    </div>
-                    <div id="ai-key-msg" style="font-size:0.75rem;margin-top:8px;color:var(--text-muted,#4a4a68);"></div>
-                    <div style="font-size:0.72rem;color:var(--text-muted,#4a4a68);margin-top:6px;">קבל מפתח: <a href="https://console.anthropic.com/" target="_blank" style="color:var(--accent-light,#818cf8);">console.anthropic.com</a> ← API Keys</div>
-                </div>
-
                 <!-- Settings Panel -->
                 <div class="insights-settings-panel" id="insights-settings-panel" style="display:none;">
 
@@ -3003,23 +2971,11 @@ html, body {
                             <span id="db-size-badge" style="font-size:0.72rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--text-muted);">0 KB</span>
                         </div>
                         <div style="display:flex;gap:8px;">
-                            <button onclick="window.collectNow && window.collectNow(this)" style="flex:1;background:rgba(16,185,129,0.15);border:1px solid #10b981;color:#10b981;border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">🔄 אסוף נתונים עכשיו</button>
+                            <button onclick="if(typeof collectNow==='function'){collectNow(this)}else{this.textContent='❌ שגיאה JS';}" style="flex:1;background:rgba(16,185,129,0.15);border:1px solid #10b981;color:#10b981;border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">🔄 אסוף נתונים עכשיו</button>
                             <button onclick="exportDatabase()" style="flex:1;background:rgba(99,102,241,0.15);border:1px solid var(--accent);color:var(--accent-light);border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">📤 ייצוא DB</button>
                         </div>
                         <div id="db-collect-status" style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center;">לחץ "אסוף עכשיו" לקבלת נתונים חיים</div>
-
-                        <!-- Claude API Key Card -->
-                        <div id="db-api-key-card" style="margin-top:12px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.3);border-radius:12px;padding:12px;">
-                            <div style="font-size:0.82rem;font-weight:700;color:var(--accent-light);margin-bottom:8px;">🔑 מפתח Claude API (לתובנות AI)</div>
-                            <div style="display:flex;gap:8px;">
-                                <input type="password" id="db-claude-key-input" placeholder="sk-ant-api03-..." autocomplete="off"
-                                    style="flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:0.82rem;outline:none;">
-                                <button onclick="saveClaudeKeyFromDB()" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);color:var(--accent-light);border-radius:8px;padding:8px 14px;font-size:0.82rem;font-family:inherit;cursor:pointer;font-weight:700;white-space:nowrap;">💾 שמור</button>
-                            </div>
-                            <div id="db-key-status" style="font-size:0.75rem;margin-top:6px;color:var(--text-muted);">
-                                <!-- filled by JS -->
-                            </div>
-                        </div>
+                    </div>
 
                     <!-- Live Stats Row -->
                     <div class="db-live-stats" id="db-live-stats">
@@ -3815,9 +3771,9 @@ function switchPage(pageName) {
 
     // Page-specific init
     if (pageName === 'history') renderHistory();
-    if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; initAIKeyBanner && initAIKeyBanner(); }
+    if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; }
     if (pageName === 'analysis') { initAnalysisPage(); setTimeout(fixAnalysisScroll, 100); }
-    if (pageName === 'database') { renderDatabasePage(); updateDbApiKeyCard(); }
+    if (pageName === 'database') renderDatabasePage();
     if (pageName === 'insights-journal') {
         setTimeout(() => {
             seedInsightJournalIfEmpty();
@@ -7584,9 +7540,9 @@ function switchPage(pageName) {
 
     // Page-specific init
     if (pageName === 'history') renderHistory();
-    if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; initAIKeyBanner && initAIKeyBanner(); }
+    if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; }
     if (pageName === 'analysis') { initAnalysisPage(); setTimeout(fixAnalysisScroll, 100); }
-    if (pageName === 'database') { renderDatabasePage(); updateDbApiKeyCard(); }
+    if (pageName === 'database') renderDatabasePage();
     if (pageName === 'insights-journal') {
         setTimeout(() => {
             seedInsightJournalIfEmpty();
@@ -10018,94 +9974,11 @@ async function testApiKey(service) {
     }
 }
 
-window.toggleInsightsSettings = function() {
+function toggleInsightsSettings() {
     const panel = document.getElementById('insights-settings-panel');
     if (!panel) return;
     panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-    if (panel.style.display === 'block') {
-        // Pre-fill saved key masked
-        const saved = localStorage.getItem('anthropic_apikey');
-        const inp = document.getElementById('ins-anthropic-key');
-        if (inp && saved) inp.placeholder = '••••••••' + saved.slice(-6);
-        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-};
-
-function updateDbApiKeyCard() {
-    const card = document.getElementById('db-api-key-card');
-    const statusEl = document.getElementById('db-key-status');
-    const inp = document.getElementById('db-claude-key-input');
-    if (!card || !statusEl) return;
-    const saved = localStorage.getItem('anthropic_apikey');
-    if (saved) {
-        card.style.borderColor = 'rgba(16,185,129,0.4)';
-        card.style.background = 'rgba(16,185,129,0.06)';
-        statusEl.textContent = '✅ מפתח מוגדר — AI מחובר';
-        statusEl.style.color = '#10b981';
-        if (inp) inp.placeholder = '••••••••' + saved.slice(-6);
-    } else {
-        card.style.borderColor = 'rgba(99,102,241,0.3)';
-        card.style.background = 'rgba(99,102,241,0.08)';
-        statusEl.textContent = '⚠️ אין מפתח — הכנס כדי להפעיל תובנות AI';
-        statusEl.style.color = '#f59e0b';
-    }
 }
-
-window.saveAIKey = function() {
-    const inp = document.getElementById('ai-key-input');
-    const msg = document.getElementById('ai-key-msg');
-    const banner = document.getElementById('ai-key-banner');
-    if (!inp) return;
-    const val = inp.value.trim();
-    if (!val) {
-        if (msg) { msg.textContent = '⚠️ נא להזין מפתח'; msg.style.color = '#f59e0b'; }
-        return;
-    }
-    localStorage.setItem('anthropic_apikey', val);
-    inp.value = '';
-    if (msg) { msg.textContent = '✅ מפתח נשמר! AI מחובר ומוכן.'; msg.style.color = '#10b981'; }
-    setTimeout(() => { if (banner) banner.style.display = 'none'; }, 2000);
-    updateDbApiKeyCard && updateDbApiKeyCard();
-    updateApiCardDots && updateApiCardDots();
-    const inp2 = document.getElementById('ins-anthropic-key');
-    if (inp2) inp2.placeholder = '••••••••' + val.slice(-6);
-};
-
-function initAIKeyBanner() {
-    const banner = document.getElementById('ai-key-banner');
-    if (!banner) return;
-    const saved = localStorage.getItem('anthropic_apikey');
-    if (saved) {
-        banner.style.display = 'none';
-        const inp = document.getElementById('ai-key-input');
-        if (inp) inp.placeholder = '••••••••' + saved.slice(-6);
-    } else {
-        banner.style.display = 'block';
-    }
-}
-
-window.saveClaudeKeyFromDB = function() {
-    const inp = document.getElementById('db-claude-key-input');
-    const statusEl = document.getElementById('db-key-status');
-    if (!inp) return;
-    const val = inp.value.trim();
-    if (!val) {
-        statusEl.textContent = '⚠️ נא להזין מפתח';
-        statusEl.style.color = '#f59e0b';
-        return;
-    }
-    if (!val.startsWith('sk-ant-')) {
-        statusEl.textContent = '❌ מפתח לא תקין — חייב להתחיל ב-sk-ant-';
-        statusEl.style.color = '#ef4444';
-        return;
-    }
-    localStorage.setItem('anthropic_apikey', val);
-    inp.value = '';
-    inp.placeholder = '••••••••' + val.slice(-6);
-    statusEl.textContent = '✅ מפתח נשמר! כעת תובנות AI יעבדו.';
-    statusEl.style.color = '#10b981';
-    updateApiCardDots && updateApiCardDots();
-};
 
 function saveInsightsSettings() {
     const map = {
@@ -10390,9 +10263,7 @@ async function callClaudeAPI(prompt) {
 
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        const errMsg = 'Claude API שגיאה: ' + (err?.error?.message || res.status);
-        console.error('[callClaudeAPI] Error:', errMsg, 'Status:', res.status, 'Body:', err);
-        throw new Error(errMsg);
+        throw new Error('Claude API שגיאה: ' + (err?.error?.message || res.status));
     }
 
     const data = await res.json();
@@ -10631,7 +10502,7 @@ async function runInsightsPipeline() {
         const placeholder = document.getElementById('insights-placeholder');
         if (placeholder) {
             placeholder.style.display = 'block';
-            placeholder.innerHTML = '<div style="font-size:2rem;">❌</div><div style="margin-top:10px;color:var(--red);">' + e.message + '</div><div style="margin-top:6px;font-size:0.8rem;color:#888;">' + (e.stack ? e.stack.slice(0,300) : '') + '</div>';
+            placeholder.innerHTML = '<div style="font-size:2rem;">❌</div><div style="margin-top:10px;color:var(--red);">' + e.message + '</div>';
         }
         const card = document.getElementById('insights-output-card');
         if (card) { card.style.alignItems = 'center'; card.style.justifyContent = 'center'; }
@@ -11603,46 +11474,5 @@ function dismissBackupReminder() {
         localStorage.setItem(KEY, JSON.stringify(seed.concat(existing)));
     } catch(e) {}
 })();
-
-function openApiKeyModal() {
-    var modal = document.getElementById('api-key-modal');
-    if (!modal) return;
-    modal.style.display = 'flex';
-    var saved = localStorage.getItem('anthropic_apikey');
-    var inp = document.getElementById('modal-api-key-input');
-    var st = document.getElementById('modal-api-key-status');
-    if (saved && inp) {
-        inp.placeholder = '••••••••' + saved.slice(-6);
-        st.textContent = '✅ מפתח מוגדר — AI מחובר';
-        st.style.color = '#10b981';
-    }
-    setTimeout(function(){ if(inp) inp.focus(); }, 100);
-}
-function closeApiKeyModal() {
-    var modal = document.getElementById('api-key-modal');
-    if (modal) modal.style.display = 'none';
-}
-function saveApiKeyModal() {
-    var inp = document.getElementById('modal-api-key-input');
-    var st = document.getElementById('modal-api-key-status');
-    try {
-        var val = inp ? inp.value.trim() : '';
-        if (!val) { st.textContent = '⚠️ נא להזין מפתח'; st.style.color = '#f59e0b'; return; }
-        localStorage.setItem('anthropic_apikey', val);
-        st.textContent = '✅ נשמר בהצלחה!';
-        st.style.color = '#10b981';
-        if (inp) inp.value = '';
-        setTimeout(closeApiKeyModal, 1200);
-        var btn = document.getElementById('api-key-header-btn');
-        if (btn) { btn.textContent = '✅ API'; btn.style.color = '#10b981'; }
-    } catch(e) { st.textContent = '❌ שגיאה: ' + e.message; st.style.color = '#ef4444'; }
-}
-document.addEventListener('DOMContentLoaded', function() {
-    var saved = localStorage.getItem('anthropic_apikey');
-    var btn = document.getElementById('api-key-header-btn');
-    if (saved) {
-        if (btn) { btn.textContent = '✅ API'; btn.style.color = '#10b981'; }
-    }
-});
 
     </script><span id="PING_IFRAME_FORM_DETECTION" style="display: none;"></span></body></html>
