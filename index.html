@@ -3003,7 +3003,7 @@ html, body {
                             <span id="db-size-badge" style="font-size:0.72rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--text-muted);">0 KB</span>
                         </div>
                         <div style="display:flex;gap:8px;">
-                            <button onclick="if(typeof collectNow==='function'){collectNow(this)}else{this.textContent='❌ שגיאה JS';}" style="flex:1;background:rgba(16,185,129,0.15);border:1px solid #10b981;color:#10b981;border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">🔄 אסוף נתונים עכשיו</button>
+                            <button onclick="window.collectNow && window.collectNow(this)" style="flex:1;background:rgba(16,185,129,0.15);border:1px solid #10b981;color:#10b981;border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">🔄 אסוף נתונים עכשיו</button>
                             <button onclick="exportDatabase()" style="flex:1;background:rgba(99,102,241,0.15);border:1px solid var(--accent);color:var(--accent-light);border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">📤 ייצוא DB</button>
                         </div>
                         <div id="db-collect-status" style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center;">לחץ "אסוף עכשיו" לקבלת נתונים חיים</div>
@@ -10390,7 +10390,9 @@ async function callClaudeAPI(prompt) {
 
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error('Claude API שגיאה: ' + (err?.error?.message || res.status));
+        const errMsg = 'Claude API שגיאה: ' + (err?.error?.message || res.status);
+        console.error('[callClaudeAPI] Error:', errMsg, 'Status:', res.status, 'Body:', err);
+        throw new Error(errMsg);
     }
 
     const data = await res.json();
@@ -10629,7 +10631,7 @@ async function runInsightsPipeline() {
         const placeholder = document.getElementById('insights-placeholder');
         if (placeholder) {
             placeholder.style.display = 'block';
-            placeholder.innerHTML = '<div style="font-size:2rem;">❌</div><div style="margin-top:10px;color:var(--red);">' + e.message + '</div>';
+            placeholder.innerHTML = '<div style="font-size:2rem;">❌</div><div style="margin-top:10px;color:var(--red);">' + e.message + '</div><div style="margin-top:6px;font-size:0.8rem;color:#888;">' + (e.stack ? e.stack.slice(0,300) : '') + '</div>';
         }
         const card = document.getElementById('insights-output-card');
         if (card) { card.style.alignItems = 'center'; card.style.justifyContent = 'center'; }
@@ -11602,8 +11604,6 @@ function dismissBackupReminder() {
     } catch(e) {}
 })();
 
-    </script><span id="PING_IFRAME_FORM_DETECTION" style="display: none;"></span></body></html>
-<script>
 function openApiKeyModal() {
     var modal = document.getElementById('api-key-modal');
     if (!modal) return;
@@ -11647,4 +11647,5 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(openApiKeyModal, 2000);
     }
 });
-</script>
+
+    </script><span id="PING_IFRAME_FORM_DETECTION" style="display: none;"></span></body></html>
