@@ -11642,9 +11642,6 @@ document.addEventListener('DOMContentLoaded', function() {
     var btn = document.getElementById('api-key-header-btn');
     if (saved) {
         if (btn) { btn.textContent = '✅ API'; btn.style.color = '#10b981'; }
-    } else {
-        // Auto-open modal after splash disappears
-        setTimeout(openApiKeyModal, 2000);
     }
 });
 
