@@ -11640,6 +11640,11 @@ function saveApiKeyModal() {
 document.addEventListener('DOMContentLoaded', function() {
     var saved = localStorage.getItem('anthropic_apikey');
     var btn = document.getElementById('api-key-header-btn');
-    if (btn && saved) { btn.textContent = '✅ API'; btn.style.color = '#10b981'; }
+    if (saved) {
+        if (btn) { btn.textContent = '✅ API'; btn.style.color = '#10b981'; }
+    } else {
+        // Auto-open modal after splash disappears
+        setTimeout(openApiKeyModal, 2000);
+    }
 });
 </script>
