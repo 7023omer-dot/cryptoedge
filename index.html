@@ -1611,11 +1611,27 @@ html, body {
             </div>
             <div class="header-left" style="display:flex;align-items:center;gap:8px;">
                 <div class="header-badge extreme-fear" id="fng-header-badge">12 - פחד קיצוני</div>
+                <button onclick="openApiKeyModal()" id="api-key-header-btn" style="background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.5);color:#818cf8;border-radius:20px;padding:5px 11px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;">🔑 API</button>
                 <button id="pwa-install-btn" onclick="installPWA()" style="display:none;align-items:center;gap:6px;background:var(--accent);border:none;color:#fff;padding:6px 12px;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;">
                     ⬇️ התקן אפליקציה
                 </button>
             </div>
         </header>
+
+        <!-- API Key Modal -->
+        <div id="api-key-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;padding:20px;">
+            <div style="background:#0d0d1f;border:1px solid #6366f1;border-radius:20px;padding:24px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.8);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+                    <div style="font-size:1.1rem;font-weight:800;color:#e8e8ff;">🔑 מפתח Claude API</div>
+                    <button onclick="closeApiKeyModal()" style="background:rgba(255,255,255,0.1);border:none;color:#e8e8ff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;">✕</button>
+                </div>
+                <div style="font-size:0.82rem;color:#7878a0;margin-bottom:14px;line-height:1.6;">נדרש לתובנות AI. קבל מפתח בחינם ב-<a href="https://console.anthropic.com/" target="_blank" style="color:#818cf8;">console.anthropic.com</a> ← API Keys</div>
+                <input type="password" id="modal-api-key-input" placeholder="sk-ant-api03-..." autocomplete="off"
+                    style="width:100%;background:#1a1a30;border:1px solid #252540;border-radius:10px;padding:12px 14px;color:#e8e8ff;font-size:0.9rem;outline:none;font-family:inherit;margin-bottom:12px;box-sizing:border-box;">
+                <div id="modal-api-key-status" style="font-size:0.8rem;min-height:20px;margin-bottom:12px;color:#7878a0;"></div>
+                <button onclick="saveApiKeyModal()" style="width:100%;background:linear-gradient(135deg,#6366f1,#818cf8);border:none;color:#fff;border-radius:12px;padding:13px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:inherit;">💾 שמור מפתח</button>
+            </div>
+        </div>
 
         <!-- Pages Container -->
         <!-- Backup Reminder Banner -->
@@ -11587,3 +11603,43 @@ function dismissBackupReminder() {
 })();
 
     </script><span id="PING_IFRAME_FORM_DETECTION" style="display: none;"></span></body></html>
+<script>
+function openApiKeyModal() {
+    var modal = document.getElementById('api-key-modal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    var saved = localStorage.getItem('anthropic_apikey');
+    var inp = document.getElementById('modal-api-key-input');
+    var st = document.getElementById('modal-api-key-status');
+    if (saved && inp) {
+        inp.placeholder = '••••••••' + saved.slice(-6);
+        st.textContent = '✅ מפתח מוגדר — AI מחובר';
+        st.style.color = '#10b981';
+    }
+    setTimeout(function(){ if(inp) inp.focus(); }, 100);
+}
+function closeApiKeyModal() {
+    var modal = document.getElementById('api-key-modal');
+    if (modal) modal.style.display = 'none';
+}
+function saveApiKeyModal() {
+    var inp = document.getElementById('modal-api-key-input');
+    var st = document.getElementById('modal-api-key-status');
+    try {
+        var val = inp ? inp.value.trim() : '';
+        if (!val) { st.textContent = '⚠️ נא להזין מפתח'; st.style.color = '#f59e0b'; return; }
+        localStorage.setItem('anthropic_apikey', val);
+        st.textContent = '✅ נשמר בהצלחה!';
+        st.style.color = '#10b981';
+        if (inp) inp.value = '';
+        setTimeout(closeApiKeyModal, 1200);
+        var btn = document.getElementById('api-key-header-btn');
+        if (btn) { btn.textContent = '✅ API'; btn.style.color = '#10b981'; }
+    } catch(e) { st.textContent = '❌ שגיאה: ' + e.message; st.style.color = '#ef4444'; }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    var saved = localStorage.getItem('anthropic_apikey');
+    var btn = document.getElementById('api-key-header-btn');
+    if (btn && saved) { btn.textContent = '✅ API'; btn.style.color = '#10b981'; }
+});
+</script>
