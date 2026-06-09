@@ -2975,7 +2975,19 @@ html, body {
                             <button onclick="exportDatabase()" style="flex:1;background:rgba(99,102,241,0.15);border:1px solid var(--accent);color:var(--accent-light);border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">📤 ייצוא DB</button>
                         </div>
                         <div id="db-collect-status" style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center;">לחץ "אסוף עכשיו" לקבלת נתונים חיים</div>
-                    </div>
+
+                        <!-- Claude API Key Card -->
+                        <div id="db-api-key-card" style="margin-top:12px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.3);border-radius:12px;padding:12px;">
+                            <div style="font-size:0.82rem;font-weight:700;color:var(--accent-light);margin-bottom:8px;">🔑 מפתח Claude API (לתובנות AI)</div>
+                            <div style="display:flex;gap:8px;">
+                                <input type="password" id="db-claude-key-input" placeholder="sk-ant-api03-..." autocomplete="off"
+                                    style="flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:0.82rem;outline:none;">
+                                <button onclick="saveClaudeKeyFromDB()" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);color:var(--accent-light);border-radius:8px;padding:8px 14px;font-size:0.82rem;font-family:inherit;cursor:pointer;font-weight:700;white-space:nowrap;">💾 שמור</button>
+                            </div>
+                            <div id="db-key-status" style="font-size:0.75rem;margin-top:6px;color:var(--text-muted);">
+                                <!-- filled by JS -->
+                            </div>
+                        </div>
 
                     <!-- Live Stats Row -->
                     <div class="db-live-stats" id="db-live-stats">
@@ -3773,7 +3785,7 @@ function switchPage(pageName) {
     if (pageName === 'history') renderHistory();
     if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; }
     if (pageName === 'analysis') { initAnalysisPage(); setTimeout(fixAnalysisScroll, 100); }
-    if (pageName === 'database') renderDatabasePage();
+    if (pageName === 'database') { renderDatabasePage(); updateDbApiKeyCard(); }
     if (pageName === 'insights-journal') {
         setTimeout(() => {
             seedInsightJournalIfEmpty();
@@ -7542,7 +7554,7 @@ function switchPage(pageName) {
     if (pageName === 'history') renderHistory();
     if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; }
     if (pageName === 'analysis') { initAnalysisPage(); setTimeout(fixAnalysisScroll, 100); }
-    if (pageName === 'database') renderDatabasePage();
+    if (pageName === 'database') { renderDatabasePage(); updateDbApiKeyCard(); }
     if (pageName === 'insights-journal') {
         setTimeout(() => {
             seedInsightJournalIfEmpty();
@@ -9974,11 +9986,61 @@ async function testApiKey(service) {
     }
 }
 
-function toggleInsightsSettings() {
+window.toggleInsightsSettings = function() {
     const panel = document.getElementById('insights-settings-panel');
     if (!panel) return;
     panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    if (panel.style.display === 'block') {
+        // Pre-fill saved key masked
+        const saved = localStorage.getItem('anthropic_apikey');
+        const inp = document.getElementById('ins-anthropic-key');
+        if (inp && saved) inp.placeholder = '••••••••' + saved.slice(-6);
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+};
+
+function updateDbApiKeyCard() {
+    const card = document.getElementById('db-api-key-card');
+    const statusEl = document.getElementById('db-key-status');
+    const inp = document.getElementById('db-claude-key-input');
+    if (!card || !statusEl) return;
+    const saved = localStorage.getItem('anthropic_apikey');
+    if (saved) {
+        card.style.borderColor = 'rgba(16,185,129,0.4)';
+        card.style.background = 'rgba(16,185,129,0.06)';
+        statusEl.textContent = '✅ מפתח מוגדר — AI מחובר';
+        statusEl.style.color = '#10b981';
+        if (inp) inp.placeholder = '••••••••' + saved.slice(-6);
+    } else {
+        card.style.borderColor = 'rgba(99,102,241,0.3)';
+        card.style.background = 'rgba(99,102,241,0.08)';
+        statusEl.textContent = '⚠️ אין מפתח — הכנס כדי להפעיל תובנות AI';
+        statusEl.style.color = '#f59e0b';
+    }
 }
+
+window.saveClaudeKeyFromDB = function() {
+    const inp = document.getElementById('db-claude-key-input');
+    const statusEl = document.getElementById('db-key-status');
+    if (!inp) return;
+    const val = inp.value.trim();
+    if (!val) {
+        statusEl.textContent = '⚠️ נא להזין מפתח';
+        statusEl.style.color = '#f59e0b';
+        return;
+    }
+    if (!val.startsWith('sk-ant-')) {
+        statusEl.textContent = '❌ מפתח לא תקין — חייב להתחיל ב-sk-ant-';
+        statusEl.style.color = '#ef4444';
+        return;
+    }
+    localStorage.setItem('anthropic_apikey', val);
+    inp.value = '';
+    inp.placeholder = '••••••••' + val.slice(-6);
+    statusEl.textContent = '✅ מפתח נשמר! כעת תובנות AI יעבדו.';
+    statusEl.style.color = '#10b981';
+    updateApiCardDots && updateApiCardDots();
+};
 
 function saveInsightsSettings() {
     const map = {
