@@ -2774,6 +2774,18 @@ html, body {
                     <button class="insights-update-btn" id="insights-update-btn" onclick="runInsightsPipeline()">🔄 עדכן תובנות</button>
                 </div>
 
+                <!-- API Key Banner — always visible when key missing -->
+                <div id="ai-key-banner" style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.4);border-radius:14px;padding:14px;display:none;">
+                    <div style="font-size:0.85rem;font-weight:700;color:var(--accent-light);margin-bottom:10px;">🔑 חבר מפתח Claude API</div>
+                    <div style="display:flex;gap:8px;">
+                        <input type="password" id="ai-key-input" placeholder="sk-ant-api03-..." autocomplete="off"
+                            style="flex:1;background:var(--bg-input,#1a1a30);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:0.85rem;outline:none;font-family:inherit;">
+                        <button onclick="saveAIKey()" style="background:linear-gradient(135deg,#6366f1,#818cf8);border:none;color:#fff;border-radius:8px;padding:10px 16px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;white-space:nowrap;">💾 שמור</button>
+                    </div>
+                    <div id="ai-key-msg" style="font-size:0.75rem;margin-top:8px;color:var(--text-muted,#4a4a68);"></div>
+                    <div style="font-size:0.72rem;color:var(--text-muted,#4a4a68);margin-top:6px;">קבל מפתח: <a href="https://console.anthropic.com/" target="_blank" style="color:var(--accent-light,#818cf8);">console.anthropic.com</a> ← API Keys</div>
+                </div>
+
                 <!-- Settings Panel -->
                 <div class="insights-settings-panel" id="insights-settings-panel" style="display:none;">
 
@@ -3787,7 +3799,7 @@ function switchPage(pageName) {
 
     // Page-specific init
     if (pageName === 'history') renderHistory();
-    if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; }
+    if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; initAIKeyBanner && initAIKeyBanner(); }
     if (pageName === 'analysis') { initAnalysisPage(); setTimeout(fixAnalysisScroll, 100); }
     if (pageName === 'database') { renderDatabasePage(); updateDbApiKeyCard(); }
     if (pageName === 'insights-journal') {
@@ -7556,7 +7568,7 @@ function switchPage(pageName) {
 
     // Page-specific init
     if (pageName === 'history') renderHistory();
-    if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; }
+    if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; initAIKeyBanner && initAIKeyBanner(); }
     if (pageName === 'analysis') { initAnalysisPage(); setTimeout(fixAnalysisScroll, 100); }
     if (pageName === 'database') { renderDatabasePage(); updateDbApiKeyCard(); }
     if (pageName === 'insights-journal') {
@@ -10020,6 +10032,39 @@ function updateDbApiKeyCard() {
         card.style.background = 'rgba(99,102,241,0.08)';
         statusEl.textContent = '⚠️ אין מפתח — הכנס כדי להפעיל תובנות AI';
         statusEl.style.color = '#f59e0b';
+    }
+}
+
+window.saveAIKey = function() {
+    const inp = document.getElementById('ai-key-input');
+    const msg = document.getElementById('ai-key-msg');
+    const banner = document.getElementById('ai-key-banner');
+    if (!inp) return;
+    const val = inp.value.trim();
+    if (!val || !val.startsWith('sk-ant-')) {
+        if (msg) { msg.textContent = '❌ מפתח לא תקין — חייב להתחיל ב-sk-ant-'; msg.style.color = '#ef4444'; }
+        return;
+    }
+    localStorage.setItem('anthropic_apikey', val);
+    inp.value = '';
+    if (msg) { msg.textContent = '✅ מפתח נשמר! AI מחובר ומוכן.'; msg.style.color = '#10b981'; }
+    setTimeout(() => { if (banner) banner.style.display = 'none'; }, 2000);
+    updateDbApiKeyCard && updateDbApiKeyCard();
+    updateApiCardDots && updateApiCardDots();
+    const inp2 = document.getElementById('ins-anthropic-key');
+    if (inp2) inp2.placeholder = '••••••••' + val.slice(-6);
+};
+
+function initAIKeyBanner() {
+    const banner = document.getElementById('ai-key-banner');
+    if (!banner) return;
+    const saved = localStorage.getItem('anthropic_apikey');
+    if (saved) {
+        banner.style.display = 'none';
+        const inp = document.getElementById('ai-key-input');
+        if (inp) inp.placeholder = '••••••••' + saved.slice(-6);
+    } else {
+        banner.style.display = 'block';
     }
 }
 
