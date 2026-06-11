@@ -10579,11 +10579,15 @@ function generateRuleBasedInsights(data) {
 
 async function runInsightsPipeline() {
     const anthropicKey = localStorage.getItem('anthropic_apikey');
+    console.log('[AI] runInsightsPipeline called, key exists:', !!anthropicKey);
     if (!anthropicKey) {
-        showToast('⚠️ נא להזין מפתח API של Claude בהגדרות AI');
-        // Show the API settings section
-        const settingsEl = document.getElementById('ai-api-settings') || document.querySelector('.api-settings-card');
-        if (settingsEl) settingsEl.scrollIntoView({behavior:'smooth'});
+        showToast('⚠️ מפתח API לא נמצא — אנא שמור מחדש');
+        alert('שגיאה: מפתח API לא נמצא ב-localStorage\nנסה לשמור שוב את המפתח.');
+        return;
+    }
+    if (!anthropicKey.startsWith('sk-ant-')) {
+        showToast('⚠️ מפתח לא תקין — חייב להתחיל ב-sk-ant-');
+        alert('מפתח לא תקין: ' + anthropicKey.slice(0,20) + '...\nחייב להתחיל ב-sk-ant-');
         return;
     }
     const apiKey = localStorage.getItem('anthropic_apikey');
