@@ -1591,33 +1591,33 @@ html, body {
 // ==================== SUPABASE CLOUD SYNC ====================
 const _SB_URL = 'https://riakzqevmugkfopkxhuz.supabase.co';
 const _SB_KEY = 'sb_publishable_ogUm7WX9FvoyTACogfU9Mw_dFQJT0Ps';
-let _sb = null;
+window._sb = null;
 
 // Intercept all localStorage writes → sync to cloud
 const _origLS = localStorage.setItem.bind(localStorage);
 localStorage.setItem = function(key, value) {
     _origLS(key, value);
-    if (!_sb) return;
+    if (!window._sb) return;
     let parsed;
     try { parsed = JSON.parse(value); } catch { parsed = value; }
-    _sb.from('app_kv')
+    window._sb.from('app_kv')
        .upsert({ key, value: parsed, updated_at: new Date().toISOString() }, { onConflict: 'key' })
        .then(() => {}).catch(() => {});
 };
 
 function _initSB() {
     try {
-        _sb = window.supabase.createClient(_SB_URL, _SB_KEY);
+        window._sb = window.supabase.createClient(_SB_URL, _SB_KEY);
         console.log('[Supabase] Client ready');
     } catch(e) { console.warn('[Supabase] Init failed:', e); }
 }
 
 async function loadFromSupabase() {
-    if (!_sb) return;
+    if (!window._sb) return;
     // Keys that should never be overwritten if already set locally
     const STICKY_KEYS = ['anthropic_apikey', 'cr_apikey', 'san_apikey', 'cg_apikey'];
     try {
-        const { data, error } = await _sb.from('app_kv').select('key, value');
+        const { data, error } = await window._sb.from('app_kv').select('key, value');
         if (error || !data?.length) return;
         data.forEach(row => {
             // Don't overwrite sensitive keys if already set locally
@@ -1638,7 +1638,7 @@ async function loadFromSupabase() {
 }
 
 async function fullBackupToSupabase() {
-    if (!_sb) return;
+    if (!window._sb) return;
     try {
         const rows = Object.keys(localStorage).map(key => {
             let value;
@@ -1646,7 +1646,7 @@ async function fullBackupToSupabase() {
             return { key, value, updated_at: new Date().toISOString() };
         });
         if (!rows.length) return;
-        await _sb.from('app_kv').upsert(rows, { onConflict: 'key' });
+        await window._sb.from('app_kv').upsert(rows, { onConflict: 'key' });
         _origLS('last_cloud_backup', Date.now().toString());
         console.log(`[Supabase] Full backup: ${rows.length} keys`);
     } catch(e) { console.warn('[Supabase] Backup failed:', e); }
