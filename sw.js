@@ -1,5 +1,5 @@
-// CryptoEdge Service Worker - v3 cache bust
-const CACHE_NAME = 'cryptoedge-v3';
+// CryptoEdge Service Worker - v4 cache bust
+const CACHE_NAME = 'cryptoedge-v4';
 
 self.addEventListener('install', e => {
     self.skipWaiting();
