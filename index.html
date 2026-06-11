@@ -1586,6 +1586,49 @@ html, body {
 .placeholder-mode-box label { font-size: 0.78rem; color: var(--text-secondary); display: block; margin-bottom: 4px; font-weight: 600; }
 .placeholder-mode-box input { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; color: var(--text); font-size: 0.88rem; width: 100%; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; direction: ltr; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+// ==================== SUPABASE CLOUD SYNC ====================
+const _SB_URL = 'https://riakzqevmugkfopkxhuz.supabase.co';
+const _SB_KEY = 'sb_publishable_ogUm7WX9FvoyTACogfU9Mw_dFQJT0Ps';
+let _sb = null;
+
+// Intercept all localStorage writes → sync to cloud
+const _origLS = localStorage.setItem.bind(localStorage);
+localStorage.setItem = function(key, value) {
+    _origLS(key, value);
+    if (!_sb) return;
+    let parsed;
+    try { parsed = JSON.parse(value); } catch { parsed = value; }
+    _sb.from('app_kv')
+       .upsert({ key, value: parsed, updated_at: new Date().toISOString() }, { onConflict: 'key' })
+       .then(() => {}).catch(() => {});
+};
+
+function _initSB() {
+    try {
+        _sb = window.supabase.createClient(_SB_URL, _SB_KEY);
+        console.log('[Supabase] Client ready');
+    } catch(e) { console.warn('[Supabase] Init failed:', e); }
+}
+
+async function loadFromSupabase() {
+    if (!_sb) return;
+    try {
+        const { data, error } = await _sb.from('app_kv').select('key, value');
+        if (error || !data?.length) return;
+        data.forEach(row => {
+            const val = row.value === null ? 'null'
+                      : typeof row.value === 'string' ? row.value
+                      : JSON.stringify(row.value);
+            _origLS(row.key, val);
+        });
+        console.log(`[Supabase] Synced ${data.length} keys from cloud`);
+    } catch(e) { console.warn('[Supabase] Load failed:', e); }
+}
+
+document.addEventListener('DOMContentLoaded', _initSB);
+</script>
 </head>
 <body>
 
@@ -3578,17 +3621,18 @@ function setData(key, val) {
 
 // ==================== INIT ====================
 document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
+    setTimeout(async () => {
         document.getElementById('splash').classList.add('hide');
         document.getElementById('app').classList.remove('hidden');
         setTimeout(() => {
             document.getElementById('splash').style.display = 'none';
         }, 600);
-        initApp();
+        await initApp();
     }, 1800);
 });
 
-function initApp() {
+async function initApp() {
+    await loadFromSupabase();
     trades = getData('trades', []);
     fetchFearGreed();
     fetchLivePrices();
@@ -7363,17 +7407,18 @@ function setData(key, val) {
 
 // ==================== INIT ====================
 document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
+    setTimeout(async () => {
         document.getElementById('splash').classList.add('hide');
         document.getElementById('app').classList.remove('hidden');
         setTimeout(() => {
             document.getElementById('splash').style.display = 'none';
         }, 600);
-        initApp();
+        await initApp();
     }, 1800);
 });
 
-function initApp() {
+async function initApp() {
+    await loadFromSupabase();
     trades = getData('trades', []);
     fetchFearGreed();
     fetchLivePrices();
