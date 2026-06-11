@@ -1587,6 +1587,20 @@ html, body {
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
+// ==================== VISIBLE ERROR CATCHER (debug) ====================
+window.addEventListener('error', function(ev) {
+    try {
+        var b = document.getElementById('js-error-banner');
+        if (!b) {
+            b = document.createElement('div');
+            b.id = 'js-error-banner';
+            b.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:999999;background:#7f1d1d;color:#fff;font-size:11px;padding:8px 12px;font-family:monospace;direction:ltr;max-height:40vh;overflow:auto;border-top:2px solid #ef4444;';
+            document.body.appendChild(b);
+        }
+        b.textContent = '🐞 ' + (ev.message || 'error') + ' @ ' + (ev.filename||'').split('/').pop() + ':' + ev.lineno;
+    } catch(e) {}
+});
+window.__BUILD__ = '2026-06-11-T5';
 // ==================== SUPABASE CLOUD SYNC ====================
 const _SB_URL = 'https://riakzqevmugkfopkxhuz.supabase.co';
 const _SB_KEY = 'sb_publishable_ogUm7WX9FvoyTACogfU9Mw_dFQJT0Ps';
@@ -1681,7 +1695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <header class="header">
             <div class="header-right">
                 <h1 id="page-title">היסטוריית עסקאות</h1>
-                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">v2026.06.11</span>
+                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T5</span>
             </div>
             <div class="header-left" style="display:flex;align-items:center;gap:8px;">
                 <div class="header-badge extreme-fear" id="fng-header-badge">12 - פחד קיצוני</div>
