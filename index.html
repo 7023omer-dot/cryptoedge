@@ -8481,7 +8481,9 @@ async function fetchLivePrices() {
 
     try {
         const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&precision=0`);
+        if (!res.ok) throw new Error('CoinGecko ' + res.status);
         const data = await res.json();
+        if (!data || !data.bitcoin) throw new Error('CoinGecko empty');
         const now = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
 
         // Reverse map: geckoId → symbol
@@ -8527,7 +8529,37 @@ async function fetchLivePrices() {
         // After prices updated — check all triggers
         checkTradeTriggers();
 
-    } catch (e) { /* silent fail */ }
+    } catch (e) {
+        // Fallback: CryptoCompare (CORS-friendly, reliable, no rate limit issues)
+        try {
+            const symbols = [...neededSymbols].join(',');
+            const res2 = await fetch(`https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${symbols}&tsyms=USD`);
+            const j = await res2.json();
+            const raw = j.RAW || {};
+            const now = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+            Object.keys(raw).forEach(sym => {
+                const info = raw[sym]?.USD;
+                if (info) livePrices[sym] = info.PRICE;
+            });
+            const btc = raw.BTC?.USD, eth = raw.ETH?.USD;
+            if (typeof updateHeroPrices === 'function') updateHeroPrices(btc?.PRICE, eth?.PRICE, undefined);
+            if (btc) {
+                const el = document.getElementById('btc-price');
+                if (el) el.textContent = '$' + Number(btc.PRICE).toLocaleString('en-US', {maximumFractionDigits:0});
+                const cel = document.getElementById('btc-change');
+                if (cel) { const ch = btc.CHANGEPCT24HOUR || 0; cel.textContent = (ch>=0?'+':'')+ch.toFixed(2)+'%'; cel.className = 'price-change ' + (ch>=0?'up':'down'); }
+                const uel = document.getElementById('btc-updated'); if (uel) uel.textContent = 'עודכן ' + now;
+            }
+            if (eth) {
+                const el = document.getElementById('eth-price');
+                if (el) el.textContent = '$' + Number(eth.PRICE).toLocaleString('en-US', {maximumFractionDigits:0});
+                const cel = document.getElementById('eth-change');
+                if (cel) { const ch = eth.CHANGEPCT24HOUR || 0; cel.textContent = (ch>=0?'+':'')+ch.toFixed(2)+'%'; cel.className = 'price-change ' + (ch>=0?'up':'down'); }
+                const uel = document.getElementById('eth-updated'); if (uel) uel.textContent = 'עודכן ' + now;
+            }
+            checkTradeTriggers();
+        } catch (e2) { /* both sources failed */ }
+    }
 }
 
 // ==================== AUTO TRADE TRIGGERS ====================
