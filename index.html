@@ -11627,7 +11627,14 @@ window.collectNow = async function collectNow(btn) {
     if (statusEl) statusEl.textContent = '⏳ מתחבר למקורות נתונים...';
     const results = [];
     const run = async (name, fn) => {
-        try { await fn(); results.push({ name, ok: true }); }
+        try {
+            // 8-second timeout so a hung source can't freeze the whole collection
+            await Promise.race([
+                fn(),
+                new Promise((_, rej) => setTimeout(() => rej(new Error('timeout 8s')), 8000))
+            ]);
+            results.push({ name, ok: true });
+        }
         catch(e) { results.push({ name, ok: false, err: e.message }); }
     };
     await run('מחירים', collectPrices);
