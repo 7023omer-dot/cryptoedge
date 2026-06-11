@@ -1627,7 +1627,28 @@ async function loadFromSupabase() {
     } catch(e) { console.warn('[Supabase] Load failed:', e); }
 }
 
-document.addEventListener('DOMContentLoaded', _initSB);
+async function fullBackupToSupabase() {
+    if (!_sb) return;
+    try {
+        const rows = Object.keys(localStorage).map(key => {
+            let value;
+            try { value = JSON.parse(localStorage.getItem(key)); } catch { value = localStorage.getItem(key); }
+            return { key, value, updated_at: new Date().toISOString() };
+        });
+        if (!rows.length) return;
+        await _sb.from('app_kv').upsert(rows, { onConflict: 'key' });
+        _origLS('last_cloud_backup', Date.now().toString());
+        console.log(`[Supabase] Full backup: ${rows.length} keys`);
+    } catch(e) { console.warn('[Supabase] Backup failed:', e); }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    _initSB();
+    // Auto backup every hour
+    setInterval(fullBackupToSupabase, 60 * 60 * 1000);
+    // Backup on page close
+    window.addEventListener('beforeunload', () => { fullBackupToSupabase(); });
+});
 </script>
 </head>
 <body>
@@ -1674,6 +1695,27 @@ document.addEventListener('DOMContentLoaded', _initSB);
             <!-- ==================== DASHBOARD ==================== -->
             <section id="page-dashboard" class="page">
                 <div class="page-scroll">
+
+                    <!-- Lion Hero Banner -->
+                    <div id="lion-hero" style="position:relative;overflow:hidden;border-radius:16px;margin-bottom:14px;background:linear-gradient(135deg,#0a0a1a 0%,#12003a 40%,#1a0010 100%);border:1px solid rgba(99,102,241,0.3);padding:20px 16px 16px;text-align:center;">
+                        <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 0%,rgba(99,102,241,0.15) 0%,transparent 70%);pointer-events:none;"></div>
+                        <div id="lion-emoji" style="font-size:4.5rem;line-height:1;display:block;filter:drop-shadow(0 0 20px rgba(251,191,36,0.6));animation:lionPulse 3s ease-in-out infinite;">🦁</div>
+                        <div style="margin-top:8px;font-size:1.15rem;font-weight:800;color:#f8d56a;letter-spacing:1px;text-shadow:0 0 20px rgba(251,191,36,0.5);">CryptoEdge</div>
+                        <div style="font-size:0.75rem;color:rgba(200,180,255,0.7);margin-top:3px;letter-spacing:2px;">TRADE WITH PRECISION</div>
+                        <div id="lion-market-pulse" style="margin-top:10px;display:flex;justify-content:center;gap:12px;font-size:0.72rem;">
+                            <span id="hero-btc" style="color:#f7931a;font-weight:700;">₿ —</span>
+                            <span style="color:rgba(255,255,255,0.2);">|</span>
+                            <span id="hero-eth" style="color:#627eea;font-weight:700;">Ξ —</span>
+                            <span style="color:rgba(255,255,255,0.2);">|</span>
+                            <span id="hero-fng" style="color:#e8b84b;font-weight:700;">FnG —</span>
+                        </div>
+                    </div>
+                    <style>
+                    @keyframes lionPulse {
+                        0%,100% { transform:scale(1); filter:drop-shadow(0 0 20px rgba(251,191,36,0.6)); }
+                        50% { transform:scale(1.08); filter:drop-shadow(0 0 35px rgba(251,191,36,0.9)); }
+                    }
+                    </style>
 
                     <!-- Live Prices Bar (top) -->
                     <div class="live-prices-bar" id="live-prices-bar-top">
@@ -3024,7 +3066,7 @@ document.addEventListener('DOMContentLoaded', _initSB);
                             <span id="db-size-badge" style="font-size:0.72rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--text-muted);">0 KB</span>
                         </div>
                         <div style="display:flex;gap:8px;">
-                            <button onclick="if(typeof collectNow==='function'){collectNow(this)}else{this.textContent='❌ שגיאה JS';}" style="flex:1;background:rgba(16,185,129,0.15);border:1px solid #10b981;color:#10b981;border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">🔄 אסוף נתונים עכשיו</button>
+                            <button onclick="window.collectNow?window.collectNow(this):(this.textContent='⏳',setTimeout(()=>window.collectNow?window.collectNow(this):null,2000))" style="flex:1;background:rgba(16,185,129,0.15);border:1px solid #10b981;color:#10b981;border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">🔄 אסוף נתונים עכשיו</button>
                             <button onclick="exportDatabase()" style="flex:1;background:rgba(99,102,241,0.15);border:1px solid var(--accent);color:var(--accent-light);border-radius:10px;padding:10px;font-size:0.85rem;font-family:inherit;cursor:pointer;font-weight:700;">📤 ייצוא DB</button>
                         </div>
                         <div id="db-collect-status" style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:center;">לחץ "אסוף עכשיו" לקבלת נתונים חיים</div>
@@ -3714,6 +3756,8 @@ function updateFearGreedUI(value, classification) {
     // Draw gauge
     drawFearGreedGauge(value);
 
+    // Update hero banner
+    if (typeof updateHeroPrices === 'function') updateHeroPrices(undefined, undefined, value);
     // Cache it
     setData('last_fng', { value, classification, time: Date.now() });
 }
@@ -7437,12 +7481,62 @@ async function initApp() {
     setTimeout(drawDashboardEquityCurve, 300);
 
     // Auto-refresh intervals
-    setInterval(fetchFearGreed, 5 * 60 * 1000);       // every 5 min
-    setInterval(fetchLivePrices, 60 * 1000);           // every 60 sec
-    setInterval(fetchCryptoNews, 10 * 60 * 1000);      // every 10 min
+    setInterval(fetchFearGreed, 5 * 60 * 1000);
+    setInterval(fetchLivePrices, 60 * 1000);
+    setInterval(fetchCryptoNews, 10 * 60 * 1000);
     initAutoInsights();
     initMarketDatabase();
+    // Initial cloud backup after app loads
+    setTimeout(fullBackupToSupabase, 5000);
+    // Weekly insight email reminder
+    checkWeeklyEmailReminder();
 }
+
+function updateHeroPrices(btc, eth, fng) {
+    const heroFng = document.getElementById('hero-fng');
+    const heroBtc = document.getElementById('hero-btc');
+    const heroEth = document.getElementById('hero-eth');
+    if (heroBtc && btc) heroBtc.textContent = '₿ $' + Math.round(btc).toLocaleString();
+    if (heroEth && eth) heroEth.textContent = 'Ξ $' + Math.round(eth).toLocaleString();
+    if (heroFng && fng !== undefined) {
+        const color = fng < 25 ? '#ef4444' : fng < 50 ? '#f97316' : fng < 75 ? '#22c55e' : '#10b981';
+        heroFng.textContent = 'FnG ' + fng;
+        heroFng.style.color = color;
+    }
+}
+
+function checkWeeklyEmailReminder() {
+    const last = parseInt(localStorage.getItem('last_weekly_email') || '0');
+    const weekMs = 7 * 24 * 60 * 60 * 1000;
+    if (Date.now() - last > weekMs) {
+        setTimeout(() => {
+            if (confirm('שבוע עבר — רוצה לשלוח סיכום תובנות שבועי למייל?')) {
+                sendWeeklyInsightEmail();
+            }
+        }, 3000);
+    }
+}
+
+window.sendWeeklyInsightEmail = function() {
+    const entries = JSON.parse(localStorage.getItem('ij_entries') || '[]');
+    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const weekly = entries.filter(e => new Date(e.date).getTime() >= weekAgo);
+    if (!weekly.length) { alert('אין תובנות השבוע לשלוח'); return; }
+    const traded = weekly.filter(e => e.traded !== 'no');
+    const wins = traded.filter(e => e.outcome === 'win');
+    const winPct = traded.length ? Math.round(wins.length / traded.length * 100) : 0;
+    let body = `סיכום תובנות שבועי — CryptoEdge\n`;
+    body += `תאריך: ${new Date().toLocaleDateString('he-IL')}\n`;
+    body += `סה"כ תובנות: ${weekly.length} | עסקאות: ${traded.length} | הצלחה: ${winPct}%\n\n`;
+    weekly.forEach((e, i) => {
+        body += `--- תובנה ${i+1} | ${e.date} | ${e.pair || ''} | ${e.direction || ''} ---\n`;
+        body += (e.text || '').slice(0, 500) + '\n\n';
+    });
+    const subject = encodeURIComponent(`CryptoEdge — סיכום שבועי ${new Date().toLocaleDateString('he-IL')}`);
+    const bodyEnc = encodeURIComponent(body);
+    window.open(`mailto:7023omer@gmail.com?subject=${subject}&body=${bodyEnc}`);
+    localStorage.setItem('last_weekly_email', Date.now().toString());
+};
 
 // ==================== FEAR & GREED INDEX ====================
 
@@ -8386,6 +8480,14 @@ async function fetchLivePrices() {
             if (sym) livePrices[sym] = info.usd;
         });
 
+        // Update hero prices
+        if (typeof updateHeroPrices === 'function') {
+            updateHeroPrices(
+                data.bitcoin?.usd,
+                data.ethereum?.usd,
+                undefined
+            );
+        }
         // Update dashboard BTC/ETH display elements (existing UI)
         if (data.bitcoin) {
             const p = data.bitcoin.usd;
@@ -11422,8 +11524,9 @@ function updateInsightStats() {
 }
 
 function sendWeeklyInsightReport() {
-    const email = document.getElementById('ij-email').value.trim();
-    if (!email) { alert('נא להזין כתובת מייל'); return; }
+    const inputEl = document.getElementById('ij-email');
+    const email = (inputEl?.value || '').trim() || '7023omer@gmail.com';
+    if (inputEl && !inputEl.value.trim()) inputEl.value = email;
     const entries = getInsightEntries();
     const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
     const weekEntries = entries.filter(e => new Date(e.date) >= weekAgo);
@@ -11447,7 +11550,9 @@ function sendWeeklyInsightReport() {
     });
     const subject = encodeURIComponent('CryptoEdge — דוח תובנות שבועי');
     const bodyEncoded = encodeURIComponent(body);
-    window.location.href = `mailto:${email}?subject=${subject}&body=${bodyEncoded}`;
+    window.open(`mailto:${email}?subject=${subject}&body=${bodyEncoded}`);
+    localStorage.setItem('last_weekly_email', Date.now().toString());
+    showToast('📧 נפתח לקוח המייל לשליחה');
 }
 
 // insights-journal init now handled directly in switchPage
