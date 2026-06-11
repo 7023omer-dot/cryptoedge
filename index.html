@@ -10587,21 +10587,22 @@ function generateRuleBasedInsights(data) {
 
 async function runInsightsPipeline() {
     const anthropicKey = localStorage.getItem('anthropic_apikey');
-    console.log('[AI] runInsightsPipeline called, key exists:', !!anthropicKey);
+    // Visible status update immediately
+    const btn = document.getElementById('insights-update-btn');
+    if (btn) { btn.textContent = '⏳ רץ...'; btn.disabled = true; }
+    showToast('🔄 מתחיל עדכון תובנות...');
+
     if (!anthropicKey) {
-        showToast('⚠️ מפתח API לא נמצא — אנא שמור מחדש');
-        alert('שגיאה: מפתח API לא נמצא ב-localStorage\nנסה לשמור שוב את המפתח.');
+        if (btn) { btn.textContent = '🔄 עדכן תובנות'; btn.disabled = false; }
+        showToast('⚠️ מפתח API לא נמצא — שמור מחדש');
         return;
     }
     if (!anthropicKey.startsWith('sk-ant-')) {
-        showToast('⚠️ מפתח לא תקין — חייב להתחיל ב-sk-ant-');
-        alert('מפתח לא תקין: ' + anthropicKey.slice(0,20) + '...\nחייב להתחיל ב-sk-ant-');
+        if (btn) { btn.textContent = '🔄 עדכן תובנות'; btn.disabled = false; }
+        showToast('⚠️ מפתח לא תקין: ' + anthropicKey.slice(0,15) + '...');
         return;
     }
-    const apiKey = localStorage.getItem('anthropic_apikey');
-
-    const btn = document.getElementById('insights-update-btn');
-    if (btn) btn.disabled = true;
+    const apiKey = anthropicKey;
 
     showInsightsLoading(true);
     setLoadingMsg('אוסף נתוני שוק...');
