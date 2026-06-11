@@ -7,7 +7,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#060610">
     <meta name="mobile-web-app-capable" content="yes">
-    <link rel="manifest" href="https://raw.githubusercontent.com/7023omer-dot/Fitness-up-/claude/hebrew-greeting-ScA3c/manifest.json">
     <title>CryptoEdge v4 - פלטפורמת מסחר</title>
     <style>
 /* ==================== CRYPTOEDGE - STYLES ==================== */
@@ -3623,11 +3622,14 @@ document.addEventListener('DOMContentLoaded', () => {
     <div class="toast" id="toast"></div>
 
     <script>
-// ==================== PWA SERVICE WORKER ====================
+// ==================== KILL OLD SERVICE WORKERS ====================
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  });
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(reg => reg.unregister());
+  }).catch(() => {});
+  if (window.caches) {
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
+  }
 }
 
 // ==================== PWA INSTALL PROMPT ====================
@@ -7409,11 +7411,14 @@ setInterval(function() {
 
 
 <script>
-// ==================== PWA SERVICE WORKER ====================
+// ==================== KILL OLD SERVICE WORKERS ====================
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  });
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(reg => reg.unregister());
+  }).catch(() => {});
+  if (window.caches) {
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
+  }
 }
 
 // ==================== PWA INSTALL PROMPT ====================
