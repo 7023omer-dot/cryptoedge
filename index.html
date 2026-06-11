@@ -6193,27 +6193,23 @@ function dbSize() {
 }
 
 async function collectPrices() {
-  // Try Binance first, fallback to CoinGecko
+  // CoinGecko — CORS-friendly
   try {
-    const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=%5B%22BTCUSDT%22%2C%22ETHUSDT%22%2C%22SOLUSDT%22%2C%22BNBUSDT%22%5D');
-    const data = await res.json();
-    if (!Array.isArray(data)) throw new Error('bad response');
-    const row = { ts: Date.now(), src: 'binance' };
-    data.forEach(d => {
-      if (d.symbol==='BTCUSDT') row.btc = parseFloat(d.price);
-      if (d.symbol==='ETHUSDT') row.eth = parseFloat(d.price);
-      if (d.symbol==='SOLUSDT') row.sol = parseFloat(d.price);
-      if (d.symbol==='BNBUSDT') row.bnb = parseFloat(d.price);
-    });
-    dbPush('mdb_prices', row, 2016);
-  } catch(e) {
-    // Fallback: CoinGecko
-    const res2 = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd');
-    const d = await res2.json();
+    const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd&include_24hr_change=true');
+    if (!res.ok) throw new Error('CoinGecko ' + res.status);
+    const d = await res.json();
     const row = { ts: Date.now(), src: 'coingecko',
       btc: d.bitcoin?.usd, eth: d.ethereum?.usd,
-      sol: d.solana?.usd, bnb: d.binancecoin?.usd };
+      sol: d.solana?.usd, bnb: d.binancecoin?.usd,
+      btcChange: d.bitcoin?.usd_24h_change,
+      ethChange: d.ethereum?.usd_24h_change };
     dbPush('mdb_prices', row, 2016);
+  } catch(e) {
+    // Fallback: CryptoCompare (also CORS-friendly)
+    const res2 = await fetch('https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,SOL,BNB&tsyms=USD');
+    const d = await res2.json();
+    dbPush('mdb_prices', { ts: Date.now(), src: 'cryptocompare',
+      btc: d.BTC?.USD, eth: d.ETH?.USD, sol: d.SOL?.USD, bnb: d.BNB?.USD }, 2016);
   }
 }
 
@@ -6236,18 +6232,20 @@ async function collectSentiment() {
 }
 
 async function collectOnchain() {
-  const [fr, ls, oi] = await Promise.allSettled([
-    fetch('https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1').then(r=>r.json()),
-    fetch('https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=1h&limit=1').then(r=>r.json()),
-    fetch('https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT').then(r=>r.json())
-  ]);
-  dbPush('mdb_onchain', {
-    ts: Date.now(),
-    btcFundingRate: fr.status==='fulfilled' ? parseFloat(fr.value[0]?.fundingRate||0)*100 : null,
-    longPct: ls.status==='fulfilled' ? parseFloat(ls.value[0]?.longAccount||0)*100 : null,
-    shortPct: ls.status==='fulfilled' ? parseFloat(ls.value[0]?.shortAccount||0)*100 : null,
-    btcOI: oi.status==='fulfilled' ? parseFloat(oi.value?.openInterest||0) : null
-  }, 720);
+  // CoinGlass — CORS-friendly funding rate & OI data
+  try {
+    const res = await fetch('https://open-api.coinglass.com/public/v2/indicator/funding_avg?symbol=BTC&interval=h8');
+    const d = await res.json();
+    const last = Array.isArray(d?.data) ? d.data[d.data.length-1] : null;
+    dbPush('mdb_onchain', {
+      ts: Date.now(),
+      btcFundingRate: last ? parseFloat(last.avgFundingRate || 0) * 100 : null,
+      longPct: null, shortPct: null, btcOI: null
+    }, 720);
+  } catch(e) {
+    // Store partial data so the collection doesn't fail entirely
+    dbPush('mdb_onchain', { ts: Date.now(), btcFundingRate: null, longPct: null, shortPct: null, btcOI: null }, 720);
+  }
 }
 
 async function collectDefi() {
