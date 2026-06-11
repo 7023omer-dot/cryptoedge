@@ -1614,14 +1614,24 @@ function _initSB() {
 
 async function loadFromSupabase() {
     if (!_sb) return;
+    // Keys that should never be overwritten if already set locally
+    const STICKY_KEYS = ['anthropic_apikey', 'cr_apikey', 'san_apikey', 'cg_apikey'];
     try {
         const { data, error } = await _sb.from('app_kv').select('key, value');
         if (error || !data?.length) return;
         data.forEach(row => {
+            // Don't overwrite sensitive keys if already set locally
+            if (STICKY_KEYS.includes(row.key) && localStorage.getItem(row.key)) return;
             const val = row.value === null ? 'null'
                       : typeof row.value === 'string' ? row.value
                       : JSON.stringify(row.value);
             _origLS(row.key, val);
+        });
+        // Restore sticky keys from Supabase if not in localStorage
+        data.forEach(row => {
+            if (STICKY_KEYS.includes(row.key) && !localStorage.getItem(row.key) && row.value) {
+                _origLS(row.key, typeof row.value === 'string' ? row.value : JSON.stringify(row.value));
+            }
         });
         console.log(`[Supabase] Synced ${data.length} keys from cloud`);
     } catch(e) { console.warn('[Supabase] Load failed:', e); }
@@ -2856,7 +2866,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <button class="insights-settings-btn" onclick="toggleInsightsSettings()" title="הגדרות">⚙️</button>
                     </div>
                     <div class="insights-meta" id="insights-last-updated">לא עודכן עדיין</div>
-                    <button class="insights-update-btn" id="insights-update-btn" onclick="runInsightsPipeline()">🔄 עדכן תובנות</button>
+                    <button class="insights-update-btn" id="insights-update-btn" onclick="if(typeof runInsightsPipeline==='function'){runInsightsPipeline();}else{alert('שגיאה: הפונקציה לא נמצאה — נסה לרענן את הדף');}">🔄 עדכן תובנות</button>
                     <div id="inline-api-row" style="display:flex;gap:8px;margin-top:4px;">
                         <input type="password" id="inline-api-input" placeholder="הכנס מפתח Claude API — sk-ant-..." autocomplete="off"
                             style="flex:1;background:#1a1a30;border:1px solid #6366f1;border-radius:10px;padding:10px 12px;color:#e8e8ff;font-size:0.82rem;outline:none;font-family:inherit;">
