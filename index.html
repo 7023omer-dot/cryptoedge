@@ -8991,6 +8991,178 @@ function renderAdvancedStats() {
     `;
 }
 
+// ==================== EXTRA ANALYTICS (R-Multiple, Expectancy, Heatmap, R-Distribution, Daily Loss Limit) ====================
+function renderExtraAnalytics() {
+    var section = document.getElementById('extra-analytics-section');
+    if (!section) return;
+    var closed = trades.filter(function(t) { return ['win','loss','breakeven'].includes(t.status); });
+    if (closed.length === 0) { section.innerHTML = ''; return; }
+
+    var wins   = closed.filter(function(t) { return t.status === 'win'; });
+    var losses = closed.filter(function(t) { return t.status === 'loss'; });
+
+    // ── R-Multiple per trade ──
+    function getRMultiple(t) {
+        var pnl = t.pnl || 0;
+        var riskAmt = 0;
+        if (t.stopLoss && t.entry && t.size) {
+            riskAmt = Math.abs(parseFloat(t.entry) - parseFloat(t.stopLoss)) * parseFloat(t.size);
+        } else if (t.entry && t.size) {
+            riskAmt = parseFloat(t.entry) * parseFloat(t.size) * 0.01;
+        }
+        if (!riskAmt || riskAmt === 0) return null;
+        return pnl / riskAmt;
+    }
+
+    var rMultiples = closed.map(function(t) { return { t: t, r: getRMultiple(t) }; }).filter(function(x) { return x.r !== null; });
+    var avgR = rMultiples.length > 0 ? rMultiples.reduce(function(s,x){ return s+x.r; }, 0) / rMultiples.length : null;
+
+    // ── Expectancy ──
+    var winRate = closed.length ? wins.length / closed.length : 0;
+    var lossRate = 1 - winRate;
+    var avgWin  = wins.length   > 0 ? wins.reduce(function(s,t){ return s+(t.pnl||0); }, 0) / wins.length : 0;
+    var avgLoss = losses.length > 0 ? Math.abs(losses.reduce(function(s,t){ return s+(t.pnl||0); }, 0) / losses.length) : 0;
+    var expectancy = (winRate * avgWin) - (lossRate * avgLoss);
+    var expectancyColor = expectancy >= 0 ? 'var(--green)' : 'var(--red)';
+
+    // ── R Distribution ──
+    var rBuckets = { '-3':0, '-2':0, '-1':0, '0':0, '+1':0, '+2':0, '+3':0 };
+    rMultiples.forEach(function(x) {
+        var r = x.r;
+        if (r <= -2.5) rBuckets['-3']++;
+        else if (r <= -1.5) rBuckets['-2']++;
+        else if (r <= -0.5) rBuckets['-1']++;
+        else if (r <= 0.5) rBuckets['0']++;
+        else if (r <= 1.5) rBuckets['+1']++;
+        else if (r <= 2.5) rBuckets['+2']++;
+        else rBuckets['+3']++;
+    });
+    var maxBucket = Math.max.apply(null, Object.values(rBuckets).concat([1]));
+    var rBucketLabels = ['-3R','-2R','-1R','0R','+1R','+2R','+3R+'];
+    var rBucketKeys   = ['-3','-2','-1','0','+1','+2','+3'];
+    var rBucketColors = ['rgba(239,68,68,0.9)','rgba(239,68,68,0.7)','rgba(239,68,68,0.5)','rgba(156,163,175,0.6)','rgba(16,185,129,0.5)','rgba(16,185,129,0.7)','rgba(16,185,129,0.9)'];
+    var rDistHtml = rBucketKeys.map(function(k, i) {
+        var cnt = rBuckets[k];
+        var h = maxBucket > 0 ? Math.round((cnt / maxBucket) * 60) : 0;
+        return '<div style="text-align:center;flex:1;">' +
+            '<div style="font-size:0.6rem;color:var(--text-muted);margin-bottom:2px;">' + cnt + '</div>' +
+            '<div style="height:' + (h+4) + 'px;background:' + rBucketColors[i] + ';border-radius:3px 3px 0 0;margin:0 1px;min-height:4px;"></div>' +
+            '<div style="font-size:0.58rem;color:var(--text-muted);margin-top:2px;">' + rBucketLabels[i] + '</div>' +
+            '</div>';
+    }).join('');
+
+    // ── P&L Heatmap (calendar current month) ──
+    var now = new Date();
+    var year2 = now.getFullYear();
+    var month2 = now.getMonth();
+    var daysInMonth = new Date(year2, month2+1, 0).getDate();
+    var pnlByDay = {};
+    closed.forEach(function(t) {
+        if (!t.date) return;
+        var d = new Date(t.date);
+        if (d.getFullYear() === year2 && d.getMonth() === month2) {
+            var day = d.getDate();
+            pnlByDay[day] = (pnlByDay[day] || 0) + (t.pnl || 0);
+        }
+    });
+    var monthNamesHeb = ['\u05d9\u05e0\u05d5\u05d0\u05e8','\u05e4\u05d1\u05e8\u05d5\u05d0\u05e8','\u05de\u05e8\u05e5','\u05d0\u05e4\u05e8\u05d9\u05dc','\u05de\u05d0\u05d9','\u05d9\u05d5\u05e0\u05d9','\u05d9\u05d5\u05dc\u05d9','\u05d0\u05d5\u05d2\u05d5\u05e1\u05d8','\u05e1\u05e4\u05d8\u05de\u05d1\u05e8','\u05d0\u05d5\u05e7\u05d8\u05d5\u05d1\u05e8','\u05e0\u05d5\u05d1\u05de\u05d1\u05e8','\u05d3\u05e6\u05de\u05d1\u05e8'];
+    var firstDow = new Date(year2, month2, 1).getDay();
+    var calCells = '';
+    for (var e = 0; e < firstDow; e++) {
+        calCells += '<div style="width:36px;height:36px;"></div>';
+    }
+    for (var d2 = 1; d2 <= daysInMonth; d2++) {
+        var dp = pnlByDay[d2];
+        var bg, lbl;
+        if (dp === undefined) {
+            bg = 'var(--bg-elevated)'; lbl = '';
+        } else if (dp > 0) {
+            var inten = Math.min(dp / 200, 1);
+            bg = 'rgba(16,185,129,' + (0.3 + inten * 0.7).toFixed(2) + ')';
+            lbl = '+$' + dp.toFixed(0);
+        } else if (dp < 0) {
+            var intenN = Math.min(Math.abs(dp) / 200, 1);
+            bg = 'rgba(239,68,68,' + (0.3 + intenN * 0.7).toFixed(2) + ')';
+            lbl = '-$' + Math.abs(dp).toFixed(0);
+        } else {
+            bg = 'rgba(156,163,175,0.3)'; lbl = '$0';
+        }
+        var isToday = d2 === now.getDate() && month2 === now.getMonth() && year2 === now.getFullYear();
+        calCells += '<div title="' + lbl + '" style="width:36px;height:36px;border-radius:4px;background:' + bg +
+            ';display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:var(--text-primary);font-weight:' + (isToday?'700':'400') +
+            ';border:' + (isToday?'1px solid var(--accent)':'1px solid transparent') + ';">' + d2 + '</div>';
+    }
+    var dowLabelsHtml = ['\u05d0','\u05d1','\u05d2','\u05d3','\u05d4','\u05d5','\u05e9'].map(function(l){ return '<div style="width:36px;text-align:center;font-size:0.6rem;color:var(--text-muted);">' + l + '</div>'; }).join('');
+
+    // ── Daily Loss Limit ──
+    var dailyLimit = parseFloat(localStorage.getItem('cryptoedge_daily_loss_limit') || '0');
+    var todayStr = now.toISOString().slice(0,10);
+    var todayPnl = trades.filter(function(t){ return t.date === todayStr && ['win','loss','breakeven'].includes(t.status); }).reduce(function(s,t){ return s+(t.pnl||0); }, 0);
+    var limitWarning = '';
+    var limitColor = 'var(--text-primary)';
+    var barWidth = 0;
+    var barColor = 'var(--green)';
+    if (dailyLimit > 0) {
+        var pct = Math.min(Math.abs(Math.min(todayPnl, 0)) / dailyLimit * 100, 100);
+        barWidth = pct.toFixed(1);
+        if (todayPnl <= -dailyLimit) {
+            limitWarning = '\ud83d\udd34 \u05d4\u05d2\u05e2\u05ea \u05dc\u05de\u05d2\u05d1\u05dc\u05ea \u05d4\u05d4\u05e4\u05e1\u05d3 \u05d4\u05d9\u05d5\u05de\u05d9\u05ea!'; limitColor = 'var(--red)'; barColor = 'var(--red)';
+        } else if (pct >= 75) {
+            limitWarning = '\u26a0\ufe0f \u05e7\u05e8\u05d5\u05d1 \u05dc\u05de\u05d2\u05d1\u05dc\u05d4 (' + pct.toFixed(0) + '%)'; limitColor = 'var(--yellow)'; barColor = 'var(--yellow)';
+        } else {
+            limitWarning = '\u2705 \u05d1\u05d8\u05d5\u05d5\u05d7 \u05d1\u05d8\u05d5\u05d7 (' + pct.toFixed(0) + '%)'; limitColor = 'var(--green)';
+        }
+    }
+
+    section.innerHTML = '<div class="stats-detail-card" style="margin-top:12px;">' +
+        '<div class="strategy-block-title" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;" ' +
+        'onclick="this.parentElement.querySelector(\'.xtra-content\').style.display=this.parentElement.querySelector(\'.xtra-content\').style.display===\'none\'?\'block\':\'none\'">' +
+        '\ud83d\udcca \u05d0\u05e0\u05dc\u05d9\u05d8\u05d9\u05e7\u05d4 \u05de\u05ea\u05e7\u05d3\u05de\u05ea — R-Multiple, Expectancy \u05d5-Heatmap <span style="font-size:0.75rem;color:var(--text-muted);">\u05dc\u05d7\u05e5 \u05dc\u05d4\u05e8\u05d7\u05d1\u05d4 \u25be</span>' +
+        '</div>' +
+        '<div class="xtra-content">' +
+        '<div class="stats-grid-2" style="margin-top:10px;">' +
+        '<div class="stat-item">' +
+        '<div class="stat-item-val" style="color:' + expectancyColor + ';">' + (expectancy >= 0 ? '+' : '') + '$' + expectancy.toFixed(2) + '</div>' +
+        '<div class="stat-item-label">Expectancy (\u05dc\u05e2\u05e1\u05e7\u05d4)</div>' +
+        '</div>' +
+        (avgR !== null ?
+            '<div class="stat-item"><div class="stat-item-val" style="color:' + (avgR >= 0 ? 'var(--green)' : 'var(--red)') + ';">' + (avgR >= 0 ? '+' : '') + avgR.toFixed(2) + 'R</div><div class="stat-item-label">\u05de\u05de\u05d5\u05e6\u05e2 R \u05dc\u05e2\u05e1\u05e7\u05d4</div></div>' :
+            '<div class="stat-item"><div class="stat-item-val" style="color:var(--text-muted);">\u2014</div><div class="stat-item-label">\u05de\u05de\u05d5\u05e6\u05e2 R (\u05e0\u05d3\u05e8\u05e9 Stop Loss)</div></div>') +
+        '</div>' +
+        (rMultiples.length > 0 ?
+            '<div style="margin-top:14px;"><div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:6px;">\ud83d\udcca \u05d4\u05ea\u05e4\u05dc\u05d2\u05d5\u05ea R — \u05de\u05e1\u05e4\u05e8 \u05e2\u05e1\u05e7\u05d0\u05d5\u05ea \u05dc\u05e4\u05d9 R-Multiple</div>' +
+            '<div style="display:flex;align-items:flex-end;gap:2px;height:80px;padding:0 4px;">' + rDistHtml + '</div></div>' : '') +
+        '<div style="margin-top:14px;">' +
+        '<div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:6px;">\ud83d\udcc5 \u05de\u05e4\u05ea P&L \u05d7\u05d5\u05d3\u05e9\u05d9\u05ea — ' + monthNamesHeb[month2] + ' ' + year2 + '</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:2px;">' + dowLabelsHtml + calCells + '</div>' +
+        '<div style="font-size:0.6rem;color:var(--text-muted);margin-top:4px;">\u05d9\u05e8\u05d5\u05e7 = \u05e8\u05d5\u05d5\u05d7 | \u05d0\u05d3\u05d5\u05dd = \u05d4\u05e4\u05e1\u05d3 | \u05d0\u05e4\u05d5\u05e8 = \u05d0\u05d9\u05df \u05e2\u05e1\u05e7\u05d4 | \u05e8\u05d9\u05d7\u05d5\u05e3 \u05dc\u05e1\u05db\u05d5\u05dd</div>' +
+        '</div>' +
+        '<div style="margin-top:14px;padding:10px;background:var(--bg-elevated);border-radius:8px;">' +
+        '<div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:6px;">\ud83d\uded1 \u05de\u05d2\u05d1\u05dc\u05ea \u05d4\u05e4\u05e1\u05d3 \u05d9\u05d5\u05de\u05d9\u05ea</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
+        '<span style="font-size:0.75rem;color:var(--text-muted);">\u05de\u05d2\u05d1\u05dc\u05d4 ($):</span>' +
+        '<input type="number" id="daily-loss-limit-input" value="' + (dailyLimit || '') + '" min="0" placeholder="200" ' +
+        'style="width:80px;padding:4px 6px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:0.78rem;" ' +
+        'oninput="window.setDailyLossLimit(this.value)">' +
+        '<span style="font-size:0.75rem;color:var(--text-muted);">P&L \u05d4\u05d9\u05d5\u05dd: <b style="color:' + (todayPnl >= 0 ? 'var(--green)' : 'var(--red)') + ';">' + (todayPnl >= 0 ? '+' : '') + '$' + todayPnl.toFixed(2) + '</b></span>' +
+        '</div>' +
+        (dailyLimit > 0 ?
+            '<div style="background:var(--bg-card);border-radius:4px;height:8px;overflow:hidden;margin-bottom:6px;"><div style="width:' + barWidth + '%;height:100%;background:' + barColor + ';transition:width 0.3s;border-radius:4px;"></div></div>' +
+            '<div style="font-size:0.75rem;color:' + limitColor + ';">' + limitWarning + '</div>' :
+            '<div style="font-size:0.72rem;color:var(--text-muted);">\u05d4\u05d2\u05d3\u05e8 \u05de\u05d2\u05d1\u05dc\u05d4 \u05db\u05d3\u05d9 \u05dc\u05e2\u05e7\u05d5\u05d1</div>') +
+        '</div>' +
+        '</div></div>';
+}
+
+window.setDailyLossLimit = function(val) {
+    var v = parseFloat(val);
+    if (!isNaN(v) && v >= 0) {
+        localStorage.setItem('cryptoedge_daily_loss_limit', String(v));
+        renderExtraAnalytics();
+    }
+};
+
+
 // ==================== MONTHLY REPORT ====================
 function getMonthlyStats(year, month) {
     const mt = trades.filter(t => {
