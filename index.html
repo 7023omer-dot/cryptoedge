@@ -1720,24 +1720,43 @@ document.addEventListener('DOMContentLoaded', () => {
             <section id="page-dashboard" class="page">
                 <div class="page-scroll">
 
-                    <!-- Lion Hero Banner -->
-                    <div id="lion-hero" style="position:relative;overflow:hidden;border-radius:16px;margin-bottom:14px;background:linear-gradient(135deg,#0a0a1a 0%,#12003a 40%,#1a0010 100%);border:1px solid rgba(99,102,241,0.3);padding:20px 16px 16px;text-align:center;">
-                        <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 0%,rgba(99,102,241,0.15) 0%,transparent 70%);pointer-events:none;"></div>
-                        <div id="lion-emoji" style="font-size:4.5rem;line-height:1;display:block;filter:drop-shadow(0 0 20px rgba(251,191,36,0.6));animation:lionPulse 3s ease-in-out infinite;">🦁</div>
-                        <div style="margin-top:8px;font-size:1.15rem;font-weight:800;color:#f8d56a;letter-spacing:1px;text-shadow:0 0 20px rgba(251,191,36,0.5);">CryptoEdge</div>
-                        <div style="font-size:0.75rem;color:rgba(200,180,255,0.7);margin-top:3px;letter-spacing:2px;">TRADE WITH PRECISION</div>
-                        <div id="lion-market-pulse" style="margin-top:10px;display:flex;justify-content:center;gap:12px;font-size:0.72rem;">
-                            <span id="hero-btc" style="color:#f7931a;font-weight:700;">₿ —</span>
-                            <span style="color:rgba(255,255,255,0.2);">|</span>
-                            <span id="hero-eth" style="color:#627eea;font-weight:700;">Ξ —</span>
-                            <span style="color:rgba(255,255,255,0.2);">|</span>
-                            <span id="hero-fng" style="color:#e8b84b;font-weight:700;">FnG —</span>
+                    <!-- Lion Hero Banner (O.L FINANCE) -->
+                    <div id="lion-hero" style="position:relative;overflow:hidden;border-radius:18px;margin-bottom:14px;background:radial-gradient(ellipse at 50% 30%,#1c1407 0%,#0c0a05 55%,#050403 100%);border:1px solid rgba(212,168,67,0.35);padding:26px 16px 18px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.6),inset 0 0 60px rgba(212,168,67,0.06);">
+                        <!-- candlestick backdrop -->
+                        <svg viewBox="0 0 400 160" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;opacity:0.5;pointer-events:none;">
+                            <g stroke="#d4a843" stroke-width="1.4" opacity="0.55">
+                                <line x1="22" y1="95" x2="22" y2="135"/><rect x="17" y="105" width="10" height="22" fill="#d4a843" opacity="0.4"/>
+                                <line x1="48" y1="80" x2="48" y2="128"/><rect x="43" y="92" width="10" height="26" fill="#d4a843" opacity="0.4"/>
+                                <line x1="74" y1="70" x2="74" y2="120"/><rect x="69" y="82" width="10" height="28" fill="#d4a843" opacity="0.4"/>
+                                <line x1="326" y1="58" x2="326" y2="118"/><rect x="321" y="70" width="10" height="30" fill="#d4a843" opacity="0.45"/>
+                                <line x1="352" y1="42" x2="352" y2="110"/><rect x="347" y="54" width="10" height="36" fill="#d4a843" opacity="0.5"/>
+                                <line x1="378" y1="28" x2="378" y2="100"/><rect x="373" y="38" width="10" height="42" fill="#d4a843" opacity="0.55"/>
+                            </g>
+                            <!-- rising arrow -->
+                            <path d="M250 130 L300 95 L330 105 L388 40" fill="none" stroke="#f5cf5e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+                            <path d="M388 40 L372 46 M388 40 L382 56" stroke="#f5cf5e" stroke-width="2.6" stroke-linecap="round" opacity="0.85"/>
+                        </svg>
+                        <!-- golden halo ring -->
+                        <div style="position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:220px;height:220px;border-radius:50%;border:1px solid rgba(245,207,94,0.25);box-shadow:0 0 60px rgba(245,207,94,0.12) inset;pointer-events:none;"></div>
+
+                        <div style="position:relative;z-index:2;">
+                            <div id="lion-emoji" style="font-size:5rem;line-height:1;display:block;filter:drop-shadow(0 0 26px rgba(245,207,94,0.75));animation:lionPulse 3s ease-in-out infinite;">🦁</div>
+                            <div style="margin-top:4px;font-size:0.9rem;letter-spacing:3px;color:#f5cf5e;">👑</div>
+                            <div style="margin-top:6px;font-size:1.7rem;font-weight:900;letter-spacing:3px;background:linear-gradient(180deg,#fcecb0 0%,#e8c25a 45%,#b8862b 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 2px 14px rgba(245,207,94,0.4);">O.L&nbsp;FINANCE</div>
+                            <div style="font-size:0.7rem;color:rgba(245,207,94,0.65);margin-top:4px;letter-spacing:4px;">TRADE WITH PRECISION</div>
+                            <div id="lion-market-pulse" style="margin-top:12px;display:flex;justify-content:center;gap:12px;font-size:0.72rem;">
+                                <span id="hero-btc" style="color:#f7931a;font-weight:700;">₿ —</span>
+                                <span style="color:rgba(245,207,94,0.3);">|</span>
+                                <span id="hero-eth" style="color:#cdb87a;font-weight:700;">Ξ —</span>
+                                <span style="color:rgba(245,207,94,0.3);">|</span>
+                                <span id="hero-fng" style="color:#e8b84b;font-weight:700;">FnG —</span>
+                            </div>
                         </div>
                     </div>
                     <style>
                     @keyframes lionPulse {
-                        0%,100% { transform:scale(1); filter:drop-shadow(0 0 20px rgba(251,191,36,0.6)); }
-                        50% { transform:scale(1.08); filter:drop-shadow(0 0 35px rgba(251,191,36,0.9)); }
+                        0%,100% { transform:scale(1); filter:drop-shadow(0 0 26px rgba(245,207,94,0.75)); }
+                        50% { transform:scale(1.09); filter:drop-shadow(0 0 42px rgba(245,207,94,1)); }
                     }
                     </style>
 
