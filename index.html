@@ -5405,6 +5405,7 @@ async function fetchNewsForTab(tab) {
         const data = await res.json();
         if (data.status === 'ok' && data.items && data.items.length > 0) {
             newsCache[tab] = data.items;
+            _saveNewsToDb(tab, data.items);
             if (activeNewsTab === tab) renderNewsItems(data.items, getNewsSource(tab));
             return;
         }
@@ -5417,6 +5418,7 @@ async function fetchNewsForTab(tab) {
                 const data2 = await res2.json();
                 if (data2.status === 'ok' && data2.items && data2.items.length > 0) {
                     newsCache[tab] = data2.items;
+                    _saveNewsToDb(tab, data2.items);
                     if (activeNewsTab === tab) renderNewsItems(data2.items, getNewsSource(tab));
                     return;
                 }
@@ -5429,6 +5431,7 @@ async function fetchNewsForTab(tab) {
                 const data3 = await res3.json();
                 if (data3.status === 'ok' && data3.items && data3.items.length > 0) {
                     newsCache[tab] = data3.items;
+                    _saveNewsToDb(tab, data3.items);
                     if (activeNewsTab === tab) renderNewsItems(data3.items, getNewsSource(tab));
                     return;
                 }
@@ -9200,6 +9203,7 @@ async function fetchNewsForTab(tab) {
         const data = await res.json();
         if (data.status === 'ok' && data.items && data.items.length > 0) {
             newsCache[tab] = data.items;
+            _saveNewsToDb(tab, data.items);
             if (activeNewsTab === tab) renderNewsItems(data.items, getNewsSource(tab));
             return;
         }
@@ -9212,6 +9216,7 @@ async function fetchNewsForTab(tab) {
                 const data2 = await res2.json();
                 if (data2.status === 'ok' && data2.items && data2.items.length > 0) {
                     newsCache[tab] = data2.items;
+                    _saveNewsToDb(tab, data2.items);
                     if (activeNewsTab === tab) renderNewsItems(data2.items, getNewsSource(tab));
                     return;
                 }
@@ -9224,6 +9229,7 @@ async function fetchNewsForTab(tab) {
                 const data3 = await res3.json();
                 if (data3.status === 'ok' && data3.items && data3.items.length > 0) {
                     newsCache[tab] = data3.items;
+                    _saveNewsToDb(tab, data3.items);
                     if (activeNewsTab === tab) renderNewsItems(data3.items, getNewsSource(tab));
                     return;
                 }
@@ -11590,7 +11596,21 @@ function updateInsightStats() {
     el('ijs-win', winPct);
 }
 
-function sendWeeklyInsightReport() {
+function _saveNewsToDb(tab, items) {
+    try {
+        const existing = JSON.parse(localStorage.getItem('mdb_news') || '[]');
+        const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        const fresh = existing.filter(n => n.ts > cutoff);
+        items.forEach(item => {
+            if (!fresh.find(n => n.title === item.title)) {
+                fresh.push({ ts: Date.now(), tab, title: item.title, link: item.link, pubDate: item.pubDate });
+            }
+        });
+        localStorage.setItem('mdb_news', JSON.stringify(fresh.slice(-500)));
+    } catch(e) {}
+}
+
+async function sendWeeklyInsightReport() {
     const inputEl = document.getElementById('ij-email');
     const email = (inputEl?.value || '').trim() || '7023omer@gmail.com';
     if (inputEl && !inputEl.value.trim()) inputEl.value = email;
@@ -11598,28 +11618,75 @@ function sendWeeklyInsightReport() {
     const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
     const weekEntries = entries.filter(e => new Date(e.date) >= weekAgo);
     if (!weekEntries.length) { alert('אין תובנות מהשבוע האחרון'); return; }
+
     const traded = weekEntries.filter(e => e.traded !== 'no');
     const wins = traded.filter(e => e.outcome === 'win');
     const losses = traded.filter(e => e.outcome === 'loss');
-    let body = `דוח תובנות שבועי — CryptoEdge\n`;
-    body += `=============================\n`;
-    body += `שבוע: ${weekAgo.toLocaleDateString('he-IL')} — ${new Date().toLocaleDateString('he-IL')}\n\n`;
-    body += `סיכום:\n`;
-    body += `• סה"כ תובנות: ${weekEntries.length}\n`;
-    body += `• עסקאות שבוצעו: ${traded.length}\n`;
-    body += `• סנכרון: ${weekEntries.length ? Math.round(traded.length/weekEntries.length*100) : 0}%\n`;
-    body += `• ניצחונות: ${wins.length} | הפסדים: ${losses.length}\n\n`;
-    body += `תובנות השבוע:\n${'─'.repeat(30)}\n`;
+    const winPct = traded.length ? Math.round(wins.length / traded.length * 100) : 0;
+
+    // recent news headlines
+    const allNews = JSON.parse(localStorage.getItem('mdb_news') || '[]');
+    const weekNews = allNews.filter(n => n.ts > weekAgo.getTime()).slice(-30);
+    const newsLines = weekNews.map(n => `- [${n.tab}] ${n.title}`).join('\n');
+
+    // try AI summary
+    let aiSummary = '';
+    const apiKey = localStorage.getItem('anthropic_apikey');
+    if (apiKey) {
+        try {
+            showToast('🤖 Claude מכין סיכום שבועי...');
+            const prompt = `אתה עוזר מסחר מקצועי. סכם את השבוע בקריפטו בעברית בצורה קצרה, עוצמתית וברורה.
+
+נתוני השבוע:
+- תובנות שנרשמו: ${weekEntries.length}
+- עסקאות שבוצעו: ${traded.length} (ניצחונות: ${wins.length}, הפסדים: ${losses.length}, אחוז הצלחה: ${winPct}%)
+- תובנות עיקריות:
+${weekEntries.slice(-5).map(e => `  • ${e.pair || 'כללי'}: ${e.text?.slice(0, 120)}`).join('\n')}
+
+כותרות חדשות שבועיות:
+${newsLines || '(אין כותרות)'}
+
+כתוב סיכום שבועי ב-4-6 שורות בעברית: מה קרה בשוק, מה הייתה האסטרטגיה, מה עבד/לא עבד, ומה לצפות/להיזהר ממנו השבוע הבא.`;
+            const res = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 600, messages: [{ role: 'user', content: prompt }] })
+            });
+            const d = await res.json();
+            aiSummary = d.content?.[0]?.text || '';
+        } catch(e) {}
+    }
+
+    let body = `🦁 O.L FINANCE — דוח שבועי\n`;
+    body += `${'═'.repeat(32)}\n`;
+    body += `📅 ${weekAgo.toLocaleDateString('he-IL')} — ${new Date().toLocaleDateString('he-IL')}\n\n`;
+
+    if (aiSummary) {
+        body += `🤖 סיכום AI:\n${aiSummary}\n\n`;
+        body += `${'─'.repeat(32)}\n\n`;
+    }
+
+    body += `📊 נתוני השבוע:\n`;
+    body += `• תובנות: ${weekEntries.length}  |  עסקאות: ${traded.length}\n`;
+    body += `• ✅ ניצחונות: ${wins.length}  |  ❌ הפסדים: ${losses.length}  |  🎯 ${winPct}%\n\n`;
+
+    if (weekNews.length) {
+        body += `📰 כותרות השבוע (${weekNews.length}):\n`;
+        weekNews.slice(-10).forEach(n => { body += `• ${n.title}\n`; });
+        body += '\n';
+    }
+
+    body += `📝 תובנות מפורטות:\n${'─'.repeat(30)}\n`;
     weekEntries.forEach(e => {
         body += `\n📅 ${e.date} | ${e.pair || 'כללי'} | ${e.direction || '—'}\n`;
         body += `${e.text}\n`;
         if (e.traded !== 'no') body += `→ בוצע: ${e.traded} | תוצאה: ${e.outcome || 'טרם ידוע'}\n`;
     });
-    const subject = encodeURIComponent('CryptoEdge — דוח תובנות שבועי');
-    const bodyEncoded = encodeURIComponent(body);
-    window.open(`mailto:${email}?subject=${subject}&body=${bodyEncoded}`);
+
+    const subject = encodeURIComponent('🦁 O.L FINANCE — דוח שבועי');
+    window.open(`mailto:${email}?subject=${subject}&body=${encodeURIComponent(body)}`);
     localStorage.setItem('last_weekly_email', Date.now().toString());
-    showToast('📧 נפתח לקוח המייל לשליחה');
+    showToast('📧 הסיכום השבועי מוכן — נפתח לקוח המייל');
 }
 
 // insights-journal init now handled directly in switchPage
