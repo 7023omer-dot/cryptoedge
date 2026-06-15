@@ -1600,7 +1600,7 @@ window.addEventListener('error', function(ev) {
         b.textContent = '🐞 ' + (ev.message || 'error') + ' @ ' + (ev.filename||'').split('/').pop() + ':' + ev.lineno;
     } catch(e) {}
 });
-window.__BUILD__ = '2026-06-15-T8';
+window.__BUILD__ = '2026-06-15-T9';
 // ==================== SUPABASE CLOUD SYNC ====================
 const _SB_URL = 'https://riakzqevmugkfopkxhuz.supabase.co';
 const _SB_KEY = 'sb_publishable_ogUm7WX9FvoyTACogfU9Mw_dFQJT0Ps';
@@ -1695,7 +1695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <header class="header">
             <div class="header-right">
                 <h1 id="page-title">היסטוריית עסקאות</h1>
-                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T8</span>
+                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T9</span>
             </div>
             <div class="header-left" style="display:flex;align-items:center;gap:8px;">
                 <div class="header-badge extreme-fear" id="fng-header-badge">12 - פחד קיצוני</div>
@@ -3924,6 +3924,8 @@ function switchPage(pageName) {
             seedInsightJournalIfEmpty();
             const d = document.getElementById('ij-date');
             if (d && !d.value) d.value = new Date().toISOString().split('T')[0];
+            const em = document.getElementById('ij-email');
+            if (em && !em.value) em.value = (localStorage.getItem('ij_email_addr') || '7023omer@gmail.com');
             renderInsightEntries(_ijFilter || 'all');
             updateInsightStats();
         }, 50);
@@ -4883,13 +4885,67 @@ function checkTradeTriggers() {
 
 // ==================== CRYPTO NEWS ====================
 
-function renderNewsItems(items, source) {
+// ---- Hebrew auto-translation helpers ----
+function _getNewsHeCache() {
+    try { return JSON.parse(localStorage.getItem('news_he_cache') || '{}'); } catch(e) { return {}; }
+}
+function _hasHebrew(str) { return /[֐-׿]/.test(str || ''); }
+
+// Translate any uncached English news titles to Hebrew (batched via Claude Haiku), cache, then re-render.
+async function translateNewsTitles(items, tab) {
+    const apiKey = localStorage.getItem('anthropic_apikey');
+    if (!apiKey) return;
+    const cache = _getNewsHeCache();
+    const todo = [];
+    const seen = {};
+    (items || []).slice(0, 8).forEach(item => {
+        const t = (item.title || '').trim();
+        if (!t || cache[t] || _hasHebrew(t) || seen[t]) return;
+        seen[t] = true;
+        todo.push(t);
+    });
+    if (!todo.length) return;
+    const batch = todo.slice(0, 25);
+    const numbered = batch.map((t, i) => `${i + 1}. ${t}`).join('\n');
+    const prompt = 'תרגם את כותרות החדשות הבאות לעברית. החזר אך ורק רשימה ממוספרת באותו מספור בדיוק, שורה אחת לכל כותרת, בלי הקדמות ובלי הערות. שמור על שמות מטבעות/חברות באנגלית כשמתאים.\n\n' + numbered;
+    try {
+        const ctrl = new AbortController();
+        const to = setTimeout(() => ctrl.abort(), 15000);
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 2000, messages: [{ role: 'user', content: prompt }] }),
+            signal: ctrl.signal
+        });
+        clearTimeout(to);
+        if (!res.ok) return;
+        const data = await res.json();
+        const text = (data.content && data.content[0] && data.content[0].text) || '';
+        text.split('\n').forEach(line => {
+            const m = line.match(/^\s*(\d+)[\.\)]\s*(.+)$/);
+            if (!m) return;
+            const idx = parseInt(m[1], 10) - 1;
+            const he = m[2].trim();
+            if (idx >= 0 && idx < batch.length && he) cache[batch[idx]] = he;
+        });
+        localStorage.setItem('news_he_cache', JSON.stringify(cache));
+        if (activeNewsTab === tab && newsCache[tab]) {
+            renderNewsItems(newsCache[tab], getNewsSource(tab), true);
+        }
+    } catch(e) { /* fail silently — English title stays */ }
+}
+window.translateNewsTitles = translateNewsTitles;
+
+function renderNewsItems(items, source, _skipTranslate) {
     const container = document.getElementById('crypto-news-list');
     if (!container) return;
     const icons = ['📰','🔥','💡','🚀','⚡','🌐'];
     const src = source || 'CoinTelegraph';
+    const cache = _getNewsHeCache();
     container.innerHTML = items.slice(0, 8).map((item, i) => {
-        const title = (item.title || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const orig = (item.title || '').trim();
+        const display = cache[orig] || orig;
+        const title = display.replace(/</g,'&lt;').replace(/>/g,'&gt;');
         const link = item.link || '#';
         const timeAgo = item.pubDate ? hebrewTimeAgo(item.pubDate) : '';
         return `<a href="${link}" target="_blank" class="news-item">
@@ -4900,6 +4956,10 @@ function renderNewsItems(items, source) {
             </div>
         </a>`;
     }).join('');
+    if (!_skipTranslate && typeof translateNewsTitles === 'function') {
+        const tab = Object.keys(newsCache).find(k => newsCache[k] === items) || activeNewsTab;
+        translateNewsTitles(items, tab);
+    }
 }
 
 // ==================== RISK FEEDBACK ====================
@@ -6840,6 +6900,37 @@ function hebrewTimeAgo(date) {
     return 'לפני ' + Math.floor(diff/86400) + ' ימים';
 }
 
+// Multi-proxy CORS helper: tries several free proxies in order, 8s timeout each, returns first valid JSON.
+async function fetchViaProxies(targetUrl) {
+    const proxies = [
+        u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
+        u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+        u => 'https://thingproxy.freeboard.io/fetch/' + u
+    ];
+    for (const build of proxies) {
+        try {
+            const url = build(targetUrl);
+            const res = await Promise.race([
+                fetch(url).then(r => r.ok ? r.json() : Promise.reject(new Error('bad status'))),
+                new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000))
+            ]);
+            if (res) return res;
+        } catch(e) { /* try next proxy */ }
+    }
+    return null;
+}
+
+// Fetch Yahoo Finance chart meta for a symbol via the multi-proxy helper.
+async function fetchYahooQuote(symbol) {
+    const target = 'https://query1.finance.yahoo.com/v8/finance/chart/' + symbol + '?interval=1d&range=2d';
+    const data = await fetchViaProxies(target);
+    try {
+        const meta = data?.chart?.result?.[0]?.meta;
+        if (!meta || typeof meta.regularMarketPrice !== 'number') return null;
+        return { price: meta.regularMarketPrice, prevClose: meta.previousClose, change: meta.regularMarketPrice - meta.previousClose };
+    } catch(e) { return null; }
+}
+
 async function fetchStocksAuto() {
     // S&P500 + NASDAQ via stooq (no CORS issues for index data)
     const sp500El = document.getElementById('stocks-sp500-display');
@@ -6873,22 +6964,11 @@ async function fetchStocksAuto() {
     // Try Binance for BTC price (already works), use for VIX approximation via options market
     // For stocks: use Yahoo Finance via allorigins proxy
     try {
-        const symbols = ['^GSPC', '^IXIC', '^VIX'];
-        const results = await Promise.allSettled(symbols.map(s =>
-            fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + s + '?interval=1d&range=2d')).then(r => r.json())
-        ));
-
-        const parseYahoo = (res) => {
-            if (res.status !== 'fulfilled') return null;
-            try {
-                const meta = res.value?.chart?.result?.[0]?.meta;
-                return { price: meta?.regularMarketPrice, prevClose: meta?.previousClose, change: meta?.regularMarketPrice - meta?.previousClose };
-            } catch(e) { return null; }
-        };
-
-        const sp = parseYahoo(results[0]);
-        const nq = parseYahoo(results[1]);
-        const vix = parseYahoo(results[2]);
+        const [sp, nq, vix] = await Promise.all([
+            fetchYahooQuote('^GSPC'),
+            fetchYahooQuote('^IXIC'),
+            fetchYahooQuote('^VIX')
+        ]);
 
         if (sp && sp500El) {
             sp500El.textContent = sp.price?.toLocaleString('en-US', {maximumFractionDigits: 0});
@@ -6917,12 +6997,12 @@ async function fetchStocksAuto() {
             document.getElementById('stocks-vix').value = vix.price || 18;
             _analysisData.vix = vix.price;
         }
-    } catch(e) {
-        // Fallback: show cached or defaults
-        if (sp500El && sp500El.textContent === 'טוען...') sp500El.textContent = '—';
-        if (nasdaqEl && nasdaqEl.textContent === 'טוען...') nasdaqEl.textContent = '—';
-        if (vixEl && vixEl.textContent === 'טוען...') vixEl.textContent = '—';
-    }
+    } catch(e) { /* handled below */ }
+
+    // If any source failed/returned nothing, ensure no perpetual "טוען..."
+    if (sp500El && sp500El.textContent === 'טוען...') sp500El.textContent = '—';
+    if (nasdaqEl && nasdaqEl.textContent === 'טוען...') nasdaqEl.textContent = '—';
+    if (vixEl && vixEl.textContent === 'טוען...') vixEl.textContent = '—';
 
     updateStocksAnalysis();
     generateMarketConclusions();
@@ -7014,15 +7094,15 @@ async function fetchGoldPrice() {
     const goldAutoEl = document.getElementById('gold-auto-analysis');
     const goldCorrEl = document.getElementById('gold-btc-correlation');
     let price = null;
+    // Primary: Yahoo Finance gold futures (GC=F) via multi-proxy helper
     try {
-        const r = await fetch('https://api.metals.live/v1/spot/gold');
-        const d = await r.json();
-        price = d?.price || d?.[0]?.price || null;
+        const gc = await fetchYahooQuote('GC=F');
+        if (gc && gc.price) price = gc.price;
     } catch(e) {}
+    // Fallback: goldprice.org (also routed through proxies to dodge CORS)
     if (!price) {
         try {
-            const r2 = await fetch('https://data-asg.goldprice.org/GetData/USD-XAU/1');
-            const d2 = await r2.json();
+            const d2 = await fetchViaProxies('https://data-asg.goldprice.org/GetData/USD-XAU/1');
             price = d2?.items?.[0]?.xauPrice || null;
         } catch(e) {}
     }
@@ -7752,6 +7832,8 @@ function switchPage(pageName) {
             seedInsightJournalIfEmpty();
             const d = document.getElementById('ij-date');
             if (d && !d.value) d.value = new Date().toISOString().split('T')[0];
+            const em = document.getElementById('ij-email');
+            if (em && !em.value) em.value = (localStorage.getItem('ij_email_addr') || '7023omer@gmail.com');
             renderInsightEntries(_ijFilter || 'all');
             updateInsightStats();
         }, 50);
@@ -8682,13 +8764,67 @@ function checkTradeTriggers() {
 
 // ==================== CRYPTO NEWS ====================
 
-function renderNewsItems(items, source) {
+// ---- Hebrew auto-translation helpers ----
+function _getNewsHeCache() {
+    try { return JSON.parse(localStorage.getItem('news_he_cache') || '{}'); } catch(e) { return {}; }
+}
+function _hasHebrew(str) { return /[֐-׿]/.test(str || ''); }
+
+// Translate any uncached English news titles to Hebrew (batched via Claude Haiku), cache, then re-render.
+async function translateNewsTitles(items, tab) {
+    const apiKey = localStorage.getItem('anthropic_apikey');
+    if (!apiKey) return;
+    const cache = _getNewsHeCache();
+    const todo = [];
+    const seen = {};
+    (items || []).slice(0, 8).forEach(item => {
+        const t = (item.title || '').trim();
+        if (!t || cache[t] || _hasHebrew(t) || seen[t]) return;
+        seen[t] = true;
+        todo.push(t);
+    });
+    if (!todo.length) return;
+    const batch = todo.slice(0, 25);
+    const numbered = batch.map((t, i) => `${i + 1}. ${t}`).join('\n');
+    const prompt = 'תרגם את כותרות החדשות הבאות לעברית. החזר אך ורק רשימה ממוספרת באותו מספור בדיוק, שורה אחת לכל כותרת, בלי הקדמות ובלי הערות. שמור על שמות מטבעות/חברות באנגלית כשמתאים.\n\n' + numbered;
+    try {
+        const ctrl = new AbortController();
+        const to = setTimeout(() => ctrl.abort(), 15000);
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 2000, messages: [{ role: 'user', content: prompt }] }),
+            signal: ctrl.signal
+        });
+        clearTimeout(to);
+        if (!res.ok) return;
+        const data = await res.json();
+        const text = (data.content && data.content[0] && data.content[0].text) || '';
+        text.split('\n').forEach(line => {
+            const m = line.match(/^\s*(\d+)[\.\)]\s*(.+)$/);
+            if (!m) return;
+            const idx = parseInt(m[1], 10) - 1;
+            const he = m[2].trim();
+            if (idx >= 0 && idx < batch.length && he) cache[batch[idx]] = he;
+        });
+        localStorage.setItem('news_he_cache', JSON.stringify(cache));
+        if (activeNewsTab === tab && newsCache[tab]) {
+            renderNewsItems(newsCache[tab], getNewsSource(tab), true);
+        }
+    } catch(e) { /* fail silently — English title stays */ }
+}
+window.translateNewsTitles = translateNewsTitles;
+
+function renderNewsItems(items, source, _skipTranslate) {
     const container = document.getElementById('crypto-news-list');
     if (!container) return;
     const icons = ['📰','🔥','💡','🚀','⚡','🌐'];
     const src = source || 'CoinTelegraph';
+    const cache = _getNewsHeCache();
     container.innerHTML = items.slice(0, 8).map((item, i) => {
-        const title = (item.title || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const orig = (item.title || '').trim();
+        const display = cache[orig] || orig;
+        const title = display.replace(/</g,'&lt;').replace(/>/g,'&gt;');
         const link = item.link || '#';
         const timeAgo = item.pubDate ? hebrewTimeAgo(item.pubDate) : '';
         return `<a href="${link}" target="_blank" class="news-item">
@@ -8699,6 +8835,10 @@ function renderNewsItems(items, source) {
             </div>
         </a>`;
     }).join('');
+    if (!_skipTranslate && typeof translateNewsTitles === 'function') {
+        const tab = Object.keys(newsCache).find(k => newsCache[k] === items) || activeNewsTab;
+        translateNewsTitles(items, tab);
+    }
 }
 
 // ==================== RISK FEEDBACK ====================
@@ -11848,7 +11988,8 @@ function _saveNewsToDb(tab, items) {
 
 async function sendWeeklyInsightReport() {
     const inputEl = document.getElementById('ij-email');
-    const email = (inputEl?.value || '').trim() || '7023omer@gmail.com';
+    const savedEmail = (localStorage.getItem('ij_email_addr') || '').trim();
+    const email = (inputEl?.value || '').trim() || savedEmail || '7023omer@gmail.com';
     if (inputEl && !inputEl.value.trim()) inputEl.value = email;
     const entries = getInsightEntries();
     const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
@@ -11939,14 +12080,24 @@ ${newsLines || '(אין כותרות)'}
     }
 
     const subject = encodeURIComponent('🦁 O.L FINANCE — דוח שבועי');
-    const mailto = `mailto:${email}?subject=${subject}&body=${encodeURIComponent(body)}`;
+    // Keep mailto SHORT so the mail client doesn't drop the recipient on long bodies.
+    // The full report stays in the modal + 📋 copy button.
+    const shortBody = encodeURIComponent('הדוח השבועי המלא מוכן באפליקציה — לחץ "📋 העתק" והדבק כאן.\n\n(O.L FINANCE)');
+    const mailto = `mailto:${encodeURIComponent(email)}?subject=${subject}&body=${shortBody}`;
+
+    // Persist the email so it's pre-filled next time
+    try { localStorage.setItem('ij_email_addr', email); } catch(e) {}
 
     // Always show the report in a visible modal (mobile-safe)
     const modal = document.getElementById('weekly-report-modal');
     const bodyEl = document.getElementById('weekly-report-body');
     const mailtoBtn = document.getElementById('weekly-report-mailto');
     if (bodyEl) bodyEl.textContent = body;
-    if (mailtoBtn) mailtoBtn.onclick = function(){ window.open(mailto); };
+    if (mailtoBtn) mailtoBtn.onclick = function(){
+        // Copy full report first so the user can paste it into the email
+        if (window.copyWeeklyReport) window.copyWeeklyReport();
+        window.location.href = mailto;
+    };
     window._weeklyReportText = body;
     if (modal) modal.classList.add('show');
     localStorage.setItem('last_weekly_email', Date.now().toString());
