@@ -3020,6 +3020,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="insights-content" id="insights-content" style="display:none;"></div>
                 </div>
 
+                <!-- AI Insights History -->
+                <div id="ai-insights-history" style="margin-top:14px;"></div>
+
                 <!-- Data Sources Status -->
                 <div class="insights-sources-section">
                     <h3 class="insights-section-title">מקורות נתונים</h3>
@@ -3627,6 +3630,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
                     <button class="btn-primary" onclick="emailStatsReport()">📧 שלח סטטיסטיקות למייל</button>
                     <button class="btn-secondary" onclick="closeStatsReportModal()">סגור</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Report Modal -->
+    <div class="report-modal-overlay" id="weekly-report-modal" onclick="if(event.target===this)closeWeeklyReportModal()">
+        <div class="report-modal">
+            <div class="modal-header">
+                <h2>🦁 דוח שבועי</h2>
+                <button class="modal-close" onclick="closeWeeklyReportModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="report-content" id="weekly-report-body"></div>
+                <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+                    <button class="btn-primary" onclick="copyWeeklyReport()">📋 העתק</button>
+                    <button class="btn-secondary" id="weekly-report-mailto" onclick="">📧 פתח מייל</button>
                 </div>
             </div>
         </div>
@@ -10223,6 +10243,7 @@ function importJSON(event) {
 // ==================== AI INSIGHTS ENGINE ====================
 
 function initInsightsPage() {
+    renderInsightHistory();
     // Load saved keys into settings panel
     const keys = ['anthropic_apikey','cr_apikey','san_apikey','cg_apikey'];
     const ids   = ['ins-anthropic-key','ins-cr-key','ins-san-key','ins-cg-key'];
@@ -10450,6 +10471,42 @@ function showInsightsContent(text) {
     }
     if (card) { card.style.alignItems = 'flex-start'; card.style.justifyContent = 'flex-start'; }
 }
+
+function pushInsightHistory(text, sources){
+    try{
+        var hist = JSON.parse(localStorage.getItem('ai_insights_history')||'[]');
+        hist.push({ text: text, ts: Date.now(), sources: sources||[] });
+        if(hist.length > 50) hist = hist.slice(hist.length - 50); // cap last 50
+        localStorage.setItem('ai_insights_history', JSON.stringify(hist));
+    }catch(e){}
+}
+window.pushInsightHistory = pushInsightHistory;
+
+function renderInsightHistory(){
+    var container = document.getElementById('ai-insights-history');
+    if(!container) return;
+    var hist = [];
+    try{ hist = JSON.parse(localStorage.getItem('ai_insights_history')||'[]'); }catch(e){}
+    var title = '<div style="font-size:0.95rem;font-weight:700;color:var(--text);margin:6px 0 10px;">🗂️ היסטוריית תובנות</div>';
+    if(!hist.length){
+        container.innerHTML = title + '<div style="font-size:0.82rem;color:var(--text-muted);padding:8px 0;">אין תובנות שמורות עדיין</div>';
+        return;
+    }
+    var items = hist.slice().reverse().map(function(h, i){
+        var d = new Date(h.ts);
+        var when = d.toLocaleTimeString('he-IL') + ' ' + d.toLocaleDateString('he-IL');
+        var preview = (h.text || '').replace(/\s+/g, ' ').slice(0, 150);
+        var fullHtml = (h.text || '').replace(/═+/g, '<hr style="border:1px solid rgba(99,102,241,0.3);margin:8px 0;">').replace(/\n/g, '<br>');
+        var bodyId = 'aih-body-' + i;
+        return '<div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;" onclick="(function(el){var b=el.querySelector(\'.aih-full\');if(b)b.style.display=b.style.display===\'none\'?\'block\':\'none\';})(this)">' +
+            '<div style="font-size:0.72rem;color:var(--accent);font-weight:700;margin-bottom:4px;">' + when + '</div>' +
+            '<div style="font-size:0.78rem;color:var(--text-muted);">' + preview + (h.text && h.text.length > 150 ? '…' : '') + '</div>' +
+            '<div class="aih-full" style="display:none;font-size:0.82rem;line-height:1.7;color:var(--text);margin-top:8px;">' + fullHtml + '</div>' +
+        '</div>';
+    }).join('');
+    container.innerHTML = title + items;
+}
+window.renderInsightHistory = renderInsightHistory;
 
 async function fetchDefiLlama() {
     setSourceStatus('src-defillama', '⏳ טוען');
@@ -10901,6 +10958,8 @@ async function runInsightsPipeline() {
             status: document.getElementById(id + '-status')?.textContent || ''
         }));
         localStorage.setItem('ai_insights_cache', JSON.stringify({ text: result, ts: Date.now(), sources: sourceStatuses }));
+        pushInsightHistory(result, sourceStatuses);
+        renderInsightHistory();
 
     } catch(e) {
         showInsightsLoading(false);
@@ -10955,6 +11014,7 @@ async function autoCollectInsights() {
 
         if (result) {
             localStorage.setItem('ai_insights_cache', JSON.stringify({ text: result, ts: Date.now(), sources: [] }));
+            pushInsightHistory(result, []);
             const badge = document.getElementById('insights-nav-badge');
             if (badge && currentPage !== 'insights') badge.style.display = 'block';
         }
@@ -11792,7 +11852,15 @@ async function sendWeeklyInsightReport() {
     const entries = getInsightEntries();
     const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
     const weekEntries = entries.filter(e => new Date(e.date) >= weekAgo);
-    if (!weekEntries.length) { alert('אין תובנות מהשבוע האחרון'); return; }
+
+    // Fallback: AI insights from the past week if no manual entries
+    let weekAiInsights = [];
+    try {
+        const aiHist = JSON.parse(localStorage.getItem('ai_insights_history') || '[]');
+        weekAiInsights = aiHist.filter(h => h.ts && h.ts >= weekAgo.getTime());
+    } catch(e) {}
+
+    if (!weekEntries.length && !weekAiInsights.length) { alert('אין תובנות מהשבוע האחרון'); return; }
 
     const traded = weekEntries.filter(e => e.traded !== 'no');
     const wins = traded.filter(e => e.outcome === 'win');
@@ -11851,17 +11919,64 @@ ${newsLines || '(אין כותרות)'}
         body += '\n';
     }
 
-    body += `📝 תובנות מפורטות:\n${'─'.repeat(30)}\n`;
-    weekEntries.forEach(e => {
-        body += `\n📅 ${e.date} | ${e.pair || 'כללי'} | ${e.direction || '—'}\n`;
-        body += `${e.text}\n`;
-        if (e.traded !== 'no') body += `→ בוצע: ${e.traded} | תוצאה: ${e.outcome || 'טרם ידוע'}\n`;
-    });
+    if (weekEntries.length) {
+        body += `📝 תובנות מפורטות:\n${'─'.repeat(30)}\n`;
+        weekEntries.forEach(e => {
+            body += `\n📅 ${e.date} | ${e.pair || 'כללי'} | ${e.direction || '—'}\n`;
+            body += `${e.text}\n`;
+            if (e.traded !== 'no') body += `→ בוצע: ${e.traded} | תוצאה: ${e.outcome || 'טרם ידוע'}\n`;
+        });
+    }
+
+    if (weekAiInsights.length) {
+        body += `\n🤖 תובנות AI מהשבוע:\n${'─'.repeat(30)}\n`;
+        weekAiInsights.forEach(h => {
+            const d = new Date(h.ts);
+            body += `\n📅 ${d.toLocaleDateString('he-IL')} ${d.toLocaleTimeString('he-IL')}\n`;
+            body += `${h.text}\n`;
+        });
+    }
 
     const subject = encodeURIComponent('🦁 O.L FINANCE — דוח שבועי');
-    window.open(`mailto:${email}?subject=${subject}&body=${encodeURIComponent(body)}`);
+    const mailto = `mailto:${email}?subject=${subject}&body=${encodeURIComponent(body)}`;
+
+    // Always show the report in a visible modal (mobile-safe)
+    const modal = document.getElementById('weekly-report-modal');
+    const bodyEl = document.getElementById('weekly-report-body');
+    const mailtoBtn = document.getElementById('weekly-report-mailto');
+    if (bodyEl) bodyEl.textContent = body;
+    if (mailtoBtn) mailtoBtn.onclick = function(){ window.open(mailto); };
+    window._weeklyReportText = body;
+    if (modal) modal.classList.add('show');
     localStorage.setItem('last_weekly_email', Date.now().toString());
-    showToast('📧 הסיכום השבועי מוכן — נפתח לקוח המייל');
+    showToast('📋 הדוח השבועי מוכן');
+}
+
+window.closeWeeklyReportModal = function closeWeeklyReportModal(){
+    const modal = document.getElementById('weekly-report-modal');
+    if (modal) modal.classList.remove('show');
+};
+
+window.copyWeeklyReport = function copyWeeklyReport(){
+    const text = window._weeklyReportText || (document.getElementById('weekly-report-body')?.textContent || '');
+    if (!text) { showToast('⚠️ אין תוכן להעתקה'); return; }
+    const done = function(){ showToast('✅ הדוח הועתק'); };
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done).catch(function(){ _fallbackCopy(text, done); });
+        } else { _fallbackCopy(text, done); }
+    } catch(e) { _fallbackCopy(text, done); }
+};
+
+function _fallbackCopy(text, cb){
+    try {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (cb) cb();
+    } catch(e) { showToast('⚠️ העתקה נכשלה'); }
 }
 
 // insights-journal init now handled directly in switchPage
