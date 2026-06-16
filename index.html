@@ -12094,9 +12094,7 @@ ${newsLines || '(אין כותרות)'}
     const mailtoBtn = document.getElementById('weekly-report-mailto');
     if (bodyEl) bodyEl.textContent = body;
     if (mailtoBtn) mailtoBtn.onclick = function(){
-        // Copy full report first so the user can paste it into the email
-        if (window.copyWeeklyReport) window.copyWeeklyReport();
-        window.location.href = mailto;
+        try { window.open(mailto, '_blank'); } catch(e) { window.location.href = mailto; }
     };
     window._weeklyReportText = body;
     if (modal) modal.classList.add('show');
