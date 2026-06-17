@@ -1600,7 +1600,7 @@ window.addEventListener('error', function(ev) {
         b.textContent = '🐞 ' + (ev.message || 'error') + ' @ ' + (ev.filename||'').split('/').pop() + ':' + ev.lineno;
     } catch(e) {}
 });
-window.__BUILD__ = '2026-06-15-T10';
+window.__BUILD__ = '2026-06-16-T11';
 // ==================== SUPABASE CLOUD SYNC ====================
 const _SB_URL = 'https://riakzqevmugkfopkxhuz.supabase.co';
 const _SB_KEY = 'sb_publishable_ogUm7WX9FvoyTACogfU9Mw_dFQJT0Ps';
@@ -1695,7 +1695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <header class="header">
             <div class="header-right">
                 <h1 id="page-title">היסטוריית עסקאות</h1>
-                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T10</span>
+                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T11</span>
             </div>
             <div class="header-left" style="display:flex;align-items:center;gap:8px;">
                 <div class="header-badge extreme-fear" id="fng-header-badge">12 - פחד קיצוני</div>
@@ -1967,6 +1967,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div id="journal-stats-section"></div>
                     <div id="advanced-stats-section"></div>
                     <div id="extra-analytics-section"></div>
+                    <div id="long-short-section"></div>
 
                     <!-- Analytics -->
                     <div id="journal-analytics-section"></div>
@@ -5072,6 +5073,7 @@ function renderDetailedStats() {
     // Advanced Statistics
     renderAdvancedStats();
     if (typeof renderExtraAnalytics === 'function') renderExtraAnalytics();
+    if (typeof renderLongShortRatio === 'function') renderLongShortRatio();
 }
 
 // ==================== ADVANCED STATISTICS ====================
@@ -8951,6 +8953,7 @@ function renderDetailedStats() {
     // Advanced Statistics
     renderAdvancedStats();
     if (typeof renderExtraAnalytics === 'function') renderExtraAnalytics();
+    if (typeof renderLongShortRatio === 'function') renderLongShortRatio();
 }
 
 // ==================== ADVANCED STATISTICS ====================
@@ -9313,6 +9316,113 @@ function renderExtraAnalytics() {
         '</div>' +
         '</div></div>';
 }
+
+// ==================== LONG / SHORT RATIO (my trades + global market) ====================
+function renderLongShortRatio() {
+    var section = document.getElementById('long-short-section');
+    if (!section) return;
+
+    // ── My trades breakdown ──
+    var closed = (typeof trades !== 'undefined' ? trades : []).filter(function(t) { return ['win','loss','breakeven'].includes(t.status); });
+    var longs  = closed.filter(function(t) { return t.direction === 'long'; });
+    var shorts = closed.filter(function(t) { return t.direction === 'short'; });
+    var lN = longs.length, sN = shorts.length, total = lN + sN;
+
+    function sideStats(arr) {
+        var w = arr.filter(function(t){ return t.status === 'win'; }).length;
+        var pnl = arr.reduce(function(s,t){ return s + (t.pnl || 0); }, 0);
+        var wr = arr.length ? Math.round(w / arr.length * 100) : 0;
+        return { w: w, pnl: pnl, wr: wr, n: arr.length };
+    }
+    var lS = sideStats(longs), sS = sideStats(shorts);
+
+    var lPct = total ? Math.round(lN / total * 100) : 50;
+    var sPct = total ? 100 - lPct : 50;
+
+    var myHtml;
+    if (total === 0) {
+        myHtml = '<div style="font-size:0.78rem;color:var(--text-muted);text-align:center;padding:12px;">אין עסקאות סגורות לניתוח</div>';
+    } else {
+        myHtml =
+            '<div style="display:flex;justify-content:space-between;font-size:0.78rem;font-weight:700;margin-bottom:4px;">' +
+            '<span style="color:var(--green);">🟢 לונג ' + lN + ' (' + lPct + '%)</span>' +
+            '<span style="color:var(--red);">' + sPct + '% (' + sN + ') שורט 🔴</span>' +
+            '</div>' +
+            '<div style="display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--bg-card);margin-bottom:12px;">' +
+            '<div style="width:' + lPct + '%;background:var(--green);"></div>' +
+            '<div style="width:' + sPct + '%;background:var(--red);"></div>' +
+            '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+            '<div style="background:var(--bg-elevated);border-radius:8px;padding:10px;border-right:3px solid var(--green);">' +
+            '<div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:4px;">🟢 לונג</div>' +
+            '<div style="font-size:0.78rem;">הצלחה: <b style="color:' + (lS.wr>=50?'var(--green)':'var(--red)') + ';">' + lS.wr + '%</b></div>' +
+            '<div style="font-size:0.78rem;">P&L: <b style="color:' + (lS.pnl>=0?'var(--green)':'var(--red)') + ';">' + (lS.pnl>=0?'+':'') + '$' + lS.pnl.toFixed(0) + '</b></div>' +
+            '</div>' +
+            '<div style="background:var(--bg-elevated);border-radius:8px;padding:10px;border-right:3px solid var(--red);">' +
+            '<div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:4px;">🔴 שורט</div>' +
+            '<div style="font-size:0.78rem;">הצלחה: <b style="color:' + (sS.wr>=50?'var(--green)':'var(--red)') + ';">' + sS.wr + '%</b></div>' +
+            '<div style="font-size:0.78rem;">P&L: <b style="color:' + (sS.pnl>=0?'var(--green)':'var(--red)') + ';">' + (sS.pnl>=0?'+':'') + '$' + sS.pnl.toFixed(0) + '</b></div>' +
+            '</div>' +
+            '</div>';
+        // Coaching line
+        var coach = '';
+        if (lN >= 3 && sN >= 3) {
+            if (lS.wr - sS.wr >= 15) coach = '💡 אתה חזק יותר בלונג (' + lS.wr + '% מול ' + sS.wr + '% בשורט) — שקול להתמקד שם.';
+            else if (sS.wr - lS.wr >= 15) coach = '💡 אתה חזק יותר בשורט (' + sS.wr + '% מול ' + lS.wr + '% בלונג) — שקול להתמקד שם.';
+            else coach = '💡 ביצועים דומים בשני הכיוונים.';
+        }
+        if (coach) myHtml += '<div style="margin-top:10px;font-size:0.74rem;color:var(--text-secondary);background:var(--bg-elevated);border-radius:8px;padding:8px;">' + coach + '</div>';
+    }
+
+    section.innerHTML =
+        '<div class="stat-card" style="margin-top:14px;padding:14px;">' +
+        '<div style="font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:10px;">⚖️ יחס לונג / שורט</div>' +
+        '<div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:6px;">📒 העסקאות שלי</div>' +
+        myHtml +
+        '<div style="border-top:1px solid var(--border);margin:14px 0 10px;"></div>' +
+        '<div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:6px;">🌍 השוק הגלובלי (Binance BTC)</div>' +
+        '<div id="market-ls-body" style="font-size:0.78rem;color:var(--text-muted);">⏳ טוען...</div>' +
+        '</div>';
+
+    fetchMarketLongShort();
+}
+
+async function fetchMarketLongShort() {
+    var body = document.getElementById('market-ls-body');
+    if (!body) return;
+    var data = null;
+    if (typeof fetchViaProxies === 'function') {
+        data = await fetchViaProxies('https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=1h&limit=1');
+    }
+    body = document.getElementById('market-ls-body');
+    if (!body) return;
+    var row = Array.isArray(data) ? data[0] : null;
+    var lAcc = row ? parseFloat(row.longAccount) : null;
+    var sAcc = row ? parseFloat(row.shortAccount) : null;
+    if (lAcc == null || isNaN(lAcc)) {
+        body.textContent = '— לא זמין כרגע (נסה שוב מאוחר יותר)';
+        return;
+    }
+    var lP = Math.round(lAcc * 100), sP = 100 - lP;
+    var ratio = sAcc ? (lAcc / sAcc).toFixed(2) : '—';
+    var sentiment = lP >= 60 ? '🟢 רוב השוק בלונג — זהירות מ-long squeeze' :
+                    lP <= 40 ? '🔴 רוב השוק בשורט — אפשרי short squeeze' :
+                    '⚖️ השוק מאוזן';
+    body.innerHTML =
+        '<div style="display:flex;justify-content:space-between;font-size:0.78rem;font-weight:700;margin-bottom:4px;">' +
+        '<span style="color:var(--green);">🟢 ' + lP + '%</span>' +
+        '<span style="color:var(--text-muted);">יחס ' + ratio + '</span>' +
+        '<span style="color:var(--red);">' + sP + '% 🔴</span>' +
+        '</div>' +
+        '<div style="display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--bg-card);margin-bottom:8px;">' +
+        '<div style="width:' + lP + '%;background:var(--green);"></div>' +
+        '<div style="width:' + sP + '%;background:var(--red);"></div>' +
+        '</div>' +
+        '<div style="font-size:0.74rem;color:var(--text-secondary);">' + sentiment + '</div>';
+}
+
+window.renderLongShortRatio = renderLongShortRatio;
+window.fetchMarketLongShort = fetchMarketLongShort;
 
 window.setDailyLossLimit = function(val) {
     var v = parseFloat(val);
