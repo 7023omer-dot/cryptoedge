@@ -1600,7 +1600,7 @@ window.addEventListener('error', function(ev) {
         b.textContent = '🐞 ' + (ev.message || 'error') + ' @ ' + (ev.filename||'').split('/').pop() + ':' + ev.lineno;
     } catch(e) {}
 });
-window.__BUILD__ = '2026-06-16-T11';
+window.__BUILD__ = '2026-06-16-T12';
 // ==================== SUPABASE CLOUD SYNC ====================
 const _SB_URL = 'https://riakzqevmugkfopkxhuz.supabase.co';
 const _SB_KEY = 'sb_publishable_ogUm7WX9FvoyTACogfU9Mw_dFQJT0Ps';
@@ -1695,7 +1695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <header class="header">
             <div class="header-right">
                 <h1 id="page-title">היסטוריית עסקאות</h1>
-                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T11</span>
+                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T12</span>
             </div>
             <div class="header-left" style="display:flex;align-items:center;gap:8px;">
                 <div class="header-badge extreme-fear" id="fng-header-badge">12 - פחד קיצוני</div>
@@ -1968,6 +1968,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div id="advanced-stats-section"></div>
                     <div id="extra-analytics-section"></div>
                     <div id="long-short-section"></div>
+                    <div id="weekly-stats-section"></div>
 
                     <!-- Analytics -->
                     <div id="journal-analytics-section"></div>
@@ -2453,6 +2454,26 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         })();
                         </script>
+                    </div>
+
+                    <!-- Accumulating Orderbook Heatmap -->
+                    <div style="border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:16px;background:var(--bg-card);">
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+                            <span style="font-weight:700;font-size:0.92rem;">🔥 מפת חום — ספר פקודות (מצטבר)</span>
+                            <span style="display:flex;gap:6px;align-items:center;">
+                                <select id="ob-symbol" onchange="window.onObSymbolChange()" style="background:rgba(99,102,241,0.12);border:1px solid var(--accent);border-radius:8px;padding:3px 8px;color:var(--text);font-family:inherit;font-size:0.75rem;cursor:pointer;">
+                                    <option value="BTCUSDT">BTCUSDT</option>
+                                    <option value="ETHUSDT">ETHUSDT</option>
+                                    <option value="SOLUSDT">SOLUSDT</option>
+                                </select>
+                                <button onclick="window.renderObHeatmap()" style="background:rgba(99,102,241,0.2);border:1px solid var(--accent);border-radius:8px;padding:3px 10px;color:var(--accent-light);font-weight:700;cursor:pointer;font-family:inherit;font-size:0.75rem;">🔄</button>
+                            </span>
+                        </div>
+                        <canvas id="ob-heatmap-canvas" style="width:100%;height:280px;display:block;border-radius:8px;"></canvas>
+                        <div id="ob-summary" style="font-size:0.78rem;color:var(--text-muted);margin-top:8px;"></div>
+                        <div style="font-size:0.76rem;color:var(--text-muted);margin:12px 0 6px;">📊 איסוף נתונים</div>
+                        <div id="ob-daily-table"></div>
+                        <div id="ob-weekly-table" style="margin-top:10px;"></div>
                     </div>
 
                     <!-- Coins -->
@@ -3919,6 +3940,7 @@ function switchPage(pageName) {
     if (pageName === 'history') renderHistory();
     if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; }
     if (pageName === 'analysis') { initAnalysisPage(); setTimeout(fixAnalysisScroll, 100); }
+    if (pageName === 'portfolio') { if (typeof window.renderObHeatmapFull === 'function') setTimeout(window.renderObHeatmapFull, 100); }
     if (pageName === 'database') renderDatabasePage();
     if (pageName === 'insights-journal') {
         setTimeout(() => {
@@ -5074,6 +5096,7 @@ function renderDetailedStats() {
     renderAdvancedStats();
     if (typeof renderExtraAnalytics === 'function') renderExtraAnalytics();
     if (typeof renderLongShortRatio === 'function') renderLongShortRatio();
+    if (typeof renderWeeklyStats === 'function') renderWeeklyStats();
 }
 
 // ==================== ADVANCED STATISTICS ====================
@@ -7016,7 +7039,7 @@ function switchAnalysisTab(tab, btn) {
     if (btn) btn.classList.add('active');
     const content = document.getElementById('analysis-tab-' + tab);
     if (content) content.classList.add('active');
-    if (tab === 'crypto') fetchCryptoGlobal();
+    if (tab === 'crypto') { fetchCryptoGlobal(); }
     if (tab === 'gold') fetchGoldPrice();
     if (tab === 'projects') loadAnalysisProjects();
 }
@@ -7623,6 +7646,9 @@ async function initApp() {
     setInterval(fetchCryptoNews, 10 * 60 * 1000);
     initAutoInsights();
     initMarketDatabase();
+    // Orderbook heatmap: periodic sampling + initial kick
+    if (typeof window.startObSampling === 'function') window.startObSampling();
+    setTimeout(() => { if (typeof window.renderObHeatmapFull === 'function') window.renderObHeatmapFull(); }, 4000);
     // Initial cloud backup after app loads
     setTimeout(fullBackupToSupabase, 5000);
     // Weekly insight email reminder
@@ -7828,6 +7854,7 @@ function switchPage(pageName) {
     if (pageName === 'history') renderHistory();
     if (pageName === 'insights') { initInsightsPage(); const b = document.getElementById('insights-nav-badge'); if(b) b.style.display='none'; }
     if (pageName === 'analysis') { initAnalysisPage(); setTimeout(fixAnalysisScroll, 100); }
+    if (pageName === 'portfolio') { if (typeof window.renderObHeatmapFull === 'function') setTimeout(window.renderObHeatmapFull, 100); }
     if (pageName === 'database') renderDatabasePage();
     if (pageName === 'insights-journal') {
         setTimeout(() => {
@@ -8954,6 +8981,7 @@ function renderDetailedStats() {
     renderAdvancedStats();
     if (typeof renderExtraAnalytics === 'function') renderExtraAnalytics();
     if (typeof renderLongShortRatio === 'function') renderLongShortRatio();
+    if (typeof renderWeeklyStats === 'function') renderWeeklyStats();
 }
 
 // ==================== ADVANCED STATISTICS ====================
@@ -9386,6 +9414,93 @@ function renderLongShortRatio() {
 
     fetchMarketLongShort();
 }
+
+// ==================== WEEKLY STATISTICS ====================
+function renderWeeklyStats() {
+    var section = document.getElementById('weekly-stats-section');
+    if (!section) return;
+    var closed = (typeof trades !== 'undefined' ? trades : []).filter(function(t) { return ['win','loss','breakeven'].includes(t.status); });
+
+    var now = new Date();
+    var msDay = 24 * 60 * 60 * 1000;
+    var weekStart = now.getTime() - 7 * msDay;
+    var prevStart = now.getTime() - 14 * msDay;
+
+    function getRMultiple(t) {
+        var pnl = t.pnl || 0;
+        var riskAmt = 0;
+        if (t.stopLoss && t.entry && t.size) {
+            riskAmt = Math.abs(parseFloat(t.entry) - parseFloat(t.stopLoss)) * parseFloat(t.size);
+        } else if (t.entry && t.size) {
+            riskAmt = parseFloat(t.entry) * parseFloat(t.size) * 0.01;
+        }
+        if (!riskAmt || riskAmt === 0) return null;
+        return pnl / riskAmt;
+    }
+
+    var thisWeek = closed.filter(function(t) {
+        if (!t.date) return false;
+        var ts = new Date(t.date).getTime();
+        return !isNaN(ts) && ts >= weekStart;
+    });
+    var lastWeek = closed.filter(function(t) {
+        if (!t.date) return false;
+        var ts = new Date(t.date).getTime();
+        return !isNaN(ts) && ts >= prevStart && ts < weekStart;
+    });
+
+    var titleHtml = '<div style="font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:10px;">📅 סטטיסטיקה שבועית</div>';
+
+    if (thisWeek.length === 0) {
+        section.innerHTML = '<div class="stat-card" style="margin-top:14px;padding:14px;">' + titleHtml +
+            '<div style="font-size:0.78rem;color:var(--text-muted);text-align:center;padding:12px;">אין עסקאות השבוע</div>' +
+            '</div>';
+        return;
+    }
+
+    var n = thisWeek.length;
+    var pnlTotal = thisWeek.reduce(function(s,t){ return s + (t.pnl || 0); }, 0);
+    var winsN = thisWeek.filter(function(t){ return t.status === 'win'; }).length;
+    var winRate = Math.round(winsN / n * 100);
+    var pnls = thisWeek.map(function(t){ return t.pnl || 0; });
+    var best = Math.max.apply(null, pnls);
+    var worst = Math.min.apply(null, pnls);
+    var rArr = thisWeek.map(getRMultiple).filter(function(r){ return r !== null; });
+    var avgR = rArr.length ? (rArr.reduce(function(s,r){ return s+r; }, 0) / rArr.length) : null;
+
+    var lastN = lastWeek.length;
+    var lastPnl = lastWeek.reduce(function(s,t){ return s + (t.pnl || 0); }, 0);
+
+    function delta(cur, prev, isMoney) {
+        var d = cur - prev;
+        var arrow = d > 0 ? '▲' : (d < 0 ? '▼' : '→');
+        var col = d > 0 ? 'var(--green)' : (d < 0 ? 'var(--red)' : 'var(--text-muted)');
+        var val = isMoney ? ((d>=0?'+':'') + '$' + d.toFixed(0)) : ((d>=0?'+':'') + d);
+        return '<span style="color:' + col + ';font-size:0.7rem;">' + arrow + ' ' + val + ' מהשבוע שעבר</span>';
+    }
+
+    function statBox(label, value, color, sub) {
+        return '<div style="background:var(--bg-elevated);border-radius:8px;padding:10px;">' +
+            '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:4px;">' + label + '</div>' +
+            '<div style="font-size:0.95rem;font-weight:700;color:' + (color||'var(--text)') + ';">' + value + '</div>' +
+            (sub ? '<div style="margin-top:3px;">' + sub + '</div>' : '') +
+            '</div>';
+    }
+
+    var pnlColor = pnlTotal >= 0 ? 'var(--green)' : 'var(--red)';
+    var grid =
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+        statBox('עסקאות', n, 'var(--text)', delta(n, lastN, false)) +
+        statBox('P&L כולל', (pnlTotal>=0?'+':'') + '$' + pnlTotal.toFixed(0), pnlColor, delta(pnlTotal, lastPnl, true)) +
+        statBox('אחוז הצלחה', winRate + '%', winRate>=50?'var(--green)':'var(--red)') +
+        statBox('ממוצע R', avgR !== null ? ((avgR>=0?'+':'') + avgR.toFixed(2) + 'R') : '—', avgR !== null ? (avgR>=0?'var(--green)':'var(--red)') : 'var(--text-muted)') +
+        statBox('העסקה הטובה', (best>=0?'+':'') + '$' + best.toFixed(0), 'var(--green)') +
+        statBox('העסקה הגרועה', (worst>=0?'+':'') + '$' + worst.toFixed(0), 'var(--red)') +
+        '</div>';
+
+    section.innerHTML = '<div class="stat-card" style="margin-top:14px;padding:14px;">' + titleHtml + grid + '</div>';
+}
+window.renderWeeklyStats = renderWeeklyStats;
 
 async function fetchMarketLongShort() {
     var body = document.getElementById('market-ls-body');
@@ -12326,7 +12441,257 @@ function dismissBackupReminder() {
     } catch(e) {}
 })();
 
-    
+
+// ==================== ACCUMULATING ORDERBOOK HEATMAP ====================
+let _obSampleTimer = null;
+function _obSym() {
+    const sel = document.getElementById('ob-symbol');
+    return (sel && sel.value) ? sel.value : 'BTCUSDT';
+}
+function _obFmt(n) {
+    if (!isFinite(n)) return '—';
+    return n >= 1000 ? n.toLocaleString('en-US',{maximumFractionDigits:1}) : n.toLocaleString('en-US',{maximumFractionDigits:4});
+}
+function _obLoadHist(sym) {
+    try { const v = localStorage.getItem('ob_hist_' + sym); const a = v ? JSON.parse(v) : []; return Array.isArray(a) ? a : []; }
+    catch(e) { return []; }
+}
+function _obSaveHist(sym, arr) {
+    try { localStorage.setItem('ob_hist_' + sym, JSON.stringify(arr.slice(-150))); } catch(e) {}
+}
+
+async function sampleOrderbook() {
+    const sym = _obSym();
+    let data = null;
+    try {
+        data = await fetchViaProxies('https://api.binance.com/api/v3/depth?symbol=' + sym + '&limit=500');
+    } catch(e) { data = null; }
+    if (!data || !Array.isArray(data.bids) || !Array.isArray(data.asks) || !data.bids.length || !data.asks.length) {
+        if (typeof window.renderObHeatmap === 'function') window.renderObHeatmap();
+        if (typeof window.renderObTables === 'function') window.renderObTables();
+        return;
+    }
+    const bids = data.bids.map(b => ({ price: parseFloat(b[0]), qty: parseFloat(b[1]) }))
+        .filter(b => isFinite(b.price) && isFinite(b.qty) && b.qty > 0).sort((a,b) => b.price - a.price);
+    const asks = data.asks.map(a => ({ price: parseFloat(a[0]), qty: parseFloat(a[1]) }))
+        .filter(a => isFinite(a.price) && isFinite(a.qty) && a.qty > 0).sort((a,b) => a.price - b.price);
+    if (!bids.length || !asks.length) return;
+
+    const mid = (bids[0].price + asks[0].price) / 2;
+    const lo = mid * 0.98, hi = mid * 1.02;
+    const NB = 40;
+    const span = hi - lo;
+    const buckets = [];
+    for (let i = 0; i < NB; i++) {
+        const p = lo + span * (i + 0.5) / NB;
+        buckets.push({ p: +p.toFixed(2), q: 0 });
+    }
+    const place = (price, qty) => {
+        if (price < lo || price > hi) return;
+        let idx = Math.floor((price - lo) / span * NB);
+        if (idx < 0) idx = 0; if (idx >= NB) idx = NB - 1;
+        buckets[idx].q += qty;
+    };
+    bids.forEach(b => place(b.price, b.qty));
+    asks.forEach(a => place(a.price, a.qty));
+
+    const hist = _obLoadHist(sym);
+    hist.push({ ts: Date.now(), mid, buckets });
+    _obSaveHist(sym, hist);
+
+    if (typeof window.renderObHeatmap === 'function') window.renderObHeatmap();
+    if (typeof window.renderObTables === 'function') window.renderObTables();
+}
+
+function renderObHeatmap() {
+    const canvas = document.getElementById('ob-heatmap-canvas');
+    const summary = document.getElementById('ob-summary');
+    if (!canvas) return;
+    const sym = _obSym();
+    const hist = _obLoadHist(sym);
+    const ctx = canvas.getContext('2d');
+    const cssW = canvas.offsetWidth || 320, cssH = 280;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = cssW * dpr; canvas.height = cssH * dpr;
+    ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, cssW, cssH);
+
+    if (!hist.length) {
+        if (summary) summary.textContent = '⏳ אוסף נתונים... חזור עוד כמה דקות';
+        ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = '12px Arial';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('אוסף נתונים...', cssW / 2, cssH / 2);
+        return;
+    }
+
+    const padL = 50, padR = 12, padT = 8, padB = 20;
+    const plotW = cssW - padL - padR, plotH = cssH - padT - padB;
+
+    // global price range across all snapshots
+    let pLo = Infinity, pHi = -Infinity, maxQ = 1e-9;
+    hist.forEach(s => s.buckets.forEach(b => {
+        if (b.p < pLo) pLo = b.p; if (b.p > pHi) pHi = b.p;
+        if (b.q > maxQ) maxQ = b.q;
+    }));
+    if (!isFinite(pLo) || !isFinite(pHi) || pHi <= pLo) { pLo = hist[0].mid * 0.98; pHi = hist[0].mid * 1.02; }
+    const pRange = pHi - pLo;
+    const yFor = p => padT + (1 - (p - pLo) / pRange) * plotH;
+
+    const n = hist.length;
+    const colW = plotW / n;
+
+    // wall tracking: accumulate qty per price-bucket across time
+    const wallAgg = {};
+
+    hist.forEach((s, ci) => {
+        const x = padL + ci * colW;
+        const nb = s.buckets.length;
+        const cellH = plotH / nb;
+        s.buckets.forEach(b => {
+            const rel = Math.min(1, b.q / maxQ);
+            if (rel <= 0.001) return;
+            const y = yFor(b.p) - cellH / 2;
+            const isBid = b.p < s.mid;
+            // heat: yellow->red intensity, tinted by side
+            const inten = Math.pow(rel, 0.6);
+            let col;
+            if (isBid) col = 'rgba(' + Math.round(40 + 60*inten) + ',' + Math.round(180 + 60*inten) + ',' + Math.round(120 - 60*inten) + ',' + (0.12 + 0.85*inten).toFixed(3) + ')';
+            else col = 'rgba(' + Math.round(230) + ',' + Math.round(180 - 120*inten) + ',' + Math.round(60 - 50*inten) + ',' + (0.12 + 0.85*inten).toFixed(3) + ')';
+            ctx.fillStyle = col;
+            ctx.fillRect(x, y, Math.max(1, colW), Math.max(1, cellH + 0.5));
+            const key = b.p.toFixed(2);
+            wallAgg[key] = (wallAgg[key] || 0) + b.q;
+        });
+    });
+
+    // mid-price line across columns
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    hist.forEach((s, ci) => {
+        const x = padL + ci * colW + colW / 2;
+        const y = yFor(s.mid);
+        if (ci === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Y price labels
+    ctx.font = '10px Arial'; ctx.textBaseline = 'middle'; ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    for (let i = 0; i <= 4; i++) {
+        const p = pLo + pRange * i / 4;
+        ctx.fillText(_obFmt(p), padL - 4, yFor(p));
+    }
+    // X time labels
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    const tLabel = ts => { const d = new Date(ts); return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); };
+    const steps = Math.min(5, n);
+    for (let i = 0; i < steps; i++) {
+        const idx = steps === 1 ? 0 : Math.round(i * (n - 1) / (steps - 1));
+        const x = padL + idx * colW + colW / 2;
+        ctx.fillText(tLabel(hist[idx].ts), x, padT + plotH + 4);
+    }
+
+    // strongest persistent wall
+    let wallPrice = null, wallVal = -1;
+    Object.keys(wallAgg).forEach(k => { if (wallAgg[k] > wallVal) { wallVal = wallAgg[k]; wallPrice = parseFloat(k); } });
+    if (wallPrice != null) {
+        const y = yFor(wallPrice);
+        ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 1; ctx.setLineDash([4,3]);
+        ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#fde047'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.font = '10px Arial';
+        ctx.fillText('🧱 קיר ' + _obFmt(wallPrice), padL + plotW - 2, y - 1);
+    }
+
+    if (summary) {
+        const last = hist[hist.length - 1];
+        const ageMin = Math.round((Date.now() - last.ts) / 60000);
+        summary.innerHTML = 'סימבול: <b>' + sym + '</b> &nbsp;|&nbsp; דגימות: <b>' + n + '</b> &nbsp;|&nbsp; ' +
+            'מחיר אמצע אחרון: <b>' + _obFmt(last.mid) + '</b> &nbsp;|&nbsp; ' +
+            'קיר נזילות מרכזי: <b>' + (wallPrice != null ? _obFmt(wallPrice) : '—') + '</b> &nbsp;|&nbsp; עודכן לפני ' + ageMin + ' דק׳';
+    }
+}
+
+function renderObTables() {
+    const sym = _obSym();
+    const hist = _obLoadHist(sym);
+    const dailyEl = document.getElementById('ob-daily-table');
+    const weeklyEl = document.getElementById('ob-weekly-table');
+    if (!dailyEl && !weeklyEl) return;
+
+    const dayKey = ts => { const d = new Date(ts); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); };
+    const weekKey = ts => { const d = new Date(ts); const onejan = new Date(d.getFullYear(),0,1); const wk = Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7); return d.getFullYear()+'-W'+('0'+wk).slice(-2); };
+
+    const agg = (keyFn) => {
+        const m = {};
+        hist.forEach(s => {
+            const k = keyFn(s.ts);
+            if (!m[k]) m[k] = { count: 0, bid: 0, ask: 0 };
+            let bid = 0, ask = 0;
+            s.buckets.forEach(b => { if (b.p < s.mid) bid += b.q; else ask += b.q; });
+            m[k].count++; m[k].bid += bid; m[k].ask += ask;
+        });
+        return Object.keys(m).sort().map(k => {
+            const o = m[k]; const ab = o.bid / o.count, aa = o.ask / o.count;
+            const ratio = ab / (aa || 1e-9);
+            let bias = ratio > 1.15 ? '🟢 לחץ קונים' : (ratio < 0.87 ? '🔴 לחץ מוכרים' : '🟡 מאוזן');
+            return { k, count: o.count, bid: ab, ask: aa, bias };
+        });
+    };
+
+    const tableHtml = (rows, label) => {
+        if (!rows.length) return '<div style="font-size:0.74rem;color:var(--text-muted);">אין נתונים עדיין</div>';
+        let h = '<table style="width:100%;border-collapse:collapse;font-size:0.72rem;direction:rtl;">' +
+            '<thead><tr style="color:var(--text-muted);text-align:right;">' +
+            '<th style="padding:3px 4px;border-bottom:1px solid var(--border);">' + label + '</th>' +
+            '<th style="padding:3px 4px;border-bottom:1px solid var(--border);">דגימות</th>' +
+            '<th style="padding:3px 4px;border-bottom:1px solid var(--border);">קונים</th>' +
+            '<th style="padding:3px 4px;border-bottom:1px solid var(--border);">מוכרים</th>' +
+            '<th style="padding:3px 4px;border-bottom:1px solid var(--border);">נטייה</th></tr></thead><tbody>';
+        rows.forEach(r => {
+            h += '<tr style="color:var(--text);">' +
+                '<td style="padding:3px 4px;border-bottom:1px solid var(--border);">' + r.k + '</td>' +
+                '<td style="padding:3px 4px;border-bottom:1px solid var(--border);">' + r.count + '</td>' +
+                '<td style="padding:3px 4px;border-bottom:1px solid var(--border);color:#10b981;">' + _obFmt(r.bid) + '</td>' +
+                '<td style="padding:3px 4px;border-bottom:1px solid var(--border);color:#ef4444;">' + _obFmt(r.ask) + '</td>' +
+                '<td style="padding:3px 4px;border-bottom:1px solid var(--border);">' + r.bias + '</td></tr>';
+        });
+        h += '</tbody></table>';
+        return h;
+    };
+
+    if (dailyEl) dailyEl.innerHTML = tableHtml(agg(dayKey).slice(-7), 'יום');
+    if (weeklyEl) weeklyEl.innerHTML = tableHtml(agg(weekKey).slice(-6), 'שבוע');
+}
+
+async function renderObHeatmapFull() {
+    const sym = _obSym();
+    const hist = _obLoadHist(sym);
+    const last = hist.length ? hist[hist.length - 1] : null;
+    if (!last || (Date.now() - last.ts) > 2 * 60 * 1000) {
+        await sampleOrderbook();
+    } else {
+        renderObHeatmap();
+        renderObTables();
+    }
+}
+
+function startObSampling() {
+    if (_obSampleTimer) return;
+    _obSampleTimer = setInterval(() => { sampleOrderbook(); }, 3 * 60 * 1000);
+}
+
+window.sampleOrderbook = sampleOrderbook;
+window.renderObTables = renderObTables;
+window.renderObHeatmapFull = renderObHeatmapFull;
+window.startObSampling = startObSampling;
+// 🔄 button + onchange: re-sample for current symbol then render
+window.renderObHeatmap = async function() {
+    await sampleOrderbook();
+    renderObHeatmap();
+    renderObTables();
+};
+window.onObSymbolChange = window.renderObHeatmap;
 ;try{Object.assign(window,{autoCollectInsights,autoFillPairPrice,renderExtraAnalytics,buildInsightsPrompt,buildSrConclusion,buildSrImprovements,buildSrPairTable,buildStatsReport,callClaudeAPI,checkBackupReminder,checkWeeklyEmailReminder,connectBinanceWs,deleteInsightEntry,dismissBackupReminder,drawSrPnlChart,fetchCoinGeckoGlobal,fetchCoinGlass,fetchCryptoNews,fetchCryptoRank,fetchDefiLlama,fetchFearGreedForInsights,fetchForexFactory,fetchLivePrices,fetchMyFXBook,fetchSantiment,filterInsights,fixAnalysisScroll,generateRuleBasedInsights,getInsightEntries,initAutoInsights,initInsightsPage,renderInsightEntries,runInsightsPipeline,saveInsightEntries,saveInsightsSettings,seedInsightJournalIfEmpty,sendWeeklyInsightReport,setLoadingMsg,setSourceStatus,showInsightsContent,showInsightsLoading,showStrategyKnowledge,testApiKey,toggleInsightsSettings,updateApiCardDots,updateHeroPrices,updateInsightStats,updateLevScore,updateOpenTradeCards,updateSourceKeyStatuses});}catch(_e){console.warn('export3',_e);}
 
 })();
