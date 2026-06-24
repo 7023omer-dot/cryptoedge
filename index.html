@@ -1600,7 +1600,7 @@ window.addEventListener('error', function(ev) {
         b.textContent = '🐞 ' + (ev.message || 'error') + ' @ ' + (ev.filename||'').split('/').pop() + ':' + ev.lineno;
     } catch(e) {}
 });
-window.__BUILD__ = '2026-06-16-T12';
+window.__BUILD__ = '2026-06-17-T13';
 // ==================== SUPABASE CLOUD SYNC ====================
 const _SB_URL = 'https://riakzqevmugkfopkxhuz.supabase.co';
 const _SB_KEY = 'sb_publishable_ogUm7WX9FvoyTACogfU9Mw_dFQJT0Ps';
@@ -1695,7 +1695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <header class="header">
             <div class="header-right">
                 <h1 id="page-title">היסטוריית עסקאות</h1>
-                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T12</span>
+                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T13</span>
             </div>
             <div class="header-left" style="display:flex;align-items:center;gap:8px;">
                 <div class="header-badge extreme-fear" id="fng-header-badge">12 - פחד קיצוני</div>
@@ -3354,6 +3354,54 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         </section>
 
+        <section id="page-research" class="page" style="display:none">
+          <div class="page-header"><h2>🔬 פלטפורמת מחקר</h2></div>
+
+          <div class="tab-bar" style="display:flex;gap:8px;padding:8px;flex-wrap:wrap">
+            <button class="tab-btn active" onclick="ceShowTab('daily')" id="rtab-daily">📊 יומי</button>
+            <button class="tab-btn" onclick="ceShowTab('monthly')" id="rtab-monthly">📅 חודשי</button>
+            <button class="tab-btn" onclick="ceShowTab('bias')" id="rtab-bias">🧭 הטיה</button>
+            <button class="tab-btn" onclick="ceShowTab('research')" id="rtab-research">🔬 מחקר</button>
+          </div>
+
+          <div id="rtab-content-daily" class="rtab-content">
+            <div id="ce-daily-stats-container" style="padding:8px">
+              <div class="stat-card" style="text-align:center;color:var(--text-muted)">טוען נתונים...</div>
+            </div>
+          </div>
+
+          <div id="rtab-content-monthly" class="rtab-content" style="display:none">
+            <div class="stat-card" style="margin:16px;text-align:center;padding:32px">
+              <div style="font-size:48px">📅</div>
+              <div style="margin-top:12px;color:var(--text-muted)">נאסוף נתונים — חזור בעוד חודש</div>
+            </div>
+          </div>
+
+          <div id="rtab-content-bias" class="rtab-content" style="display:none">
+            <div style="padding:8px;display:flex;justify-content:flex-end">
+              <button class="btn-primary" onclick="ceCollect()" style="padding:6px 16px">🔄 עדכן</button>
+            </div>
+            <div id="ce-bias-container" style="padding:8px">
+              <div class="stat-card" style="text-align:center;color:var(--text-muted)">אין נתונים עדיין — ממתין לאיסוף ראשון...</div>
+            </div>
+            <div id="ce-bias-ts" style="padding:4px 12px;font-size:11px;color:var(--text-muted);text-align:left"></div>
+          </div>
+
+          <div id="rtab-content-research" class="rtab-content" style="display:none">
+            <div class="stat-card" style="margin:12px">
+              <div style="margin-bottom:8px;font-weight:600">שאלת מחקר</div>
+              <select id="ce-research-q" style="width:100%;padding:8px;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:13px" onchange="">
+                <option value="">-- בחר שאלה --</option>
+                <option value="btc_bias_bull">מה קרה כש-BTC Bias שורי >80%?</option>
+                <option value="usdt_dom_drop">מה קרה כש-USDT Dom ירד 3 ימים ברציפות?</option>
+                <option value="expand_vs_cover">ימי הרחבה מול ימי כיסוי (Total MCap)</option>
+              </select>
+              <button class="btn-primary" onclick="ceRunResearch()" style="margin-top:8px;width:100%;padding:8px">הרץ מחקר</button>
+            </div>
+            <div id="ce-research-results" style="padding:8px"></div>
+          </div>
+        </section>
+
         </main>
 
         <!-- Bottom Navigation -->
@@ -3391,6 +3439,9 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="nav-item" data-page="database" onclick="switchPage('database')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
                 <span style="font-size:1.1rem;line-height:1;">🗄️</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">דאטה</span>
+            </div>
+            <div class="nav-item" data-page="research" onclick="switchPage('research')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:1px;padding:2px 0;min-width:0;">
+                <span style="font-size:1.1rem;line-height:1;">🔬</span><span style="font-size:0.42rem;color:var(--text-muted);white-space:nowrap;">מחקר</span>
             </div>
         </div>
 
@@ -7550,6 +7601,393 @@ setInterval(function() {
 }, 60 * 1000);
 
 // ==================== END DOMINANCE + DXY + ALERTS ====================
+
+// ============================================================
+// CryptoEdge Research Platform — Phase 1
+// ============================================================
+
+(function() {
+'use strict';
+
+var CE_SYMBOLS = ['BTC','ETH','SOL','SUI','ALGO'];
+var CE_CG_IDS = {BTC:'bitcoin',ETH:'ethereum',SOL:'solana',SUI:'sui',ALGO:'algorand'};
+
+function ceToday() {
+  var d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+function ceYesterday() {
+  var d = new Date(Date.now() - 86400000);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+function ceFetch(url, timeoutMs) {
+  timeoutMs = timeoutMs || 8000;
+  return Promise.race([
+    fetch(url).then(function(r){ return r.json(); }),
+    new Promise(function(_, rej){ setTimeout(function(){ rej(new Error('timeout')); }, timeoutMs); })
+  ]);
+}
+
+function ceGetLS(key) {
+  try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch(e){ return null; }
+}
+
+function ceSetLS(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){}
+}
+
+// ---- Collector ----
+window.ceCollect = function() {
+  var today = ceToday();
+  var cgUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,sui,algorand&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true';
+  var cgGlobalUrl = 'https://api.coingecko.com/api/v3/global';
+
+  function parseCG(data) {
+    var map = {bitcoin:'BTC',ethereum:'ETH',solana:'SOL',sui:'SUI',algorand:'ALGO'};
+    var snaps = {};
+    Object.keys(map).forEach(function(id) {
+      var sym = map[id];
+      if (data[id]) {
+        snaps[sym] = {
+          symbol: sym,
+          ts: Date.now(),
+          price: data[id].usd || 0,
+          change24h: data[id].usd_24h_change || 0,
+          mcap: data[id].usd_market_cap || 0,
+          vol24h: data[id].usd_24h_vol || 0
+        };
+      }
+    });
+    return snaps;
+  }
+
+  function parseCC(data) {
+    var snaps = {};
+    CE_SYMBOLS.forEach(function(sym) {
+      if (data.RAW && data.RAW[sym] && data.RAW[sym].USD) {
+        var r = data.RAW[sym].USD;
+        snaps[sym] = {
+          symbol: sym,
+          ts: Date.now(),
+          price: r.PRICE || 0,
+          change24h: r.CHANGEPCT24HOUR || 0,
+          mcap: r.MKTCAP || 0,
+          vol24h: r.VOLUME24HOURTO || 0
+        };
+      }
+    });
+    return snaps;
+  }
+
+  function storeSnaps(snaps) {
+    CE_SYMBOLS.forEach(function(sym) {
+      if (!snaps[sym]) return;
+      var key = 'ce_raw_'+sym+'_'+today;
+      var arr = ceGetLS(key) || [];
+      arr.push(snaps[sym]);
+      if (arr.length > 400) arr = arr.slice(arr.length - 400);
+      ceSetLS(key, arr);
+    });
+  }
+
+  function storeGlobal(gdata) {
+    if (!gdata || !gdata.data) return;
+    var d = gdata.data;
+    var snap = {
+      ts: Date.now(),
+      btc_dom: d.market_cap_percentage ? (d.market_cap_percentage.btc || 0) : 0,
+      usdt_dom: d.market_cap_percentage ? (d.market_cap_percentage.usdt || 0) : 0,
+      total_mcap: d.total_market_cap ? (d.total_market_cap.usd || 0) : 0
+    };
+    var key = 'ce_global_'+today;
+    var arr = ceGetLS(key) || [];
+    arr.push(snap);
+    if (arr.length > 400) arr = arr.slice(arr.length - 400);
+    ceSetLS(key, arr);
+  }
+
+  var pricePromise = ceFetch(cgUrl).then(parseCG).catch(function() {
+    return ceFetch('https://min-api.cryptocompare.com/data/pricemultifull?fsyms=BTC,ETH,SOL,SUI,ALGO&tsyms=USD').then(parseCC);
+  });
+
+  var globalPromise = ceFetch(cgGlobalUrl).catch(function(){ return null; });
+
+  Promise.all([pricePromise, globalPromise]).then(function(results) {
+    var snaps = results[0] || {};
+    var gdata = results[1];
+    storeSnaps(snaps);
+    storeGlobal(gdata);
+    ceCalcBias();
+    ceSetLS('ce_last_collect_ts', Date.now());
+    if (document.getElementById('page-research') && document.getElementById('page-research').style.display !== 'none') {
+      ceUpdateResearchUI();
+    }
+  }).catch(function(e){ console.warn('ceCollect error', e); });
+};
+
+// ---- Bias Engine ----
+window.ceCalcBias = function() {
+  var today = ceToday();
+  CE_SYMBOLS.forEach(function(sym) {
+    var key = 'ce_raw_'+sym+'_'+today;
+    var arr = ceGetLS(key) || [];
+    if (arr.length < 2) return;
+
+    function bullPct(window_size) {
+      var slice = arr.slice(Math.max(0, arr.length - window_size));
+      if (slice.length < 2) return 0.5;
+      var bulls = 0;
+      for (var i = 1; i < slice.length; i++) {
+        if (slice[i].price > slice[i-1].price) bulls++;
+      }
+      return bulls / (slice.length - 1);
+    }
+
+    var b5m = bullPct(2);
+    var b15m = bullPct(4);
+    var b1h = bullPct(13);
+    var b4h = bullPct(49);
+    var b24h = bullPct(289);
+
+    var bias = b5m*0.10 + b15m*0.15 + b1h*0.20 + b4h*0.25 + b24h*0.30;
+    var label = bias > 0.6 ? 'שורי' : (bias < 0.4 ? 'דובי' : 'ניטרלי');
+
+    var bkey = 'ce_bias_'+sym+'_'+today;
+    var barr = ceGetLS(bkey) || [];
+    barr.push({ts: Date.now(), bias: bias, label: label, b5m:b5m, b15m:b15m, b1h:b1h, b4h:b4h, b24h:b24h});
+    if (barr.length > 400) barr = barr.slice(barr.length - 400);
+    ceSetLS(bkey, barr);
+  });
+};
+
+// ---- Daily Aggregator ----
+window.ceDailyAgg = function() {
+  var today = ceToday();
+  var lastRun = ceGetLS('ce_last_daily_agg');
+  if (lastRun === today) return;
+  var yesterday = ceYesterday();
+
+  CE_SYMBOLS.forEach(function(sym) {
+    var key = 'ce_raw_'+sym+'_'+yesterday;
+    var arr = ceGetLS(key) || [];
+    if (arr.length < 2) return;
+    var prices = arr.map(function(s){ return s.price; });
+    var open = prices[0], close = prices[prices.length-1];
+    var high = Math.max.apply(null, prices);
+    var low = Math.min.apply(null, prices);
+    var avg = prices.reduce(function(a,b){ return a+b; }, 0) / prices.length;
+    var variance = prices.reduce(function(a,b){ return a + Math.pow(b-avg,2); }, 0) / prices.length;
+    var vol = (Math.sqrt(variance) / avg) * 100;
+    var bulls = 0;
+    for (var i = 1; i < arr.length; i++) { if (arr[i].price > arr[i-1].price) bulls++; }
+    var bull_pct = (bulls / (arr.length-1)) * 100;
+    var daily_return = ((close - open) / open) * 100;
+    var agg = {date: yesterday, open:open, high:high, low:low, close:close, avg_price:avg, volatility:vol, bull_pct:bull_pct, bear_pct:100-bull_pct, sample_count:arr.length, daily_return_pct:daily_return};
+    ceSetLS('ce_daily_'+sym+'_'+yesterday, agg);
+  });
+
+  // global agg
+  var garr = ceGetLS('ce_global_'+yesterday) || [];
+  if (garr.length >= 2) {
+    ['btc_dom','usdt_dom','total_mcap'].forEach(function(field) {
+      var vals = garr.map(function(s){ return s[field]; });
+      var gagg = {date:yesterday, open:vals[0], high:Math.max.apply(null,vals), low:Math.min.apply(null,vals), close:vals[vals.length-1], avg:vals.reduce(function(a,b){return a+b;},0)/vals.length, sample_count:garr.length};
+      ceSetLS('ce_daily_global_'+field+'_'+yesterday, gagg);
+    });
+  }
+
+  ceSetLS('ce_last_daily_agg', today);
+};
+
+// ---- Tab Switcher ----
+window.ceShowTab = function(tab) {
+  var tabs = ['daily','monthly','bias','research'];
+  tabs.forEach(function(t) {
+    var btn = document.getElementById('rtab-'+t);
+    var content = document.getElementById('rtab-content-'+t);
+    if (btn) btn.className = 'tab-btn' + (t === tab ? ' active' : '');
+    if (content) content.style.display = t === tab ? '' : 'none';
+  });
+  if (tab === 'daily') ceRenderDaily();
+  if (tab === 'bias') ceRenderBias();
+};
+
+// ---- UI: Daily Stats ----
+window.ceRenderDaily = function() {
+  var container = document.getElementById('ce-daily-stats-container');
+  if (!container) return;
+  var html = '';
+  CE_SYMBOLS.forEach(function(sym) {
+    html += '<div class="stat-card" style="margin-bottom:12px"><div style="font-weight:700;margin-bottom:8px">'+sym+'</div>';
+    html += '<div style="overflow-x:auto"><table style="width:100%;font-size:11px;border-collapse:collapse">';
+    html += '<tr style="color:var(--text-muted)"><th>תאריך</th><th>פתיחה</th><th>גבוה</th><th>נמוך</th><th>סגירה</th><th>תשואה%</th><th>תנודתיות</th><th>שורי%</th></tr>';
+    var today = ceToday();
+    for (var i = 6; i >= 0; i--) {
+      var d = new Date(Date.now() - i*86400000);
+      var dateStr = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      if (dateStr === today) continue;
+      var agg = ceGetLS('ce_daily_'+sym+'_'+dateStr);
+      if (!agg) {
+        html += '<tr><td>'+dateStr.slice(5)+'</td><td colspan="7" style="color:var(--text-muted);text-align:center">אין נתונים</td></tr>';
+        continue;
+      }
+      var retColor = agg.daily_return_pct >= 0 ? 'var(--green)' : 'var(--red)';
+      html += '<tr>';
+      html += '<td>'+dateStr.slice(5)+'</td>';
+      html += '<td>'+agg.open.toFixed(2)+'</td>';
+      html += '<td>'+agg.high.toFixed(2)+'</td>';
+      html += '<td>'+agg.low.toFixed(2)+'</td>';
+      html += '<td>'+agg.close.toFixed(2)+'</td>';
+      html += '<td style="color:'+retColor+'">'+agg.daily_return_pct.toFixed(2)+'%</td>';
+      html += '<td>'+agg.volatility.toFixed(2)+'%</td>';
+      html += '<td>'+agg.bull_pct.toFixed(0)+'%</td>';
+      html += '</tr>';
+    }
+    html += '</table></div></div>';
+  });
+  if (!html) html = '<div class="stat-card" style="text-align:center;color:var(--text-muted)">אין נתונים עדיין</div>';
+  container.innerHTML = html;
+};
+
+// ---- UI: Bias ----
+window.ceRenderBias = function() {
+  var container = document.getElementById('ce-bias-container');
+  if (!container) return;
+  var today = ceToday();
+  var html = '';
+  var anyData = false;
+  CE_SYMBOLS.forEach(function(sym) {
+    var bkey = 'ce_bias_'+sym+'_'+today;
+    var barr = ceGetLS(bkey) || [];
+    var last = barr.length > 0 ? barr[barr.length-1] : null;
+    if (last) anyData = true;
+    var bias = last ? last.bias : null;
+    var label = last ? last.label : '---';
+    var pct = last ? Math.round(last.bias * 100) : 50;
+    var barColor = bias !== null ? (bias > 0.6 ? 'var(--green)' : (bias < 0.4 ? 'var(--red)' : 'var(--accent)')) : 'var(--border)';
+    html += '<div class="stat-card" style="margin-bottom:10px">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+    html += '<span style="font-weight:700">'+sym+'</span>';
+    html += '<span style="font-size:15px;font-weight:700;color:'+barColor+'">'+label+'</span>';
+    html += '</div>';
+    html += '<div style="background:var(--bg2);border-radius:4px;height:10px;overflow:hidden">';
+    html += '<div style="background:'+barColor+';height:100%;width:'+pct+'%;transition:width 0.4s"></div>';
+    html += '</div>';
+    if (last) {
+      html += '<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;font-size:10px">';
+      html += '<span style="color:var(--text-muted)">5m:</span><span>'+(last.b5m*100).toFixed(0)+'%</span>';
+      html += '<span style="color:var(--text-muted)">15m:</span><span>'+(last.b15m*100).toFixed(0)+'%</span>';
+      html += '<span style="color:var(--text-muted)">1h:</span><span>'+(last.b1h*100).toFixed(0)+'%</span>';
+      html += '<span style="color:var(--text-muted)">4h:</span><span>'+(last.b4h*100).toFixed(0)+'%</span>';
+      html += '<span style="color:var(--text-muted)">24h:</span><span>'+(last.b24h*100).toFixed(0)+'%</span>';
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  if (!anyData) {
+    html = '<div class="stat-card" style="text-align:center;color:var(--text-muted)">אין נתונים עדיין — ממתין לאיסוף ראשון...<br><small>לחץ "עדכן" להתחלה</small></div>';
+  }
+  container.innerHTML = html;
+  var tsEl = document.getElementById('ce-bias-ts');
+  if (tsEl) {
+    var lastTs = ceGetLS('ce_last_collect_ts');
+    tsEl.textContent = lastTs ? 'עדכון אחרון: ' + new Date(lastTs).toLocaleTimeString('he-IL') : '';
+  }
+};
+
+// ---- UI: Research Query ----
+window.ceRunResearch = function() {
+  var q = document.getElementById('ce-research-q');
+  var resultsEl = document.getElementById('ce-research-results');
+  if (!q || !resultsEl) return;
+  var qval = q.value;
+  if (!qval) { resultsEl.innerHTML = '<div class="stat-card" style="color:var(--text-muted);text-align:center">בחר שאלה תחילה</div>'; return; }
+
+  if (qval === 'btc_bias_bull') {
+    var rows = [];
+    for (var i = 1; i <= 90; i++) {
+      var d = new Date(Date.now() - i*86400000);
+      var dateStr = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      var barr = ceGetLS('ce_bias_BTC_'+dateStr) || [];
+      if (!barr.length) continue;
+      var avgBias = barr.reduce(function(a,b){return a+b.bias;},0)/barr.length;
+      if (avgBias < 0.8) continue;
+      var d2 = new Date(Date.now() - (i-1)*86400000);
+      var nextDate = d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0')+'-'+String(d2.getDate()).padStart(2,'0');
+      var nextAgg = ceGetLS('ce_daily_BTC_'+nextDate);
+      rows.push({date:dateStr, bias:(avgBias*100).toFixed(1)+'%', next_ret: nextAgg ? nextAgg.daily_return_pct.toFixed(2)+'%' : '---'});
+    }
+    if (!rows.length) { resultsEl.innerHTML = '<div class="stat-card" style="color:var(--text-muted);text-align:center">אין נתונים מספיקים עדיין (נדרש לפחות יום אחד עם Bias>80%)</div>'; return; }
+    var html = '<div class="stat-card"><table style="width:100%;font-size:12px;border-collapse:collapse"><tr style="color:var(--text-muted)"><th>תאריך</th><th>Bias ממוצע</th><th>תשואה יום הבא</th></tr>';
+    rows.forEach(function(r){ html+='<tr><td>'+r.date+'</td><td>'+r.bias+'</td><td>'+r.next_ret+'</td></tr>'; });
+    html += '</table></div>';
+    resultsEl.innerHTML = html;
+  } else if (qval === 'usdt_dom_drop') {
+    var streaks = [];
+    var streak = 0;
+    var streakStart = '';
+    for (var j = 90; j >= 1; j--) {
+      var dj = new Date(Date.now() - j*86400000);
+      var ds = dj.getFullYear()+'-'+String(dj.getMonth()+1).padStart(2,'0')+'-'+String(dj.getDate()).padStart(2,'0');
+      var gd = ceGetLS('ce_daily_global_usdt_dom_'+ds);
+      var gdPrev = j < 90 ? (function(){ var dp=new Date(Date.now()-(j+1)*86400000); return ceGetLS('ce_daily_global_usdt_dom_'+dp.getFullYear()+'-'+String(dp.getMonth()+1).padStart(2,'0')+'-'+String(dp.getDate()).padStart(2,'0')); })() : null;
+      if (gd && gdPrev && gd.close < gdPrev.close) {
+        streak++;
+        if (streak === 1) streakStart = ds;
+      } else {
+        if (streak >= 3) streaks.push({start:streakStart, len:streak, date:ds});
+        streak = 0;
+      }
+    }
+    if (!streaks.length) { resultsEl.innerHTML = '<div class="stat-card" style="color:var(--text-muted);text-align:center">אין נתונים מספיקים עדיין</div>'; return; }
+    var html2 = '<div class="stat-card"><table style="width:100%;font-size:12px;border-collapse:collapse"><tr style="color:var(--text-muted)"><th>תחילת רצף</th><th>אורך</th><th>תאריך סיום</th></tr>';
+    streaks.forEach(function(r){ html2+='<tr><td>'+r.start+'</td><td>'+r.len+' ימים</td><td>'+r.date+'</td></tr>'; });
+    html2 += '</table></div>';
+    resultsEl.innerHTML = html2;
+  } else if (qval === 'expand_vs_cover') {
+    var expand = 0, cover = 0;
+    for (var k = 1; k <= 90; k++) {
+      var dk = new Date(Date.now() - k*86400000);
+      var dsk = dk.getFullYear()+'-'+String(dk.getMonth()+1).padStart(2,'0')+'-'+String(dk.getDate()).padStart(2,'0');
+      var gk = ceGetLS('ce_daily_global_total_mcap_'+dsk);
+      var gkPrev = k < 90 ? (function(ki){ var dp=new Date(Date.now()-(ki+1)*86400000); return ceGetLS('ce_daily_global_total_mcap_'+dp.getFullYear()+'-'+String(dp.getMonth()+1).padStart(2,'0')+'-'+String(dp.getDate()).padStart(2,'0')); })(k) : null;
+      if (gk && gkPrev) { if (gk.close > gkPrev.close) expand++; else cover++; }
+    }
+    var total = expand + cover;
+    resultsEl.innerHTML = '<div class="stat-card" style="text-align:center"><div style="font-size:18px;margin-bottom:12px">ניתוח ימי הרחבה מול כיסוי</div><div style="display:flex;gap:16px;justify-content:center"><div><div style="color:var(--green);font-size:24px;font-weight:700">'+expand+'</div><div style="color:var(--text-muted)">ימי הרחבה</div></div><div><div style="color:var(--red);font-size:24px;font-weight:700">'+cover+'</div><div style="color:var(--text-muted)">ימי כיסוי</div></div></div>'+(total>0?'<div style="margin-top:8px;color:var(--text-muted)">מתוך '+total+' ימים עם נתונים</div>':'<div style="color:var(--text-muted)">אין נתונים עדיין</div>')+'</div>';
+  }
+};
+
+// ---- General update ----
+window.ceUpdateResearchUI = function() {
+  var activetab = null;
+  ['daily','monthly','bias','research'].forEach(function(t) {
+    var el = document.getElementById('rtab-content-'+t);
+    if (el && el.style.display !== 'none') activetab = t;
+  });
+  if (activetab === 'daily') ceRenderDaily();
+  if (activetab === 'bias') ceRenderBias();
+};
+
+// ---- Init ----
+function ceInit() {
+  ceDailyAgg();
+  setTimeout(function() {
+    ceCollect();
+    window._ceCollectTimer = setInterval(ceCollect, 5 * 60 * 1000);
+  }, 15000);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', ceInit);
+} else {
+  ceInit();
+}
+
+})();
+
     </script>
 
 
