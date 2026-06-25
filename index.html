@@ -1600,7 +1600,7 @@ window.addEventListener('error', function(ev) {
         b.textContent = '🐞 ' + (ev.message || 'error') + ' @ ' + (ev.filename||'').split('/').pop() + ':' + ev.lineno;
     } catch(e) {}
 });
-window.__BUILD__ = '2026-06-17-T14';
+window.__BUILD__ = '2026-06-17-T15';
 // ==================== SUPABASE CLOUD SYNC ====================
 const _SB_URL = 'https://riakzqevmugkfopkxhuz.supabase.co';
 const _SB_KEY = 'sb_publishable_ogUm7WX9FvoyTACogfU9Mw_dFQJT0Ps';
@@ -1695,7 +1695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <header class="header">
             <div class="header-right">
                 <h1 id="page-title">היסטוריית עסקאות</h1>
-                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T14</span>
+                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T15</span>
             </div>
             <div class="header-left" style="display:flex;align-items:center;gap:8px;">
                 <div class="header-badge extreme-fear" id="fng-header-badge">12 - פחד קיצוני</div>
@@ -3354,7 +3354,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         </section>
 
-        <section id="page-research" class="page" style="display:none">
+        <section id="page-research" class="page">
           <div class="page-header"><h2>🔬 פלטפורמת מחקר</h2></div>
 
           <div class="tab-bar" style="display:flex;gap:8px;padding:8px;flex-wrap:wrap">
@@ -3993,7 +3993,7 @@ function switchPage(pageName) {
     if (pageName === 'analysis') { initAnalysisPage(); setTimeout(fixAnalysisScroll, 100); }
     if (pageName === 'portfolio') { if (typeof window.renderObHeatmapFull === 'function') setTimeout(window.renderObHeatmapFull, 100); }
     if (pageName === 'database') renderDatabasePage();
-    if (pageName === 'research') { if (typeof ceShowTab === 'function') ceShowTab('daily'); if (typeof ceUpdateResearchUI === 'function') ceUpdateResearchUI(); }
+    if (pageName === 'research') { if (typeof window.ceShowTab === 'function') window.ceShowTab('daily'); if (typeof window.ceUpdateResearchUI === 'function') window.ceUpdateResearchUI(); }
     if (pageName === 'insights-journal') {
         setTimeout(() => {
             seedInsightJournalIfEmpty();
@@ -8295,7 +8295,7 @@ function switchPage(pageName) {
     if (pageName === 'analysis') { initAnalysisPage(); setTimeout(fixAnalysisScroll, 100); }
     if (pageName === 'portfolio') { if (typeof window.renderObHeatmapFull === 'function') setTimeout(window.renderObHeatmapFull, 100); }
     if (pageName === 'database') renderDatabasePage();
-    if (pageName === 'research') { if (typeof ceShowTab === 'function') ceShowTab('daily'); if (typeof ceUpdateResearchUI === 'function') ceUpdateResearchUI(); }
+    if (pageName === 'research') { if (typeof window.ceShowTab === 'function') window.ceShowTab('daily'); if (typeof window.ceUpdateResearchUI === 'function') window.ceUpdateResearchUI(); }
     if (pageName === 'insights-journal') {
         setTimeout(() => {
             seedInsightJournalIfEmpty();
