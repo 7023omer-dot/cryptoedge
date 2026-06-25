@@ -1600,7 +1600,7 @@ window.addEventListener('error', function(ev) {
         b.textContent = '🐞 ' + (ev.message || 'error') + ' @ ' + (ev.filename||'').split('/').pop() + ':' + ev.lineno;
     } catch(e) {}
 });
-window.__BUILD__ = '2026-06-17-T15';
+window.__BUILD__ = '2026-06-25-T16';
 // ==================== SUPABASE CLOUD SYNC ====================
 const _SB_URL = 'https://riakzqevmugkfopkxhuz.supabase.co';
 const _SB_KEY = 'sb_publishable_ogUm7WX9FvoyTACogfU9Mw_dFQJT0Ps';
@@ -1695,7 +1695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <header class="header">
             <div class="header-right">
                 <h1 id="page-title">היסטוריית עסקאות</h1>
-                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T15</span>
+                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T16</span>
             </div>
             <div class="header-left" style="display:flex;align-items:center;gap:8px;">
                 <div class="header-badge extreme-fear" id="fng-header-badge">12 - פחד קיצוני</div>
@@ -3355,6 +3355,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </section>
 
         <section id="page-research" class="page">
+          <div class="page-scroll">
           <div class="page-header"><h2>🔬 פלטפורמת מחקר</h2></div>
 
           <div class="tab-bar" style="display:flex;gap:8px;padding:8px;flex-wrap:wrap">
@@ -3399,6 +3400,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <button class="btn-primary" onclick="ceRunResearch()" style="margin-top:8px;width:100%;padding:8px">הרץ מחקר</button>
             </div>
             <div id="ce-research-results" style="padding:8px"></div>
+          </div>
           </div>
         </section>
 
