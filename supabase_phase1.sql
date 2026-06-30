@@ -37,12 +37,21 @@ create table if not exists research_insights (
 );
 create index if not exists idx_insight_sym_engine on research_insights (symbol, engine);
 
+-- טבלת מפתח-ערך לסנכרון כללי של האפליקציה (יומן, תובנות, הגדרות)
+create table if not exists app_kv (
+  key        text primary key,
+  value      jsonb,
+  updated_at timestamptz default now()
+);
+
 -- RLS: מאפשר לאפליקציה (anon/publishable key) לכתוב ולקרוא
 alter table market_snapshots  enable row level security;
 alter table research_insights enable row level security;
+alter table app_kv            enable row level security;
 
 create policy "ce insert snapshots" on market_snapshots for insert with check (true);
 create policy "ce update snapshots" on market_snapshots for update using (true) with check (true);
 create policy "ce read snapshots"   on market_snapshots for select using (true);
 
 create policy "ce rw insights"      on research_insights for all using (true) with check (true);
+create policy "ce rw kv"            on app_kv            for all using (true) with check (true);
