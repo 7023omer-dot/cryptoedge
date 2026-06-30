@@ -1600,7 +1600,7 @@ window.addEventListener('error', function(ev) {
         b.textContent = '🐞 ' + (ev.message || 'error') + ' @ ' + (ev.filename||'').split('/').pop() + ':' + ev.lineno;
     } catch(e) {}
 });
-window.__BUILD__ = '2026-06-28-T17';
+window.__BUILD__ = '2026-06-29-T18';
 // ==================== SUPABASE CLOUD SYNC ====================
 const _SB_URL = 'https://riakzqevmugkfopkxhuz.supabase.co';
 const _SB_KEY = 'sb_publishable_ogUm7WX9FvoyTACogfU9Mw_dFQJT0Ps';
@@ -1695,7 +1695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <header class="header">
             <div class="header-right">
                 <h1 id="page-title">היסטוריית עסקאות</h1>
-                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T17</span>
+                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T18</span>
             </div>
             <div class="header-left" style="display:flex;align-items:center;gap:8px;">
                 <div class="header-badge extreme-fear" id="fng-header-badge">12 - פחד קיצוני</div>
@@ -7817,6 +7817,70 @@ window.ceShowTab = function(tab) {
   if (tab === 'bias') ceRenderBias();
 };
 
+// ---- Pattern Engine: scans ALL stored daily aggregates per symbol ----
+window.ceComputePatterns = function(sym) {
+  // gather every ce_daily_<sym>_<date> in localStorage, sorted by date
+  var rows = [];
+  try {
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf('ce_daily_'+sym+'_') === 0) {
+        var dateStr = k.substring(('ce_daily_'+sym+'_').length);
+        var agg = ceGetLS(k);
+        if (agg) rows.push({ dateStr: dateStr, agg: agg });
+      }
+    }
+  } catch(e){}
+  rows.sort(function(a,b){ return a.dateStr < b.dateStr ? -1 : 1; });
+
+  var out = { count: rows.length, patterns: [] };
+  if (rows.length < 5) return out;
+
+  var dayNames = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+
+  // --- Pattern 1: day-of-week average return ---
+  var dow = {};
+  rows.forEach(function(r) {
+    var parts = r.dateStr.split('-');
+    var d = new Date(Number(parts[0]), Number(parts[1])-1, Number(parts[2]));
+    var w = d.getDay();
+    if (!dow[w]) dow[w] = [];
+    dow[w].push(r.agg.daily_return_pct || 0);
+  });
+  var best = null, worst = null;
+  Object.keys(dow).forEach(function(w) {
+    if (dow[w].length < 2) return;
+    var avg = dow[w].reduce(function(s,x){return s+x;},0) / dow[w].length;
+    if (!best || avg > best.avg) best = { w: w, avg: avg, n: dow[w].length };
+    if (!worst || avg < worst.avg) worst = { w: w, avg: avg, n: dow[w].length };
+  });
+  if (best && Math.abs(best.avg) > 0.3) {
+    out.patterns.push({ icon:'📈', color:'var(--green)', text:'יום '+dayNames[best.w]+' הוא הכי חזק — בממוצע '+(best.avg>=0?'+':'')+best.avg.toFixed(1)+'% ('+best.n+' מקרים)' });
+  }
+  if (worst && worst.avg < -0.3 && (!best || worst.w !== best.w)) {
+    out.patterns.push({ icon:'📉', color:'var(--red)', text:'יום '+dayNames[worst.w]+' הוא הכי חלש — בממוצע '+worst.avg.toFixed(1)+'% ('+worst.n+' מקרים)' });
+  }
+
+  // --- Pattern 2: follow-through after a red day ---
+  var afterRed = [], afterGreen = [];
+  for (var j = 1; j < rows.length; j++) {
+    var prev = rows[j-1].agg.daily_return_pct || 0;
+    var cur = rows[j].agg.daily_return_pct || 0;
+    if (prev < 0) afterRed.push(cur); else afterGreen.push(cur);
+  }
+  if (afterRed.length >= 3) {
+    var greenNext = afterRed.filter(function(x){ return x >= 0; }).length;
+    var pct = Math.round(greenNext / afterRed.length * 100);
+    out.patterns.push({ icon: pct>=50?'🔄':'⚠️', color: pct>=50?'var(--green)':'var(--red)', text:'אחרי יום אדום — היום הבא ירוק ב-'+pct+'% מהמקרים ('+afterRed.length+' מקרים)' });
+  }
+
+  // --- Pattern 3: average volatility ---
+  var avgVol = rows.reduce(function(s,r){return s+(r.agg.volatility||0);},0) / rows.length;
+  out.avgVol = avgVol;
+
+  return out;
+};
+
 // ---- UI: Daily Stats ----
 window.ceRenderDaily = function() {
   var container = document.getElementById('ce-daily-stats-container');
@@ -7854,22 +7918,78 @@ window.ceRenderDaily = function() {
     html += '</div>';
   })();
   CE_SYMBOLS.forEach(function(sym) {
-    html += '<div class="stat-card" style="margin-bottom:12px"><div style="font-weight:700;margin-bottom:8px">'+sym+'</div>';
-    html += '<div style="overflow-x:auto"><table style="width:100%;font-size:11px;border-collapse:collapse">';
-    html += '<tr style="color:var(--text-muted)"><th>תאריך</th><th>פתיחה</th><th>גבוה</th><th>נמוך</th><th>סגירה</th><th>תשואה%</th><th>תנודתיות</th><th>שורי%</th></tr>';
     var today = ceToday();
+    // ---- collect this week's aggregates ----
+    var days = [];
     for (var i = 6; i >= 0; i--) {
       var d = new Date(Date.now() - i*86400000);
       var dateStr = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
       if (dateStr === today) continue;
       var agg = ceGetLS('ce_daily_'+sym+'_'+dateStr);
-      if (!agg) {
-        html += '<tr><td>'+dateStr.slice(5)+'</td><td colspan="7" style="color:var(--text-muted);text-align:center">אין נתונים</td></tr>';
-        continue;
+      days.push({ dateStr: dateStr, agg: agg });
+    }
+    var withData = days.filter(function(x){ return x.agg; });
+
+    html += '<div class="stat-card" style="margin-bottom:12px">';
+    html += '<div style="font-weight:700;margin-bottom:8px;font-size:15px">'+sym+'</div>';
+
+    // ---- RECURRING PATTERNS (the real goal) ----
+    var pat = window.ceComputePatterns(sym);
+    if (pat.count < 5) {
+      var pct30 = Math.min(100, Math.round(pat.count / 30 * 100));
+      html += '<div style="background:var(--bg2);border-radius:8px;padding:10px;margin-bottom:8px">';
+      html += '<div style="font-size:13px;font-weight:700">🔬 אוסף נתונים לזיהוי דפוסים</div>';
+      html += '<div style="background:var(--bg);border-radius:4px;height:8px;overflow:hidden;margin:8px 0"><div style="background:var(--accent);height:100%;width:'+pct30+'%"></div></div>';
+      html += '<div style="font-size:11px;color:var(--text-muted)">נאספו <b style="color:var(--text)">'+pat.count+'</b> ימים · דרושים ~30 לדפוסים אמינים. עוד <b>'+Math.max(0,30-pat.count)+'</b> ימים.</div>';
+      html += '</div>';
+    } else {
+      html += '<div style="background:var(--bg2);border-radius:8px;padding:10px;margin-bottom:8px">';
+      html += '<div style="font-size:13px;font-weight:700;margin-bottom:8px">🔎 דפוסים שזוהו ('+pat.count+' ימים)</div>';
+      if (pat.patterns.length === 0) {
+        html += '<div style="font-size:12px;color:var(--text-muted)">אין עדיין דפוס מובהק — ממשיך לאסוף</div>';
+      } else {
+        pat.patterns.forEach(function(p) {
+          html += '<div style="font-size:13px;margin-bottom:6px;color:'+p.color+'">'+p.icon+' '+p.text+'</div>';
+        });
       }
+      html += '</div>';
+    }
+
+    // ---- PLAIN-HEBREW WEEKLY SUMMARY ----
+    if (withData.length === 0) {
+      html += '<div style="color:var(--text-muted);font-size:12px">אין עדיין ימים שהסתכמו — חזור מחר 🕓</div>';
+    } else {
+      var first = withData[0].agg, last = withData[withData.length-1].agg;
+      var netPct = first.open ? ((last.close - first.open) / first.open * 100) : 0;
+      var upDays = withData.filter(function(x){ return x.agg.daily_return_pct >= 0; }).length;
+      var downDays = withData.length - upDays;
+      var avgVol = withData.reduce(function(s,x){ return s + (x.agg.volatility||0); }, 0) / withData.length;
+      var trendIcon, trendTxt, trendColor;
+      if (netPct > 1.5)      { trendIcon='📈🟢'; trendTxt='מגמת עלייה'; trendColor='var(--green)'; }
+      else if (netPct < -1.5){ trendIcon='📉🔴'; trendTxt='מגמת ירידה'; trendColor='var(--red)'; }
+      else                   { trendIcon='➡️🟡'; trendTxt='דשדוש (ללא כיוון ברור)'; trendColor='var(--accent)'; }
+      var volTxt = avgVol > 4 ? 'תנודתיות גבוהה — סיכון גבוה' : (avgVol < 1.5 ? 'תנודתיות נמוכה — שוק רגוע' : 'תנודתיות בינונית');
+
+      html += '<div style="background:var(--bg2);border-radius:8px;padding:10px;margin-bottom:8px">';
+      html += '<div style="font-size:15px;font-weight:700;color:'+trendColor+'">'+trendIcon+' '+trendTxt+'</div>';
+      html += '<div style="font-size:13px;margin-top:4px">שינוי בשבוע: <b style="color:'+trendColor+'">'+(netPct>=0?'+':'')+netPct.toFixed(1)+'%</b></div>';
+      html += '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">'+upDays+' ימים ירוקים · '+downDays+' ימים אדומים · '+volTxt+'</div>';
+      html += '</div>';
+    }
+
+    // ---- raw table (collapsible) ----
+    html += '<details><summary style="cursor:pointer;font-size:12px;color:var(--accent);margin-bottom:6px">הצג טבלת נתונים מלאה</summary>';
+    html += '<div style="overflow-x:auto"><table style="width:100%;font-size:11px;border-collapse:collapse">';
+    html += '<tr style="color:var(--text-muted)"><th>תאריך</th><th>פתיחה</th><th>גבוה</th><th>נמוך</th><th>סגירה</th><th>תשואה%</th><th>תנודתיות</th><th>שורי%</th></tr>';
+    days.forEach(function(x) {
+      if (!x.agg) {
+        html += '<tr><td>'+x.dateStr.slice(5)+'</td><td colspan="7" style="color:var(--text-muted);text-align:center">אין נתונים</td></tr>';
+        return;
+      }
+      var agg = x.agg;
       var retColor = agg.daily_return_pct >= 0 ? 'var(--green)' : 'var(--red)';
       html += '<tr>';
-      html += '<td>'+dateStr.slice(5)+'</td>';
+      html += '<td>'+x.dateStr.slice(5)+'</td>';
       html += '<td>'+agg.open.toFixed(2)+'</td>';
       html += '<td>'+agg.high.toFixed(2)+'</td>';
       html += '<td>'+agg.low.toFixed(2)+'</td>';
@@ -7878,8 +7998,8 @@ window.ceRenderDaily = function() {
       html += '<td>'+agg.volatility.toFixed(2)+'%</td>';
       html += '<td>'+agg.bull_pct.toFixed(0)+'%</td>';
       html += '</tr>';
-    }
-    html += '</table></div></div>';
+    });
+    html += '</table></div></details></div>';
   });
   if (!html) html = '<div class="stat-card" style="text-align:center;color:var(--text-muted)">אין נתונים עדיין</div>';
   container.innerHTML = html;
