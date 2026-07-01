@@ -1600,7 +1600,7 @@ window.addEventListener('error', function(ev) {
         b.textContent = '🐞 ' + (ev.message || 'error') + ' @ ' + (ev.filename||'').split('/').pop() + ':' + ev.lineno;
     } catch(e) {}
 });
-window.__BUILD__ = '2026-07-01-T21';
+window.__BUILD__ = '2026-07-01-T22';
 // ==================== SUPABASE CLOUD SYNC ====================
 const _SB_URL = 'https://ffzbjdqvreuwponkmhyd.supabase.co';
 const _SB_KEY = 'sb_publishable_fHNyEpvurawIcfF5aT9MYg_6Yrt4gic';
@@ -1695,7 +1695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <header class="header">
             <div class="header-right">
                 <h1 id="page-title">היסטוריית עסקאות</h1>
-                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T21</span>
+                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T22</span>
             </div>
             <div class="header-left" style="display:flex;align-items:center;gap:8px;">
                 <div class="header-badge extreme-fear" id="fng-header-badge">12 - פחד קיצוני</div>
@@ -3671,15 +3671,15 @@ document.addEventListener('DOMContentLoaded', () => {
     <div class="report-modal-overlay" id="report-modal" onclick="if(event.target===this)closeReportModal()">
         <div class="report-modal">
             <div class="modal-header">
-                <h2>📊 דוח חודשי</h2>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <h2 style="margin:0;">📊 דוח חודשי</h2>
+                    <button onclick="reportMonthStep(-1)" title="חודש קודם" style="background:rgba(99,102,241,0.15);border:1px solid var(--accent);color:var(--accent-light);border-radius:8px;width:32px;height:30px;font-size:1.1rem;cursor:pointer;font-family:inherit;line-height:1;">‹</button>
+                    <button id="report-month-next" onclick="reportMonthStep(1)" title="חודש הבא" style="background:rgba(99,102,241,0.15);border:1px solid var(--accent);color:var(--accent-light);border-radius:8px;width:32px;height:30px;font-size:1.1rem;cursor:pointer;font-family:inherit;line-height:1;">›</button>
+                </div>
                 <button class="modal-close" onclick="closeReportModal()">✕</button>
             </div>
             <div class="modal-body">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;background:var(--bg2);border-radius:10px;padding:6px 8px;">
-                    <button onclick="reportMonthStep(-1)" style="background:rgba(99,102,241,0.15);border:1px solid var(--accent);color:var(--accent-light);border-radius:8px;width:36px;height:34px;font-size:1.1rem;cursor:pointer;font-family:inherit;">‹</button>
-                    <p id="report-month-label" style="font-size:0.95rem;color:var(--text);margin:0;font-weight:700;text-align:center;flex:1;"></p>
-                    <button id="report-month-next" onclick="reportMonthStep(1)" style="background:rgba(99,102,241,0.15);border:1px solid var(--accent);color:var(--accent-light);border-radius:8px;width:36px;height:34px;font-size:1.1rem;cursor:pointer;font-family:inherit;">›</button>
-                </div>
+                <p id="report-month-label" style="font-size:1rem;color:var(--text);margin-bottom:12px;font-weight:700;text-align:center;background:var(--bg2);border-radius:8px;padding:8px;"></p>
                 <div class="stats-grid-2" id="report-summary-stats" style="margin-bottom:12px;"></div>
                 <div class="report-content" id="report-text"></div>
                 <button class="btn-primary" onclick="emailReport()">📧 שלח למייל</button>
@@ -5517,11 +5517,21 @@ window.reportMonthStep = reportMonthStep;
 
 function emailReport() {
     const to   = '7023omer@gmail.com';
-    const subj = encodeURIComponent(`📊 דוח מסחר חודשי CryptoEdge - ${window._rptMonth||''}`);
-    const body = encodeURIComponent(window._rptText||'');
-    // Open Gmail compose directly
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${subj}&body=${body}`;
-    window.open(gmailUrl, '_blank');
+    const rawSubj = `📊 דוח מסחר חודשי CryptoEdge - ${window._rptMonth||''}`;
+    const rawBody = window._rptText || '';
+    // Copy full report to clipboard first so nothing is ever lost
+    try {
+        if (navigator.clipboard) navigator.clipboard.writeText(rawBody).catch(()=>{});
+    } catch(e){}
+    const subj = encodeURIComponent(rawSubj);
+    const body = encodeURIComponent(rawBody);
+    // Reliable Gmail compose URL (targets primary account, avoids 404)
+    const gmailUrl = `https://mail.google.com/mail/u/0/?fs=1&tf=cm&to=${encodeURIComponent(to)}&su=${subj}&body=${body}`;
+    const win = window.open(gmailUrl, '_blank');
+    // Fallback to the device mail client if popup blocked / Gmail unavailable
+    if (!win) {
+        window.location.href = `mailto:${to}?subject=${subj}&body=${body}`;
+    }
 }
 
 function checkMonthlyReportReminder() {
@@ -10355,11 +10365,21 @@ window.reportMonthStep = reportMonthStep;
 
 function emailReport() {
     const to   = '7023omer@gmail.com';
-    const subj = encodeURIComponent(`📊 דוח מסחר חודשי CryptoEdge - ${window._rptMonth||''}`);
-    const body = encodeURIComponent(window._rptText||'');
-    // Open Gmail compose directly
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${subj}&body=${body}`;
-    window.open(gmailUrl, '_blank');
+    const rawSubj = `📊 דוח מסחר חודשי CryptoEdge - ${window._rptMonth||''}`;
+    const rawBody = window._rptText || '';
+    // Copy full report to clipboard first so nothing is ever lost
+    try {
+        if (navigator.clipboard) navigator.clipboard.writeText(rawBody).catch(()=>{});
+    } catch(e){}
+    const subj = encodeURIComponent(rawSubj);
+    const body = encodeURIComponent(rawBody);
+    // Reliable Gmail compose URL (targets primary account, avoids 404)
+    const gmailUrl = `https://mail.google.com/mail/u/0/?fs=1&tf=cm&to=${encodeURIComponent(to)}&su=${subj}&body=${body}`;
+    const win = window.open(gmailUrl, '_blank');
+    // Fallback to the device mail client if popup blocked / Gmail unavailable
+    if (!win) {
+        window.location.href = `mailto:${to}?subject=${subj}&body=${body}`;
+    }
 }
 
 function checkMonthlyReportReminder() {
