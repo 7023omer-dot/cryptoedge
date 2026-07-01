@@ -1600,7 +1600,7 @@ window.addEventListener('error', function(ev) {
         b.textContent = '🐞 ' + (ev.message || 'error') + ' @ ' + (ev.filename||'').split('/').pop() + ':' + ev.lineno;
     } catch(e) {}
 });
-window.__BUILD__ = '2026-06-30-T20';
+window.__BUILD__ = '2026-07-01-T21';
 // ==================== SUPABASE CLOUD SYNC ====================
 const _SB_URL = 'https://ffzbjdqvreuwponkmhyd.supabase.co';
 const _SB_KEY = 'sb_publishable_fHNyEpvurawIcfF5aT9MYg_6Yrt4gic';
@@ -1695,7 +1695,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <header class="header">
             <div class="header-right">
                 <h1 id="page-title">היסטוריית עסקאות</h1>
-                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T20</span>
+                <span style="font-size:0.6rem;color:#6366f1;opacity:0.7;">BUILD&nbsp;T21</span>
             </div>
             <div class="header-left" style="display:flex;align-items:center;gap:8px;">
                 <div class="header-badge extreme-fear" id="fng-header-badge">12 - פחד קיצוני</div>
@@ -3675,7 +3675,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button class="modal-close" onclick="closeReportModal()">✕</button>
             </div>
             <div class="modal-body">
-                <p id="report-month-label" style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:12px;font-weight:600;"></p>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;background:var(--bg2);border-radius:10px;padding:6px 8px;">
+                    <button onclick="reportMonthStep(-1)" style="background:rgba(99,102,241,0.15);border:1px solid var(--accent);color:var(--accent-light);border-radius:8px;width:36px;height:34px;font-size:1.1rem;cursor:pointer;font-family:inherit;">‹</button>
+                    <p id="report-month-label" style="font-size:0.95rem;color:var(--text);margin:0;font-weight:700;text-align:center;flex:1;"></p>
+                    <button id="report-month-next" onclick="reportMonthStep(1)" style="background:rgba(99,102,241,0.15);border:1px solid var(--accent);color:var(--accent-light);border-radius:8px;width:36px;height:34px;font-size:1.1rem;cursor:pointer;font-family:inherit;">›</button>
+                </div>
                 <div class="stats-grid-2" id="report-summary-stats" style="margin-bottom:12px;"></div>
                 <div class="report-content" id="report-text"></div>
                 <button class="btn-primary" onclick="emailReport()">📧 שלח למייל</button>
@@ -5413,6 +5417,13 @@ function showMonthlyReport(year, month) {
     const months = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
     const s = getMonthlyStats(y, m);
 
+    window._rptViewY = y;
+    window._rptViewM = m;
+    var _nowRR = new Date();
+    var _isCurrent = (y === _nowRR.getFullYear() && m === _nowRR.getMonth());
+    var _nextBtn = document.getElementById('report-month-next');
+    if (_nextBtn) { _nextBtn.style.visibility = _isCurrent ? 'hidden' : 'visible'; }
+
     document.getElementById('report-month-label').textContent = `דוח ${months[m]} ${y}`;
     document.getElementById('report-summary-stats').innerHTML = `
         <div class="stat-item">
@@ -5490,6 +5501,19 @@ function showMonthlyReport(year, month) {
 }
 
 function closeReportModal() { document.getElementById('report-modal').classList.remove('show'); }
+
+// Navigate the monthly report to previous / next month
+function reportMonthStep(delta) {
+    var now = new Date();
+    var y = (window._rptViewY !== undefined) ? window._rptViewY : now.getFullYear();
+    var m = (window._rptViewM !== undefined) ? window._rptViewM : now.getMonth();
+    m += delta;
+    if (m < 0)  { m = 11; y -= 1; }
+    if (m > 11) { m = 0;  y += 1; }
+    if (y > now.getFullYear() || (y === now.getFullYear() && m > now.getMonth())) return;
+    showMonthlyReport(y, m);
+}
+window.reportMonthStep = reportMonthStep;
 
 function emailReport() {
     const to   = '7023omer@gmail.com';
@@ -10231,6 +10255,13 @@ function showMonthlyReport(year, month) {
     const months = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
     const s = getMonthlyStats(y, m);
 
+    window._rptViewY = y;
+    window._rptViewM = m;
+    var _nowRR = new Date();
+    var _isCurrent = (y === _nowRR.getFullYear() && m === _nowRR.getMonth());
+    var _nextBtn = document.getElementById('report-month-next');
+    if (_nextBtn) { _nextBtn.style.visibility = _isCurrent ? 'hidden' : 'visible'; }
+
     document.getElementById('report-month-label').textContent = `דוח ${months[m]} ${y}`;
     document.getElementById('report-summary-stats').innerHTML = `
         <div class="stat-item">
@@ -10308,6 +10339,19 @@ function showMonthlyReport(year, month) {
 }
 
 function closeReportModal() { document.getElementById('report-modal').classList.remove('show'); }
+
+// Navigate the monthly report to previous / next month
+function reportMonthStep(delta) {
+    var now = new Date();
+    var y = (window._rptViewY !== undefined) ? window._rptViewY : now.getFullYear();
+    var m = (window._rptViewM !== undefined) ? window._rptViewM : now.getMonth();
+    m += delta;
+    if (m < 0)  { m = 11; y -= 1; }
+    if (m > 11) { m = 0;  y += 1; }
+    if (y > now.getFullYear() || (y === now.getFullYear() && m > now.getMonth())) return;
+    showMonthlyReport(y, m);
+}
+window.reportMonthStep = reportMonthStep;
 
 function emailReport() {
     const to   = '7023omer@gmail.com';
